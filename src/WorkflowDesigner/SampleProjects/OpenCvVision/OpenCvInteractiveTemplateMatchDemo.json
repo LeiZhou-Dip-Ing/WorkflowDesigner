@@ -1,0 +1,149 @@
+{
+  "editorSchemaVersion": 2,
+  "projectId": "5acdcbe5-1b84-4415-843f-fe2693c03e96",
+  "name": "OpenCV Interactive Template Match Demo",
+  "version": "1.0",
+  "methods": [
+    {
+      "uid": "2746f9e8-8d2f-4dca-a7dc-348f0bd295b8",
+      "name": "InteractiveTemplateDemo",
+      "methodType": 0,
+      "initAtStart": false,
+      "methodLines": [
+        {
+          "uid": "fb6db727-5c90-4cf4-a53f-9841b3fb55b3",
+          "lineNo": 10,
+          "sequenceNo": 0,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "STEP 1 - Load the learning image. The default template is the cross symbol near the upper-left.",
+          "action": {
+            "actionId": "bb1b6c2a-9384-4c02-b6f1-306577a6ea43",
+            "actionType": "sample.vision.loadImage",
+            "uid": "d69082ce-a24e-4802-9afb-8655f9194790",
+            "isActive": true,
+            "filePath": "sample://source",
+            "readMode": "Color",
+            "publishPreview": true,
+            "outputBindings": { "OutputImage": "_$learningImage" }
+          }
+        },
+        {
+          "uid": "76dc157c-f3f3-4316-8bf8-3c4b7d7e342a",
+          "lineNo": 20,
+          "sequenceNo": 1,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "STEP 2 - Load a different search image containing the learned symbol at another position.",
+          "action": {
+            "actionId": "bb1b6c2a-9384-4c02-b6f1-306577a6ea43",
+            "actionType": "sample.vision.loadImage",
+            "uid": "a340957c-fabc-4ce0-b268-c0125032f513",
+            "isActive": true,
+            "filePath": "sample://template-search",
+            "readMode": "Color",
+            "publishPreview": true,
+            "outputBindings": { "OutputImage": "_$searchImage" }
+          }
+        },
+        {
+          "uid": "c544cd6b-9f99-4a42-b4ab-1e084b307884",
+          "lineNo": 30,
+          "sequenceNo": 2,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "STEP 3 - Double-click: load learning view, drag ROI, then create/save the template and run matching.",
+          "action": {
+            "actionId": "cbb244fa-cf7a-4ad1-83cc-58c2ff9c5dc9",
+            "actionType": "sample.vision.interactiveTemplateMatch",
+            "uid": "a3bf5e2d-15ef-4a50-8b5a-bf98f9704974",
+            "isActive": true,
+            "templateSourceImage": "_$learningImage",
+            "searchImage": "_$searchImage",
+            "roiX": 160,
+            "roiY": 145,
+            "roiWidth": 120,
+            "roiHeight": 100,
+            "searchRoiX": 0,
+            "searchRoiY": 0,
+            "searchRoiWidth": 0,
+            "searchRoiHeight": 0,
+            "templateFilePath": "%TEMP%\\WorkflowVisionDemo\\learned-template.json",
+            "modelType": "Shape",
+            "edgeThresholdLow": 40,
+            "edgeThresholdHigh": 120,
+            "blurSize": 3,
+            "minAngle": 0.0,
+            "maxAngle": 0.0,
+            "angleStep": 5.0,
+            "minScale": 1.0,
+            "maxScale": 1.0,
+            "scaleStep": 0.1,
+            "minimumScore": 0.75,
+            "maximumMatches": 3,
+            "maximumOverlap": 0.30,
+            "showSearchRegion": true,
+            "showResultContour": true,
+            "publishPreview": true,
+            "operation": "LearnAndMatch",
+            "templateMaskData": "",
+            "outputBindings": {
+              "TemplateImage": "_$templateImage",
+              "OutputImage": "_$matchResultImage",
+              "SavedPath": "_$templateSavedPath",
+              "Matched": "_$matched",
+              "MatchCount": "_$matchCount",
+              "Score": "_$matchScore",
+              "MatchX": "_$matchX",
+              "MatchY": "_$matchY",
+              "MatchAngle": "_$matchAngle",
+              "MatchScale": "_$matchScale",
+              "TemplateWidth": "_$templateWidth",
+              "TemplateHeight": "_$templateHeight"
+            }
+          }
+        },
+        {
+          "uid": "9609fa17-9796-416a-8b5a-f4c362f5a4c8",
+          "lineNo": 40,
+          "sequenceNo": 3,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "STEP 4 - Save the annotated matching result on the Runtime host.",
+          "action": {
+            "actionId": "4365319c-45ee-4d18-a2ce-f264583170fd",
+            "actionType": "sample.vision.saveImage",
+            "uid": "22bd7625-b288-4b1f-94ae-e05836354f26",
+            "isActive": true,
+            "inputImage": "_$matchResultImage",
+            "filePath": "%TEMP%\\WorkflowVisionDemo\\interactive-template-match-result.png",
+            "createDirectory": true,
+            "publishPreview": true,
+            "outputBindings": { "SavedPath": "_$resultSavedPath" }
+          }
+        }
+      ],
+      "methodVariables": [
+        { "uid": "9c8f452b-56e1-4245-a29f-7e469fdf0022", "variableName": "_$learningImage", "dataType": "image", "isActive": true, "orderIndex": 0 },
+        { "uid": "51ba5db1-d389-4853-82ed-6a5526bce62e", "variableName": "_$searchImage", "dataType": "image", "isActive": true, "orderIndex": 1 },
+        { "uid": "af5dbfcc-d3d2-4af5-9292-16470f3d3ec5", "variableName": "_$templateImage", "dataType": "image", "isActive": true, "orderIndex": 2 },
+        { "uid": "68e37456-c56a-4372-b11b-4e35a29106e1", "variableName": "_$matchResultImage", "dataType": "image", "isActive": true, "orderIndex": 3 },
+        { "uid": "062b4e95-bb50-4518-858b-6e358174a591", "variableName": "_$templateSavedPath", "dataType": "string", "isActive": true, "orderIndex": 4 },
+        { "uid": "614b97f4-249b-42e4-971e-a58923513853", "variableName": "_$matched", "dataType": "boolean", "isActive": true, "orderIndex": 5 },
+        { "uid": "297f25db-d53c-48b4-81bf-18db01ab1549", "variableName": "_$matchCount", "dataType": "integer", "isActive": true, "orderIndex": 6 },
+        { "uid": "d87aa750-ff2c-482a-a500-53c43db8d602", "variableName": "_$matchScore", "dataType": "double", "isActive": true, "orderIndex": 6 },
+        { "uid": "d52a65b7-88bf-4bcd-b6ba-e7f198b93ddf", "variableName": "_$matchX", "dataType": "double", "isActive": true, "orderIndex": 7 },
+        { "uid": "665646c9-d722-4686-a236-d2d2feb1a772", "variableName": "_$matchY", "dataType": "double", "isActive": true, "orderIndex": 8 },
+        { "uid": "7dfeb1f5-6cdd-462a-b260-9892bd8a3004", "variableName": "_$matchAngle", "dataType": "double", "isActive": true, "orderIndex": 9 },
+        { "uid": "ddca4e74-60b0-4f37-81c6-ef20901f9c25", "variableName": "_$matchScale", "dataType": "double", "isActive": true, "orderIndex": 10 },
+        { "uid": "ad82bb88-7e78-4473-89eb-9846fad91458", "variableName": "_$templateWidth", "dataType": "integer", "isActive": true, "orderIndex": 9 },
+        { "uid": "98efcbba-0461-4dc4-be75-82691753e2df", "variableName": "_$templateHeight", "dataType": "integer", "isActive": true, "orderIndex": 10 },
+        { "uid": "ec755a6a-78c1-49c2-859b-42920883a3c0", "variableName": "_$resultSavedPath", "dataType": "string", "isActive": true, "orderIndex": 11 }
+      ],
+      "inputs": [],
+      "outputs": []
+    }
+  ],
+  "scripts": [],
+  "scriptLibraries": []
+}

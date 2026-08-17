@@ -1,0 +1,20 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DataTemplate x:Key="OddKernelPropertyEditorTemplate">
+        <Grid ToolTip="{Binding Tag.PreviewInfo, RelativeSource={RelativeSource AncestorType={x:Type ContentControl}}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox Text="{Binding ValueText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     IsReadOnly="{Binding IsReadOnly}"
+                     Padding="4,2"
+                     BorderThickness="0" />
+            <TextBlock Grid.Column="1"
+                       Margin="6,0,0,0"
+                       VerticalAlignment="Center"
+                       Foreground="#FF8BCB68"
+                       Text="odd px" />
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>

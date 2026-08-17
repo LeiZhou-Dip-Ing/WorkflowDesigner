@@ -1,0 +1,114 @@
+{
+  "editorSchemaVersion": 2,
+  "projectId": "ed5aa400-ef45-4e8e-b00a-d9cddf1ac014",
+  "name": "OpenCV Circle Diameter - Step Run Demo",
+  "version": "1.0",
+  "methods": [
+    {
+      "uid": "4d176ebb-7b91-43cf-93eb-b55c21fbb311",
+      "name": "CircleDiameterStepDemo",
+      "methodType": 0,
+      "initAtStart": false,
+      "methodLines": [
+        {
+          "uid": "2c5ac389-03bf-4bb3-9b31-b265bad93918",
+          "lineNo": 10,
+          "sequenceNo": 0,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "STEP 1 - Load the generated source image containing a dominant circle.",
+          "action": {
+            "actionId": "bb1b6c2a-9384-4c02-b6f1-306577a6ea43",
+            "actionType": "sample.vision.loadImage",
+            "uid": "67619e6c-abdb-47e0-9e89-11f8721c20f8",
+            "isActive": true,
+            "filePath": "sample://source",
+            "readMode": "Color",
+            "publishPreview": true,
+            "outputBindings": { "OutputImage": "_$sourceImage" }
+          }
+        },
+        {
+          "uid": "06f50b8d-8d34-497b-a6b4-facbb08b74c4",
+          "lineNo": 20,
+          "sequenceNo": 1,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "STEP 2 - Convert the source to grayscale for circle analysis.",
+          "action": {
+            "actionId": "93d252af-76b8-46d1-8efe-dcc39773c3ad",
+            "actionType": "sample.vision.gray",
+            "uid": "77d85114-5355-4e0c-9892-f9880800100c",
+            "isActive": true,
+            "inputImage": "_$sourceImage",
+            "publishPreview": true,
+            "outputBindings": { "OutputImage": "_$grayImage" }
+          }
+        },
+        {
+          "uid": "07bbf393-28b8-4244-b34b-f3b44baa6a21",
+          "lineNo": 30,
+          "sequenceNo": 2,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "STEP 3 - Remove noise before Hough circle detection.",
+          "action": {
+            "actionId": "0b45736c-9f1e-4d82-8330-a2e78df99fb3",
+            "actionType": "sample.vision.gaussianBlur",
+            "uid": "1a118ae2-f408-47d4-8974-fd8dcf729aef",
+            "isActive": true,
+            "inputImage": "_$grayImage",
+            "kernelSize": 7,
+            "sigmaX": 1.2,
+            "publishPreview": true,
+            "outputBindings": { "OutputImage": "_$blurImage" }
+          }
+        },
+        {
+          "uid": "8288063c-eab5-4369-ad70-b9ebce58527f",
+          "lineNo": 40,
+          "sequenceNo": 3,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "STEP 4 - Detect the circle and draw its measured diameter on the result image.",
+          "action": {
+            "actionId": "9aa8e56e-814c-49ae-a7bd-d8e321e4ba3d",
+            "actionType": "sample.vision.measureCircle",
+            "uid": "6006f2ec-e9cb-4b71-9db0-e66e88832ebc",
+            "isActive": true,
+            "inputImage": "_$blurImage",
+            "minDist": 40.0,
+            "edgeThreshold": 100.0,
+            "circleAccumulator": 24.0,
+            "minRadius": 60,
+            "maxRadius": 120,
+            "publishPreview": true,
+            "outputBindings": {
+              "OutputImage": "_$diameterImage",
+              "Found": "_$circleFound",
+              "CenterX": "_$centerX",
+              "CenterY": "_$centerY",
+              "Radius": "_$radiusPx",
+              "Diameter": "_$diameterPx"
+            }
+          }
+        }
+      ],
+      "methodVariables": [
+        { "uid": "a1fe245f-8a17-43cc-b938-76c59855a662", "variableName": "_$sourceImage", "dataType": "image", "isActive": true, "orderIndex": 0 },
+        { "uid": "7a7396cb-b374-4ce5-a33d-c705529f99c2", "variableName": "_$grayImage", "dataType": "image", "isActive": true, "orderIndex": 1 },
+        { "uid": "b6b6df59-ec43-4fc2-b42e-4e7068d18ff3", "variableName": "_$blurImage", "dataType": "image", "isActive": true, "orderIndex": 2 },
+        { "uid": "d4772ad3-97bd-49d8-986a-f702162b87dd", "variableName": "_$diameterImage", "dataType": "image", "isActive": true, "orderIndex": 3 },
+        { "uid": "179fc347-07e5-42bd-9c4a-f1727bebf700", "variableName": "_$circleFound", "dataType": "boolean", "isActive": true, "orderIndex": 4 },
+        { "uid": "e9ff7e5f-cb46-48de-aa86-f86b5f13ef48", "variableName": "_$centerX", "dataType": "double", "isActive": true, "orderIndex": 5 },
+        { "uid": "2490ab04-7798-4e04-b89a-fae5254f4fc2", "variableName": "_$centerY", "dataType": "double", "isActive": true, "orderIndex": 6 },
+        { "uid": "90d1f88f-4718-43c3-8b78-c06d0c3c670c", "variableName": "_$radiusPx", "dataType": "double", "isActive": true, "orderIndex": 7 },
+        { "uid": "ca2e1042-0a7c-4241-81ca-ce9ee8af72c8", "variableName": "_$diameterPx", "dataType": "double", "isActive": true, "orderIndex": 8 }
+      ],
+      "inputs": [],
+      "outputs": []
+    }
+  ],
+  "scripts": [],
+  "scriptLibraries": []
+}

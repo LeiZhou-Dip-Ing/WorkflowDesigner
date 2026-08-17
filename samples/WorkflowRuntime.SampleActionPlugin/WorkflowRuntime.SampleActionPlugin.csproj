@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>WorkflowRuntime.SampleActionPlugin</AssemblyName>
+    <RootNamespace>WorkflowRuntime.SampleActionPlugin</RootNamespace>
+    <WorkflowRuntimePluginDeployDirectory Condition="'$(WorkflowRuntimePluginDeployDirectory)' == ''">$(MSBuildProjectDirectory)\..\..\src\WorkflowDesigner\bin\$(Configuration)\net8.0-windows\plugins</WorkflowRuntimePluginDeployDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WorkflowSdk" Version="$(WorkflowVersion)" />
+  </ItemGroup>
+  <Target Name="DeploySampleActionPlugin"
+          AfterTargets="Build"
+          Condition="'$(WorkflowRuntimePluginDeployDirectory)' != ''">
+    <MakeDir Directories="$(WorkflowRuntimePluginDeployDirectory)" />
+    <Copy SourceFiles="$(TargetPath)"
+          DestinationFolder="$(WorkflowRuntimePluginDeployDirectory)"
+          SkipUnchangedFiles="false" />
+  </Target>
+</Project>

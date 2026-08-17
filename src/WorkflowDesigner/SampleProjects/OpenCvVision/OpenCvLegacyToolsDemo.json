@@ -1,0 +1,407 @@
+{
+  "editorSchemaVersion": 2,
+  "projectId": "a534d1d0-1a4b-4046-99b8-9df486486716",
+  "name": "OpenCV Legacy Tools - External UI Demo",
+  "version": "1.0",
+  "methods": [
+    {
+      "uid": "965c9342-bf1e-4351-9da7-d2ac6305bd48",
+      "name": "VisionLegacyDemo",
+      "methodType": 0,
+      "initAtStart": false,
+      "initMethodName": null,
+      "lastExecution": null,
+      "methodLines": [
+        {
+          "uid": "991dabcc-574b-4453-82bb-63c1b88bcdea",
+          "lineNo": 1,
+          "sequenceNo": 1,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Self-contained generated source image.",
+          "action": {
+            "actionId": "bb1b6c2a-9384-4c02-b6f1-306577a6ea43",
+            "actionType": "sample.vision.loadImage",
+            "uid": "3b9a6449-87d4-475f-8b3d-c2f270cc0e3a",
+            "name": "",
+            "isActive": true,
+            "filePath": "sample://source",
+            "readMode": "Color",
+            "publishPreview": true,
+            "outputBindings": {
+              "OutputImage": "_$sourceImage"
+            }
+          }
+        },
+        {
+          "uid": "0392d5d6-8fe7-4dfc-89f7-35585af617e4",
+          "lineNo": 2,
+          "sequenceNo": 2,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Self-contained template image used by Template Match.",
+          "action": {
+            "actionId": "bb1b6c2a-9384-4c02-b6f1-306577a6ea43",
+            "actionType": "sample.vision.loadImage",
+            "uid": "b9b80a12-d09a-4cc8-b8cc-f12c28e8d703",
+            "name": "",
+            "isActive": true,
+            "filePath": "sample://template",
+            "readMode": "Color",
+            "publishPreview": true,
+            "outputBindings": {
+              "OutputImage": "_$templateImage"
+            }
+          }
+        },
+        {
+          "uid": "6b89509a-788e-4119-aaba-d7d8d9b2cdf1",
+          "lineNo": 3,
+          "sequenceNo": 3,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Click this row after the run: the right workspace shows the grayscale result.",
+          "action": {
+            "actionId": "93d252af-76b8-46d1-8efe-dcc39773c3ad",
+            "actionType": "sample.vision.gray",
+            "uid": "d1512ed0-5339-498a-af68-9d670662ce6e",
+            "name": "",
+            "isActive": true,
+            "inputImage": "_$sourceImage",
+            "publishPreview": true,
+            "outputBindings": {
+              "OutputImage": "_$grayImage"
+            }
+          }
+        },
+        {
+          "uid": "321aef76-0f54-4401-a46a-4c19915f0d64",
+          "lineNo": 4,
+          "sequenceNo": 4,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Custom preprocessing workspace with metadata-driven property editors.",
+          "action": {
+            "actionId": "0b45736c-9f1e-4d82-8330-a2e78df99fb3",
+            "actionType": "sample.vision.gaussianBlur",
+            "uid": "6338209a-b961-41a7-9378-10d22848442d",
+            "name": "",
+            "isActive": true,
+            "inputImage": "_$grayImage",
+            "kernelSize": 7,
+            "sigmaX": 1.2,
+            "publishPreview": true,
+            "outputBindings": {
+              "OutputImage": "_$blurImage"
+            }
+          }
+        },
+        {
+          "uid": "fca22ccb-1384-4b68-86b9-003ae7ab715c",
+          "lineNo": 5,
+          "sequenceNo": 5,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Threshold result is published as this line's preview.",
+          "action": {
+            "actionId": "4bf7d04a-a100-47aa-bcd8-a6829e748914",
+            "actionType": "sample.vision.threshold",
+            "uid": "e941a38c-cd2d-4358-8c14-129974b2643b",
+            "name": "",
+            "isActive": true,
+            "inputImage": "_$blurImage",
+            "threshold": 120.0,
+            "maxValue": 255.0,
+            "thresholdMode": "Binary",
+            "publishPreview": true,
+            "outputBindings": {
+              "OutputImage": "_$thresholdImage"
+            }
+          }
+        },
+        {
+          "uid": "a703d017-a6d4-410e-b229-ac642f30aace",
+          "lineNo": 6,
+          "sequenceNo": 6,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Double-click to open the external Canny action editor.",
+          "action": {
+            "actionId": "4994a866-3426-4e50-ae77-b6ad7f8f18ba",
+            "actionType": "sample.vision.canny",
+            "uid": "3ff1c586-888f-4005-adfb-a6f524c23a02",
+            "name": "",
+            "isActive": true,
+            "inputImage": "_$thresholdImage",
+            "threshold1": 60.0,
+            "threshold2": 160.0,
+            "publishPreview": true,
+            "outputBindings": {
+              "OutputImage": "_$edgeImage"
+            }
+          }
+        },
+        {
+          "uid": "57585751-b101-4ec2-96f5-0317e3f7f514",
+          "lineNo": 7,
+          "sequenceNo": 7,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Legacy-style line measurement example implemented with HoughLinesP.",
+          "action": {
+            "actionId": "f6e2ac7f-495a-4a04-8424-05aa1aa2b780",
+            "actionType": "sample.vision.measureLine",
+            "uid": "bf0d7d0f-a131-441f-81df-dc0a5d67f2bc",
+            "name": "",
+            "isActive": true,
+            "inputImage": "_$sourceImage",
+            "threshold1": 60.0,
+            "threshold2": 160.0,
+            "houghThreshold": 45,
+            "minLineLength": 80.0,
+            "maxLineGap": 18.0,
+            "publishPreview": true,
+            "outputBindings": {
+              "OutputImage": "_$lineImage"
+            }
+          }
+        },
+        {
+          "uid": "ffa69abe-4f2c-458a-ab90-1610fed65ca8",
+          "lineNo": 8,
+          "sequenceNo": 8,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Legacy-style circle measurement example implemented with HoughCircles.",
+          "action": {
+            "actionId": "9aa8e56e-814c-49ae-a7bd-d8e321e4ba3d",
+            "actionType": "sample.vision.measureCircle",
+            "uid": "567e1ca2-945b-4f95-9706-bb1d7b6bb1d2",
+            "name": "",
+            "isActive": true,
+            "inputImage": "_$sourceImage",
+            "minDist": 40.0,
+            "edgeThreshold": 120.0,
+            "circleAccumulator": 28.0,
+            "minRadius": 60,
+            "maxRadius": 120,
+            "publishPreview": true,
+            "outputBindings": {
+              "OutputImage": "_$circleImage"
+            }
+          }
+        },
+        {
+          "uid": "14d3d90f-04c0-4887-b228-9c9381d0d71b",
+          "lineNo": 9,
+          "sequenceNo": 9,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Legacy-style matching example implemented with MatchTemplate.",
+          "action": {
+            "actionId": "cd8d3279-8534-4ff4-b40f-562a295d4fb2",
+            "actionType": "sample.vision.templateMatch",
+            "uid": "54b73e24-3a92-49fc-8c2b-e4e6c0c5bcb2",
+            "name": "",
+            "isActive": true,
+            "inputImage": "_$sourceImage",
+            "templateImage": "_$templateImage",
+            "matchMode": "CCoeffNormed",
+            "minimumScore": 0.8,
+            "publishPreview": true,
+            "outputBindings": {
+              "OutputImage": "_$matchImage"
+            }
+          }
+        },
+        {
+          "uid": "6e08d08f-777c-449f-80cf-456154758aeb",
+          "lineNo": 10,
+          "sequenceNo": 10,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Saves the final match overlay to the Runtime host temp directory.",
+          "action": {
+            "actionId": "4365319c-45ee-4d18-a2ce-f264583170fd",
+            "actionType": "sample.vision.saveImage",
+            "uid": "f716ae4b-4a55-4d6b-8b7a-5d2c039d15b8",
+            "name": "",
+            "isActive": true,
+            "inputImage": "_$matchImage",
+            "filePath": "%TEMP%\\WorkflowVisionDemo\\final-match.png",
+            "createDirectory": true,
+            "publishPreview": true
+          }
+        }
+      ],
+      "methodVariables": [
+        {
+          "uid": "62a3e8c6-294f-4c3e-964d-bcf84e631d4a",
+          "variableName": "_$sourceImage",
+          "value": null,
+          "dataType": "image",
+          "isActive": true,
+          "description": "Generated source image",
+          "requestText": null,
+          "orderIndex": 0,
+          "defaultValue": null,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "585f2724-9283-4f15-8201-752909d94c87",
+          "variableName": "_$templateImage",
+          "value": null,
+          "dataType": "image",
+          "isActive": true,
+          "description": "Generated template image",
+          "requestText": null,
+          "orderIndex": 1,
+          "defaultValue": null,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "9e763250-a029-401a-8fd6-6fa62bc4726a",
+          "variableName": "_$grayImage",
+          "value": null,
+          "dataType": "image",
+          "isActive": true,
+          "description": "Grayscale output",
+          "requestText": null,
+          "orderIndex": 2,
+          "defaultValue": null,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "233f14ae-57ce-4734-a6d7-bc787ccb7dc1",
+          "variableName": "_$blurImage",
+          "value": null,
+          "dataType": "image",
+          "isActive": true,
+          "description": "Gaussian blur output",
+          "requestText": null,
+          "orderIndex": 3,
+          "defaultValue": null,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "279d84e9-b971-4a53-ba56-8a47f1d955ae",
+          "variableName": "_$thresholdImage",
+          "value": null,
+          "dataType": "image",
+          "isActive": true,
+          "description": "Threshold output",
+          "requestText": null,
+          "orderIndex": 4,
+          "defaultValue": null,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "2b630a0c-56a4-4bce-890b-8b93c7d76f42",
+          "variableName": "_$edgeImage",
+          "value": null,
+          "dataType": "image",
+          "isActive": true,
+          "description": "Canny output",
+          "requestText": null,
+          "orderIndex": 5,
+          "defaultValue": null,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "b561c84b-22dc-4a27-b73c-220313c0dca7",
+          "variableName": "_$lineImage",
+          "value": null,
+          "dataType": "image",
+          "isActive": true,
+          "description": "Line measurement overlay",
+          "requestText": null,
+          "orderIndex": 6,
+          "defaultValue": null,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "aed94148-df02-453a-ae41-efa12e52928e",
+          "variableName": "_$circleImage",
+          "value": null,
+          "dataType": "image",
+          "isActive": true,
+          "description": "Circle measurement overlay",
+          "requestText": null,
+          "orderIndex": 7,
+          "defaultValue": null,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "508e3ca0-65b9-43cf-a44e-f8ce2311b691",
+          "variableName": "_$matchImage",
+          "value": null,
+          "dataType": "image",
+          "isActive": true,
+          "description": "Template-match overlay",
+          "requestText": null,
+          "orderIndex": 8,
+          "defaultValue": null,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        }
+      ],
+      "inputs": [],
+      "outputs": []
+    }
+  ],
+  "scripts": [],
+  "scriptLibraries": []
+}

@@ -1,0 +1,77 @@
+<UserControl x:Class="WorkflowCore.WpfDemo.Controls.ActionPropertyPanel"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:WorkflowCore.WpfDemo.Controls"
+             Background="#FF444444">
+    <ItemsControl ItemsSource="{Binding ItemsSource, ElementName=Root}"
+                  HorizontalContentAlignment="Stretch">
+        <ItemsControl.Template>
+            <ControlTemplate TargetType="ItemsControl">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto"
+                              CanContentScroll="True">
+                    <ItemsPresenter HorizontalAlignment="Stretch" />
+                </ScrollViewer>
+            </ControlTemplate>
+        </ItemsControl.Template>
+        <ItemsControl.ItemContainerStyle>
+            <Style TargetType="ContentPresenter">
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+            </Style>
+        </ItemsControl.ItemContainerStyle>
+        <ItemsControl.GroupStyle>
+            <GroupStyle>
+                <GroupStyle.Panel>
+                    <ItemsPanelTemplate><StackPanel /></ItemsPanelTemplate>
+                </GroupStyle.Panel>
+                <GroupStyle.ContainerStyle>
+                    <Style TargetType="GroupItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="GroupItem">
+                                    <Expander IsExpanded="True"
+                                              HorizontalAlignment="Stretch"
+                                              HorizontalContentAlignment="Stretch"
+                                              Header="{Binding Name}"
+                                              Style="{DynamicResource PropertyGroupExpanderStyle}">
+                                        <ItemsPresenter HorizontalAlignment="Stretch" />
+                                    </Expander>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </GroupStyle.ContainerStyle>
+            </GroupStyle>
+        </ItemsControl.GroupStyle>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <Grid Height="25"
+                      HorizontalAlignment="Stretch"
+                      Background="#FF444444">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" MinWidth="150" />
+                        <ColumnDefinition Width="3*" MinWidth="180" />
+                    </Grid.ColumnDefinitions>
+                    <Border Padding="6,1"
+                            BorderBrush="#FF676767"
+                            BorderThickness="0,0,1,1">
+                        <TextBlock Text="{Binding DisplayName}"
+                                   ToolTip="{Binding Description}"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Border>
+                    <Border Grid.Column="1"
+                            Padding="6,1"
+                            BorderBrush="#FF676767"
+                            BorderThickness="0,0,0,1">
+                        <local:DesignerPropertyEditorHost Property="{Binding}"
+                                                          ActionContext="{Binding ActionContext, ElementName=Root}"
+                                                          HorizontalContentAlignment="Stretch" />
+                    </Border>
+                </Grid>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

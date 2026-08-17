@@ -1,0 +1,64 @@
+<UserControl x:Class="WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf.FeatureResultWorkspaceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#FF252525">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="36" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <TextBlock Text="{Binding Title}"
+                       VerticalAlignment="Center"
+                       Foreground="#FFF2F4F6"
+                       FontWeight="SemiBold" />
+        </Grid>
+
+        <Border Grid.Row="1"
+                Background="#FF101010"
+                BorderBrush="#FF4B4B4B"
+                BorderThickness="1">
+            <Grid>
+                <Image Source="{Binding PreviewImage}" Stretch="Uniform" />
+                <TextBlock Text="No processed feature image for this Action yet"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="#FF858A8E">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasPreview}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <Border VerticalAlignment="Bottom"
+                        Background="#C8000000"
+                        Padding="8">
+                    <StackPanel>
+                        <TextBlock Text="{Binding OutputSummary}"
+                                   Foreground="#FFE0E4E6"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding PreviewInfo}"
+                                   Foreground="#FF9FA7AC"
+                                   FontSize="10"
+                                   Margin="0,3,0,0"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <TextBlock Grid.Row="2"
+                   Margin="4,7,4,0"
+                   Text="Double-click this Action to edit feature-extraction parameters."
+                   Foreground="#FF8BCB68"
+                   TextTrimming="CharacterEllipsis" />
+    </Grid>
+</UserControl>

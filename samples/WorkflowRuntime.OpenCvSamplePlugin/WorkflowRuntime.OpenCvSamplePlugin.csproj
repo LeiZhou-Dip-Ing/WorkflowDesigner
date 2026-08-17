@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <DeployToWorkflowRuntimeOnBuild Condition="'$(DeployToWorkflowRuntimeOnBuild)' == '' and '$(Configuration)' == 'Debug'">true</DeployToWorkflowRuntimeOnBuild>
+    <DeployToWorkflowRuntimeOnBuild Condition="'$(DeployToWorkflowRuntimeOnBuild)' == ''">false</DeployToWorkflowRuntimeOnBuild>
+    <WorkflowRuntimePluginDirectory>$(MSBuildThisFileDirectory)..\..\src\WorkflowDesigner\bin\$(Configuration)\net8.0-windows\plugins\WorkflowRuntime.OpenCvSamplePlugin</WorkflowRuntimePluginDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WorkflowSdk" Version="$(WorkflowVersion)" />
+    <PackageReference Include="WorkflowDesigner.Contracts" Version="$(WorkflowVersion)" />
+    <ProjectReference Include="..\WorkflowRuntime.OpenCvSamplePlugin.Contracts\WorkflowRuntime.OpenCvSamplePlugin.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="OpenCvSharp4" Version="4.13.0.20260627" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <!-- Developer convenience only: keep the runtime host decoupled from this plugin at compile time,
+       but make the sample immediately visible when the full solution is built in Debug. -->
+  <Target Name="DeploySamplePluginToWorkflowRuntime"
+          AfterTargets="Build"
+          Condition="'$(DeployToWorkflowRuntimeOnBuild)' == 'true'">
+    <MakeDir Directories="$(WorkflowRuntimePluginDirectory)" />
+    <ItemGroup>
+      <RuntimePluginFiles Include="$(TargetPath)" />
+      <RuntimePluginFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+      <RuntimePluginFiles Include="$(TargetDir)$(TargetName).deps.json" Condition="Exists('$(TargetDir)$(TargetName).deps.json')" />
+      <RuntimePluginFiles Include="$(TargetDir)WorkflowRuntime.OpenCvSamplePlugin.Contracts.dll" Condition="Exists('$(TargetDir)WorkflowRuntime.OpenCvSamplePlugin.Contracts.dll')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RuntimePluginFiles)"
+          DestinationFolder="$(WorkflowRuntimePluginDirectory)"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>

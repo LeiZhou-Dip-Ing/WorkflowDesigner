@@ -1,0 +1,22 @@
+<Window x:Class="WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf.VisionToolEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf"
+        Title="{Binding Title}" Width="1040" Height="680" MinWidth="820" MinHeight="520"
+        WindowStartupLocation="CenterOwner" Background="#FF252525" Foreground="#FFF3F5F7">
+    <Grid Margin="14"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="10"/><RowDefinition Height="*"/><RowDefinition Height="10"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <StackPanel><TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="{Binding Description}" Foreground="#FF9EA5AA" Margin="0,3,0,0"/></StackPanel>
+        <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition Width="340"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <TabControl Background="#FF303030" BorderBrush="#FF484848">
+                <TabItem Header="Parameters"><ScrollViewer Padding="8" VerticalScrollBarVisibility="Auto"><ItemsControl ItemsSource="{Binding InputProperties}"><ItemsControl.ItemTemplate><DataTemplate>
+                    <Grid Margin="0,5"><Grid.ColumnDefinitions><ColumnDefinition Width="140"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" Margin="0,0,8,0"/><local:DesignerPropertyEditorHost Grid.Column="1" Property="{Binding}" ActionContext="{Binding DataContext.Context, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/></Grid>
+                </DataTemplate></ItemsControl.ItemTemplate></ItemsControl></ScrollViewer></TabItem>
+                <TabItem Header="Outputs"><ScrollViewer Padding="8" VerticalScrollBarVisibility="Auto"><ItemsControl ItemsSource="{Binding OutputProperties}"><ItemsControl.ItemTemplate><DataTemplate>
+                    <Grid Margin="0,5"><Grid.ColumnDefinitions><ColumnDefinition Width="140"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" Margin="0,0,8,0"/><local:DesignerPropertyEditorHost Grid.Column="1" Property="{Binding}" ActionContext="{Binding DataContext.Context, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/></Grid>
+                </DataTemplate></ItemsControl.ItemTemplate></ItemsControl></ScrollViewer></TabItem>
+            </TabControl>
+            <Border Grid.Column="2" Background="#FF0E0E0E" BorderBrush="#FF484848" BorderThickness="1"><Grid><Image Source="{Binding PreviewImage}" Stretch="Uniform"/><TextBlock Text="No preview yet" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FF858A8E"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding HasPreview}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock><Border VerticalAlignment="Bottom" Background="#C0000000" Padding="8"><TextBlock Text="{Binding PreviewInfo}"/></Border></Grid></Border>
+        </Grid>
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right"><Button Content="Run / Preview" Command="{Binding RunCommand}" Width="110" Height="30" Margin="0,0,8,0"/><Button Content="Close" IsCancel="True" Width="88" Height="30" Click="Close_OnClick"/></StackPanel>
+    </Grid>
+</Window>

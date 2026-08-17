@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <StartupObject>WorkflowCore.WpfDemo.Program</StartupObject>
+    <AssemblyName>WorkflowDesigner</AssemblyName>
+    <RootNamespace>WorkflowCore.WpfDemo</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WorkflowCore" Version="$(WorkflowVersion)" />
+    <PackageReference Include="WorkflowWpfSdk" Version="$(WorkflowVersion)" />
+    <PackageReference Include="WorkflowRuntime.ScriptCompiler" Version="$(WorkflowVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.74.1" />
+    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.74.1" />
+    <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.27" />
+    <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
+  </ItemGroup>
+</Project>

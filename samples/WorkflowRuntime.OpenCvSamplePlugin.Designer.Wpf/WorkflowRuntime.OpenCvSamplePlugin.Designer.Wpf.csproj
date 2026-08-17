@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <DeployToWorkflowDesignerOnBuild Condition="'$(DeployToWorkflowDesignerOnBuild)' == '' and '$(Configuration)' == 'Debug'">true</DeployToWorkflowDesignerOnBuild>
+    <DeployToWorkflowDesignerOnBuild Condition="'$(DeployToWorkflowDesignerOnBuild)' == ''">false</DeployToWorkflowDesignerOnBuild>
+    <WorkflowDesignerPluginDirectory>$(MSBuildThisFileDirectory)..\..\src\WorkflowDesigner\bin\$(Configuration)\net8.0-windows\designer-plugins\OpenCvSample</WorkflowDesignerPluginDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WorkflowWpfSdk" Version="$(WorkflowVersion)" />
+    <ProjectReference Include="..\WorkflowRuntime.OpenCvSamplePlugin.Contracts\WorkflowRuntime.OpenCvSamplePlugin.Contracts.csproj" />
+  </ItemGroup>
+  <Target Name="DeploySampleDesignerPlugin"
+          AfterTargets="Build"
+          Condition="'$(DeployToWorkflowDesignerOnBuild)' == 'true'">
+    <MakeDir Directories="$(WorkflowDesignerPluginDirectory)" />
+    <ItemGroup>
+      <DesignerPluginFiles Include="$(TargetDir)$(TargetName).dll" />
+      <DesignerPluginFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+      <DesignerPluginFiles Include="$(TargetDir)$(TargetName).deps.json" Condition="Exists('$(TargetDir)$(TargetName).deps.json')" />
+      <DesignerPluginFiles Include="$(TargetDir)WorkflowRuntime.OpenCvSamplePlugin.Contracts.dll" Condition="Exists('$(TargetDir)WorkflowRuntime.OpenCvSamplePlugin.Contracts.dll')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DesignerPluginFiles)"
+          DestinationFolder="$(WorkflowDesignerPluginDirectory)"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>
