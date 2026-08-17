@@ -41,3 +41,16 @@ Those are restored as packages.
 The committed `NuGet.Config` uses GitHub Packages and nuget.org only. It does not contain secrets.
 
 `NuGet.local.Config` is ignored and exists only for local split validation before private packages are published.
+
+## Collaborator Access Model
+
+External WorkflowDesigner collaborators should not be invited to the private WorkflowCore source repository unless they are allowed to see the runtime implementation.
+
+The intended model is:
+
+- WorkflowDesigner repository access for source collaboration.
+- GitHub Packages package-level `Read` access for WorkflowCore, WorkflowSdk, WorkflowWpfSdk, and supporting WorkflowRuntime/WorkflowDesigner packages.
+- User-level NuGet credentials on each developer machine.
+- No package token, password, PAT, or secret stored in this repository.
+
+This allows collaborators to restore, build, run, debug, and continue developing WorkflowDesigner while WorkflowCore source remains private.
