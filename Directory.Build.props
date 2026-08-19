@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <WorkflowVersion>1.0.0-alpha.1</WorkflowVersion>
+    <WorkflowVersion>1.0.0-alpha.2</WorkflowVersion>
     <!-- Keep MSBuild intermediates in one repository-level folder so deep sample/test paths do not hit Windows MAX_PATH. -->
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory).obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
     <!-- Once intermediates move, the SDK no longer excludes each project's legacy obj/bin folders automatically. -->
