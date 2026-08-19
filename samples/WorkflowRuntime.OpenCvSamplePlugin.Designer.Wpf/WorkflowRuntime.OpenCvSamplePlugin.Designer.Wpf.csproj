@@ -14,6 +14,10 @@
     <PackageReference Include="WorkflowWpfSdk" Version="$(WorkflowVersion)" />
     <ProjectReference Include="..\WorkflowRuntime.OpenCvSamplePlugin.Contracts\WorkflowRuntime.OpenCvSamplePlugin.Contracts.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Page Remove="OpenCvDesignerResources.xaml" />
+    <EmbeddedResource Include="OpenCvDesignerResources.xaml" LogicalName="OpenCvDesignerResources.xaml" />
+  </ItemGroup>
   <Target Name="DeploySampleDesignerPlugin"
           AfterTargets="Build"
           Condition="'$(DeployToWorkflowDesignerOnBuild)' == 'true'">

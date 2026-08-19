@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Markup;
 using WorkflowDesigner.WpfSdk;
 using WorkflowRuntime.OpenCvSamplePlugin.Contracts;
 
@@ -12,12 +13,7 @@ public sealed class OpenCvSampleDesignerExtension : IWorkflowDesignerExtension
 
     public void Register(IWorkflowDesignerRegistry registry)
     {
-        var resources = new ResourceDictionary
-        {
-            Source = new Uri(
-                "/WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf;component/OpenCvDesignerResources.xaml",
-                UriKind.RelativeOrAbsolute)
-        };
+        var resources = LoadResources();
 
         registry.RegisterPropertyEditor(
             OpenCvDesignerKeys.OddKernelPropertyEditor,
@@ -75,6 +71,15 @@ public sealed class OpenCvSampleDesignerExtension : IWorkflowDesignerExtension
             OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor,
             context => new InteractiveTemplateMatchWindow(new InteractiveTemplateMatchViewModel(context)),
             PluginId);
+    }
+
+    private static ResourceDictionary LoadResources()
+    {
+        const string resourceName = "OpenCvDesignerResources.xaml";
+        using var stream = typeof(OpenCvSampleDesignerExtension).Assembly.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException($"Embedded WPF resource '{resourceName}' was not found.");
+        return XamlReader.Load(stream) as ResourceDictionary
+            ?? throw new InvalidOperationException($"Embedded WPF resource '{resourceName}' is not a ResourceDictionary.");
     }
 
     private static Window CreateEditor(
