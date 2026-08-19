@@ -1,6 +1,10 @@
 # OpenCV Vision samples
 
-## OpenCvLegacyToolsDemo.json
+## OpenCvLegacyToolsDemo.wflowx
+
+This repository distributes the demo as a deploy-only encrypted workflow. It cannot be imported or
+edited by WorkflowDesigner. The editable JSON source and encryption key must remain in the private
+authoring environment; only the backend runtime receives the key required to execute `.wflowx` files.
 
 This is the end-to-end external Action + external Designer UI example.
 It intentionally mirrors several useful ideas from the legacy vision project, but all image processing is OpenCvSharp and Runtime/Designer remain separated.

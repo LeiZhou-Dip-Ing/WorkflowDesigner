@@ -1,6 +1,8 @@
 # OpenCV Feature Pipeline Demo
 
-Import `OpenCvFeaturePipelineDemo.json` from **Import project**.
+`OpenCvFeaturePipelineDemo.wflowx` is a deploy-only encrypted workflow. It cannot be imported or
+edited by WorkflowDesigner. Keep the editable JSON source in the private authoring environment and
+provide the encryption key only to the backend runtime.
 
 Run method `FeaturePipeline` once, then click each row. Every Vision Action publishes a line-scoped preview, so the right workspace shows that step's own result:
 
