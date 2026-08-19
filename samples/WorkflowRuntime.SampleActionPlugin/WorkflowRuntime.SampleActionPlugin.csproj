@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>WorkflowRuntime.SampleActionPlugin</AssemblyName>
     <RootNamespace>WorkflowRuntime.SampleActionPlugin</RootNamespace>
-    <WorkflowRuntimePluginDeployDirectory Condition="'$(WorkflowRuntimePluginDeployDirectory)' == ''">$(MSBuildProjectDirectory)\..\..\src\WorkflowDesigner\bin\$(Configuration)\net8.0-windows\plugins</WorkflowRuntimePluginDeployDirectory>
+    <WorkflowRuntimePluginDeployDirectory Condition="'$(WorkflowRuntimePluginDeployDirectory)' == ''">$(MSBuildProjectDirectory)\..\..\src\WorkflowRuntime.WindowsService\bin\$(Configuration)\net8.0\plugins\WorkflowRuntime.SampleActionPlugin</WorkflowRuntimePluginDeployDirectory>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="WorkflowSdk" Version="$(WorkflowVersion)" />

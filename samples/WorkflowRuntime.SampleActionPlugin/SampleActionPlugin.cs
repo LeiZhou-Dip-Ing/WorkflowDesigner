@@ -7,12 +7,16 @@ public sealed class SampleActionPlugin : IWorkflowActionPlugin
 {
     public string PluginId => "workflow.sample-actions";
 
-    public string PluginVersion => "1.0.0";
+    public string PluginVersion => "1.1.0";
 
     public void Register(IWorkflowActionPluginBuilder builder)
     {
         builder.AddAction<GreetingAction>();
         builder.AddAction<TextMetricsAction>();
+        builder.AddAction<TextTransformAction>();
+        builder.AddAction<JsonEnvelopeAction>();
+        builder.AddAction<DelayAction>();
+        builder.AddAction<RunCounterAction>();
         builder.AddAction<PingActionHandler>(new WorkflowActionDefinition
         {
             ActionId = "cf7ab95e-7bcf-477d-81a2-546822a020d0",

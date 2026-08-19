@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\WorkflowDesigner\WorkflowDesigner.csproj" />
+    <ProjectReference Include="..\..\samples\WorkflowRuntime.SampleActionPlugin\WorkflowRuntime.SampleActionPlugin.csproj" />
     <PackageReference Include="WorkflowCore" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowWpfSdk" Version="$(WorkflowVersion)" />
     <ProjectReference Include="..\..\samples\WorkflowRuntime.OpenCvSamplePlugin.Contracts\WorkflowRuntime.OpenCvSamplePlugin.Contracts.csproj" />

@@ -1,22 +1,22 @@
 # WorkflowDesigner
 
-[繁體中文](README.md) · [English](README.en.md) · **[開啟互動式 SDK 教學](https://leizhou-dip-ing.github.io/WorkflowDesigner/sdk-guide/)**
+[简体中文](README.md) · [English](README.en.md) · **[打开交互式 SDK 教程](https://leizhou-dip-ing.github.io/WorkflowDesigner/sdk-guide/)**
 
-WorkflowDesigner 是一個面向自動化流程建模的 WPF 桌面設計器。協作者可以在不接觸私有 WorkflowCore 原始碼的前提下，改進畫布、編輯體驗、示例插件與公開 SDK 的使用方式。
+WorkflowDesigner 是一个面向自动化流程建模的 WPF 桌面设计器。协作者可以在不接触私有 WorkflowCore 源码的前提下，改进画布、编辑体验、示例插件与公开 SDK 的使用方式。
 
-> 本倉庫只包含 Designer、示例及公開擴展集成。執行核心透過受保護的 NuGet 套件提供；請勿將私有 WorkflowCore 或 SDK 原始碼加入此倉庫。
+> 本仓库只包含 Designer、Runtime Host 壳、示例及公开扩展集成。WorkflowCore 2.0 通过受保护的 NuGet 包提供；请勿将私有 WorkflowCore 或 SDK 源码加入本仓库。
 
-## 一眼看懂架構
+## 一眼看懂架构
 
 ```mermaid
 flowchart LR
-    A[流程作者<br/>Workflow Author] --> B[WorkflowDesigner<br/>可視化建模與配置]
-    C[外部 Action 開發者<br/>Extension Developer] --> D[公開 Action SDK<br/>能力、輸入與輸出]
-    E[WPF 擴展開發者<br/>UI Extension Developer] --> F[公開 Designer SDK<br/>屬性與編輯體驗]
+    A[流程作者<br/>Workflow Author] --> B[WorkflowDesigner<br/>可视化建模与配置]
+    C[外部 Action 开发者<br/>Extension Developer] --> D[公开 Action SDK<br/>能力、输入与输出]
+    E[WPF 扩展开发者<br/>UI Extension Developer] --> F[公开 Designer SDK<br/>属性与编辑体验]
     D --> B
     F --> B
-    B --> G[受保護的 Runtime Packages<br/>版本化 NuGet 套件]
-    G --> H[Runtime Host<br/>執行、狀態與預覽]
+    B --> G[受保护的 WorkflowCore 2.0 Packages<br/>版本化 NuGet 包]
+    G --> H[Runtime Host<br/>执行、状态与预览]
     H --> B
 
     classDef people fill:#ffffff,stroke:#111827,stroke-width:2px,color:#111827;
@@ -27,71 +27,162 @@ flowchart LR
     class G,H protected;
 ```
 
-這張圖刻意只描述公開協作邊界：誰使用 Designer、外部能力如何接入、Designer 如何與 Runtime Host 協作。它不公開 Core 的內部算法、存儲結構、保護機制或其他實作細節。
+这张图只描述公开协作边界：谁使用 Designer、外部能力如何接入、Designer 如何与 Runtime Host 协作。它不公开 Core 的内部算法、存储结构、保护机制或其他实现细节。
 
-## 你可以參與什麼
+## 你可以参与什么
 
-| 領域 | 適合的工作 | 主要位置 |
+| 领域 | 适合的工作 | 主要位置 |
 | --- | --- | --- |
-| Designer UI | 畫布、停靠窗口、屬性面板、編輯器體驗 | [`src/WorkflowDesigner`](src/WorkflowDesigner) |
-| 外部 Actions | 使用公開 SDK 增加可拖放的流程能力 | [`samples/WorkflowRuntime.SampleActionPlugin`](samples/WorkflowRuntime.SampleActionPlugin) |
-| 視覺 Actions | OpenCV Action、預覽與圖像工作流示例 | [`samples/WorkflowRuntime.OpenCvSamplePlugin`](samples/WorkflowRuntime.OpenCvSamplePlugin) |
-| Designer 擴展 | 自訂屬性編輯器、工作區與雙擊編輯器 | [`samples/WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf`](samples/WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf) |
-| 品質保障 | 公開契約、UI 行為與架構邊界測試 | [`tests/WorkflowCore.WpfDemo.Tests`](tests/WorkflowCore.WpfDemo.Tests) |
+| Designer UI | 画布、停靠窗口、属性面板、编辑器体验 | [`src/WorkflowDesigner`](src/WorkflowDesigner) |
+| 外部 Actions | 使用公开 SDK 增加可拖放的流程能力 | [`samples/WorkflowRuntime.SampleActionPlugin`](samples/WorkflowRuntime.SampleActionPlugin) |
+| 视觉 Actions | OpenCV Action、预览与图像工作流示例 | [`samples/WorkflowRuntime.OpenCvSamplePlugin`](samples/WorkflowRuntime.OpenCvSamplePlugin) |
+| Designer 扩展 | 自定义属性编辑器、工作区与双击编辑器 | [`samples/WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf`](samples/WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf) |
+| 质量保障 | 公开契约、UI 行为与架构边界测试 | [`tests/WorkflowCore.WpfDemo.Tests`](tests/WorkflowCore.WpfDemo.Tests) |
 
-## 擴展 SDK 實戰指南
+## 扩展 SDK 实战指南
 
 [![WorkflowDesigner SDK Guide](docs/sdk-guide/assets/sdk-guide-cover.png)](https://leizhou-dip-ing.github.io/WorkflowDesigner/sdk-guide/)
 
-**[在瀏覽器中打開中英雙語 Web PPT](https://leizhou-dip-ing.github.io/WorkflowDesigner/sdk-guide/)**
+**[在浏览器中打开中英双语 Web PPT](https://leizhou-dip-ing.github.io/WorkflowDesigner/sdk-guide/)**
 
-指南以本倉庫的真實示例講解：
+指南使用本仓库的真实示例讲解：
 
-- `WorkflowActionBase` 與 `IWorkflowActionHandler` 兩種外部 Action 方式。
-- Action metadata、普通屬性、輸入及輸出的聲明方法。
-- `IWorkflowActionPlugin` 的註冊、構建、部署與驗證流程。
-- 自動生成的基礎屬性面板。
-- `RegisterPropertyEditor` 自訂單個屬性編輯器。
-- `RegisterWorkspace` 擴展選中 Action 的工作區。
-- `RegisterActionEditor` 擴展雙擊專用編輯器。
-- OpenCV 插件如何把 Runtime Action 與可選 WPF 體驗保持分離。
+- `WorkflowActionBase` 与 `IWorkflowActionHandler` 两种外部 Action 方式。
+- Action metadata、普通属性、输入及输出的声明方法。
+- `IWorkflowActionPlugin` 的注册、构建、部署与验证流程。
+- 自动生成的基础属性面板。
+- `RegisterPropertyEditor` 自定义单个属性编辑器。
+- `RegisterWorkspace` 扩展选中 Action 的工作区。
+- `RegisterActionEditor` 扩展双击专用编辑器。
+- OpenCV 插件如何把 Runtime Action 与可选 WPF 体验保持分离。
 
-簡報支持中文/英文即時切換、鍵盤翻頁以及每個示例的源碼直達鏈接。
+教程支持中文/英文即时切换、键盘翻页以及每个示例的源码直达链接。
 
-## 開發者設置
+## 仓库所有者：邀请开发者前只做一次
 
-協作者需要：
+只邀请开发者进入 WorkflowDesigner 仓库还不够。新电脑还原私有包时，GitHub 同时检查“账号是否有包权限”和“Token 是否允许读取包”。你需要：
 
-1. 本 WorkflowDesigner 倉庫的讀取權限。
-2. `LeiZhou-Dip-Ing` 發布的私有 GitHub Packages 讀取權限。
-3. 一個僅用於套件還原的 GitHub Personal Access Token。
+1. 在 WorkflowDesigner 的 `Settings > Collaborators` 邀请开发者，并让对方接受邀请。
+2. 打开 `LeiZhou-Dip-Ing` 账号下本项目使用的每个私有 Workflow 包。
+3. 在每个包的 `Package settings > Manage access` 中给该开发者 `Read` 权限；或者把包连接到 WorkflowDesigner 仓库并继承仓库权限。
+4. 不要把你的 Token 发给开发者。每个人必须生成自己的 Token。
 
-運行：
+GitHub 官方说明：[配置包访问权限](https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility) · [NuGet Registry 身份验证](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-nuget-registry)
+
+## 受邀开发者：下载后第一次运行
+
+### 1. 准备环境并克隆
+
+需要 Windows 10/11、Visual Studio 2022（包含“.NET 桌面开发”工作负载）或 .NET SDK 8+、Git，以及已经接受仓库邀请的 GitHub 账号。
 
 ```powershell
-.\bootstrap.ps1
+git clone https://github.com/LeiZhou-Dip-Ing/WorkflowDesigner.git
+cd WorkflowDesigner
 ```
 
-如果尚未配置 GitHub Packages，腳本會輸出需要執行的 `dotnet nuget add source` 命令。Token 只能保存在開發者的用戶級 NuGet 配置中，禁止提交到倉庫。
+### 2. 生成自己的包读取 Token
 
-完成配置後：
+当前 GitHub NuGet Registry 要求使用 **Personal Access Token (classic)**：
+
+1. GitHub 右上角头像 > `Settings`。
+2. `Developer settings > Personal access tokens > Tokens (classic)`。
+3. 选择 `Generate new token (classic)`，设置合理有效期。
+4. 勾选 `read:packages`。如果组织启用了 SSO，还要为该 Token 授权 SSO。
+5. Token 只显示一次，禁止写入源码、README、项目内 `NuGet.Config` 或提交记录。
+
+### 3. 激活 WorkflowCore 2.0 包访问
+
+这里没有额外的产品许可证码。“激活 WorkflowCore”指仓库所有者已授予包读取权限，并且开发者使用自己的 Token 配置本机 NuGet。
+
+```powershell
+.\bootstrap.ps1 -ConfigurePackages
+```
+
+Token 输入会隐藏。脚本只把凭据写入当前 Windows 用户的 NuGet 配置，不写入仓库，然后自动执行 restore 和 build。以后通常只需运行 `.\bootstrap.ps1`。
+
+### 4. 启动 Runtime Host
+
+打开第一个终端：
+
+```powershell
+dotnet run --project src\WorkflowRuntime.WindowsService
+```
+
+打开 [http://localhost:5197/swagger](http://localhost:5197/swagger)。能看到 API 页面表示私有包已成功还原且 Runtime 已启动。保持这个终端运行。
+
+### 5. 启动 Designer
+
+打开第二个终端：
+
+```powershell
+dotnet run --project src\WorkflowDesigner
+```
+
+Designer 默认连接 `http://localhost:5197/`。连接其他 Runtime 时，在启动前设置 `WORKFLOW_RUNTIME_URL`。首次运行应确认 Designer 显示 Runtime 已连接、Action 列表能加载，并且 `External plugins` 分类能看到示例 Action。
+
+### 包仍然报错时
+
+| 错误现象 | 最常见原因 | 处理方式 |
+| --- | --- | --- |
+| `401 Unauthorized` | Token 错误、过期或不是 classic Token | 重新生成带 `read:packages` 的 PAT (classic)，删除旧 NuGet source 后重新配置 |
+| `403 Forbidden` | 同一个 GitHub 账号没有包 Read 权限或 SSO 未授权 | 让仓库所有者检查每个包的 `Manage access`；组织场景再授权 SSO |
+| `NU1101` / 找不到 Workflow 包 | 私有 source 未配置、被禁用或目标版本未发布 | 运行 `.\bootstrap.ps1 -ConfigurePackages`，并核对 `Directory.Build.props` 的版本 |
+| Runtime 启动但没有示例 Action | 插件未部署或 Runtime 未重启 | 重新 build，确认 DLL 位于 Runtime 输出的 `plugins` 目录，然后重启 Runtime |
+| Designer 一直离线 | Runtime 未启动或地址不一致 | 先检查 Swagger，再检查 `WORKFLOW_RUNTIME_URL` |
+
+更新失效凭据：
+
+```powershell
+dotnet nuget remove source github-workflow
+.\bootstrap.ps1 -ConfigurePackages
+```
+
+## SDK 示例：不只图像处理
+
+[`samples/WorkflowRuntime.SampleActionPlugin`](samples/WorkflowRuntime.SampleActionPlugin) 现在包含多种可运行案例：
+
+| 示例 | 场景 | 展示的 SDK 能力 |
+| --- | --- | --- |
+| `GreetingAction` | 基础业务 Action | 普通属性、输入、数字范围、输出、图标 |
+| `TextMetricsAction` | 多结果文本分析 | 一个输入映射多个输出 |
+| `TextTransformAction` | 文本规则处理 | 枚举下拉框、复选框、数字步进、截断状态 |
+| `JsonEnvelopeAction` | API/消息数据封装 | JSON 编辑器、结构化输入输出、运行时校验 |
+| `DelayAction` | 异步控制 | `async ValueTask`、可取消执行、完成时间输出 |
+| `RunCounterAction` | 流程运行状态 | `TryGetVariable` / `SetVariable` 公共上下文 |
+| `PingActionHandler` | 最小接口模式 | 直接实现 `IWorkflowActionHandler` 并手动注册 |
+
+OpenCV 示例继续展示图像、预览、自定义属性编辑器、Workspace 和双击编辑器；普通业务 Action 不需要先做 WPF 扩展。
+
+## 当前扩展能力与缺口
+
+当前公开 SDK 已覆盖 Action metadata、属性/输入/输出、基础编辑器、变量表达式、输出绑定、异步取消、运行变量，以及可选 WPF 属性编辑器、Workspace、Action Editor。后续仍值得补充：
+
+- 安全的 Secret/Credential 字段类型，避免敏感值进入普通流程 JSON。
+- 标准 HTTP、数据库、文件、消息队列等独立示例插件。
+- Action 输入校验错误的结构化呈现，而不只是运行异常。
+- 插件模板、兼容性矩阵、版本迁移示例和端到端插件测试工具。
+- 非图像领域的 Designer 自定义编辑器案例，例如 SQL、HTTP Header 或映射规则编辑器。
+
+这些属于公开 SDK 与示例丰富度的改进方向，不需要公开 WorkflowCore 内部实现。
+
+## 构建与测试
 
 ```powershell
 dotnet restore WorkflowDesigner.sln
-dotnet build WorkflowDesigner.sln -c Release
+dotnet build WorkflowDesigner.sln -c Release -m:1
 dotnet test tests\WorkflowCore.WpfDemo.Tests\WorkflowCore.WpfDemo.Tests.csproj -c Release
 ```
 
-## 公開擴展邊界
+## 公开扩展边界
 
 - Runtime Action 插件只需要引用 `WorkflowSdk`。
-- 可選 WPF Designer 插件只需要引用 `WorkflowWpfSdk`。
-- Designer 插件透過 `IWorkflowDesignerActionContext` 操作公開屬性模型，不依賴 `MainWindowViewModel` 或 Runtime Action CLR 實例。
-- Runtime 與 Designer 保持獨立部署；外部插件透過穩定公開契約連接。
-- WorkflowCore 原始碼保持私有。UI 協作者不需要、也不應被授予 Core 倉庫權限。
+- 可选 WPF Designer 插件只需要引用 `WorkflowWpfSdk`。
+- Designer 插件通过 `IWorkflowDesignerActionContext` 操作公开属性模型，不依赖 `MainWindowViewModel` 或 Runtime Action CLR 实例。
+- Runtime 与 Designer 保持独立部署；外部插件通过稳定公开契约连接。
+- WorkflowCore 源码保持私有。UI 协作者不需要、也不应被授予 Core 仓库权限。
 
-## 訪問模型
+## 访问模型
 
-WorkflowDesigner 原始碼面向 UI 與設計器協作開放。私有套件權限應在 GitHub Packages 中以 package-level `Read` 單獨授予，不要依賴 WorkflowCore 倉庫權限繼承。
+WorkflowDesigner 源码面向 UI 与设计器协作开放。私有包权限应在 GitHub Packages 中以 package-level `Read` 单独授予，不要依赖 WorkflowCore 仓库权限继承。
 
-開始開發前，請先閱讀 [SDK Web PPT](https://leizhou-dip-ing.github.io/WorkflowDesigner/sdk-guide/) 和相應示例的 README。
+开始开发前，请先阅读 [SDK Web PPT](https://leizhou-dip-ing.github.io/WorkflowDesigner/sdk-guide/) 和相应示例的 README。

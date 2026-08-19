@@ -4,7 +4,7 @@ This project references only `WorkflowRuntime.ActionSdk`. It does not reference
 `WorkflowCore`, the runtime application, the REST service, or the Windows service.
 
 Building this plugin copies its DLL to the local Windows Service output
-`plugins` directory. The Windows Service has no project or assembly reference to
+`plugins/WorkflowRuntime.SampleActionPlugin` directory. The Windows Service has no project or assembly reference to
 the plugin. Start or restart the service, then inspect
 `GET /api/workflow-runtime/action-catalog`; the catalog contains `sample.greeting`.
 
@@ -18,5 +18,9 @@ The project demonstrates both supported extension modes:
   properties, inputs, and outputs automatically.
 - `TextMetricsAction` demonstrates a variable-driven input and two independently
   mapped outputs (`Length` and `Uppercase`) that later Actions can reuse.
+- `TextTransformAction` demonstrates generated select, checkbox, and numeric editors.
+- `JsonEnvelopeAction` demonstrates structured JSON input/output and validation.
+- `DelayAction` demonstrates asynchronous execution and cooperative cancellation.
+- `RunCounterAction` demonstrates the public workflow-run variable context.
 - `PingActionHandler` implements `IWorkflowActionHandler` directly. It has no
   parameter metadata and therefore appears as a zero-parameter Action.

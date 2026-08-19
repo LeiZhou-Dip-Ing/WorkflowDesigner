@@ -1,6 +1,6 @@
 # WorkflowDesigner
 
-[繁體中文](README.md) · [English](README.en.md) · **[Open the interactive SDK guide](https://leizhou-dip-ing.github.io/WorkflowDesigner/sdk-guide/)**
+[简体中文](README.md) · [English](README.en.md) · **[Open the interactive SDK guide](https://leizhou-dip-ing.github.io/WorkflowDesigner/sdk-guide/)**
 
 WorkflowDesigner is a WPF desktop designer for visual automation workflow authoring. Collaborators can improve the canvas, editing experience, sample plugins, and public SDK integrations without access to the private WorkflowCore source repository.
 
@@ -49,18 +49,92 @@ The guide uses real samples from this repository to explain both external Action
 
 The deck includes live Chinese/English switching, keyboard navigation, and direct links to every source example.
 
-## Developer setup
+## Repository owner: one-time onboarding
 
-Collaborators need read access to this repository, package-level read access to private GitHub Packages published by `LeiZhou-Dip-Ing`, and a GitHub Personal Access Token used only for package restore.
+Inviting someone to WorkflowDesigner alone may not authorize private package restore. Before the developer clones the repository:
+
+1. Invite them under WorkflowDesigner `Settings > Collaborators` and have them accept.
+2. Open every private Workflow package used by this repository under the `LeiZhou-Dip-Ing` account.
+3. Grant the same account `Read` under each package's `Package settings > Manage access`, or connect the package to WorkflowDesigner and inherit repository access.
+4. Never share your token. Every developer creates their own.
+
+Official references: [package access control](https://docs.github.com/en/packages/learn-github-packages/configuring-a-packages-access-control-and-visibility) · [NuGet registry authentication](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-nuget-registry)
+
+## Invited developer: first run
+
+### 1. Prerequisites and clone
+
+Use Windows 10/11, Visual Studio 2022 with the .NET desktop workload or .NET SDK 8+, Git, and the GitHub account that accepted the repository invitation.
 
 ```powershell
-.\bootstrap.ps1
-dotnet restore WorkflowDesigner.sln
-dotnet build WorkflowDesigner.sln -c Release
-dotnet test tests\WorkflowCore.WpfDemo.Tests\WorkflowCore.WpfDemo.Tests.csproj -c Release
+git clone https://github.com/LeiZhou-Dip-Ing/WorkflowDesigner.git
+cd WorkflowDesigner
 ```
 
-Store the token only in the developer's user-level NuGet configuration. Never commit it.
+### 2. Create your package token
+
+GitHub's NuGet registry currently requires a **Personal Access Token (classic)** for this flow. Go to `Settings > Developer settings > Personal access tokens > Tokens (classic)`, generate a token with a reasonable expiry and `read:packages`, and authorize SSO when required. Never commit the token.
+
+### 3. Activate private WorkflowCore 2.0 package access
+
+There is no separate product license key. “Activating WorkflowCore” means that the owner granted package Read access and the developer configures local NuGet authentication with their own token.
+
+```powershell
+.\bootstrap.ps1 -ConfigurePackages
+```
+
+The token prompt is hidden. The script stores the credential only in the current Windows user's NuGet configuration, then restores and builds the solution. On later runs use `.\bootstrap.ps1`.
+
+### 4. Start the Runtime Host
+
+Terminal 1:
+
+```powershell
+dotnet run --project src\WorkflowRuntime.WindowsService
+```
+
+Open [http://localhost:5197/swagger](http://localhost:5197/swagger) and keep the Runtime running.
+
+### 5. Start the Designer
+
+Terminal 2:
+
+```powershell
+dotnet run --project src\WorkflowDesigner
+```
+
+The Designer connects to `http://localhost:5197/` by default. Set `WORKFLOW_RUNTIME_URL` before launch for another host. Verify that Runtime is connected, the live Action catalog loads, and the sample Actions appear.
+
+### Restore troubleshooting
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| `401 Unauthorized` | Expired/wrong token or not a classic PAT | Generate a PAT (classic) with `read:packages` and reconfigure the source |
+| `403 Forbidden` | Account lacks package Read access or SSO authorization | Ask the owner to check every package's Manage access; authorize SSO if applicable |
+| `NU1101` | Source missing/disabled or package version unpublished | Run `.\bootstrap.ps1 -ConfigurePackages` and check `Directory.Build.props` |
+| Runtime has no sample Actions | Plugin not deployed or Runtime not restarted | Rebuild, inspect the Runtime output `plugins` directory, and restart Runtime |
+| Designer stays offline | Runtime is stopped or URL differs | Check Swagger first, then `WORKFLOW_RUNTIME_URL` |
+
+To replace stale credentials:
+
+```powershell
+dotnet nuget remove source github-workflow
+.\bootstrap.ps1 -ConfigurePackages
+```
+
+## SDK examples beyond image processing
+
+[`samples/WorkflowRuntime.SampleActionPlugin`](samples/WorkflowRuntime.SampleActionPlugin) now includes runnable examples for basic metadata and I/O, multi-output text analysis, enum/checkbox/number editors, structured JSON, cancellable asynchronous execution, run variables, and direct `IWorkflowActionHandler` registration.
+
+The current public SDK covers metadata, properties, inputs/outputs, generated editors, variable expressions, output bindings, cancellation, run variables, and optional WPF editing surfaces. Useful next additions include first-class secret fields, HTTP/database/file/message-queue samples, structured validation errors, plugin templates and compatibility tests, and non-vision custom editor examples.
+
+## Build and test
+
+```powershell
+dotnet restore WorkflowDesigner.sln
+dotnet build WorkflowDesigner.sln -c Release -m:1
+dotnet test tests\WorkflowCore.WpfDemo.Tests\WorkflowCore.WpfDemo.Tests.csproj -c Release
+```
 
 ## Public extension boundary
 
@@ -71,4 +145,3 @@ Store the token only in the developer's user-level NuGet configuration. Never co
 - WorkflowCore source remains private. UI collaborators neither need nor should receive Core repository access.
 
 Before making an extension, read the [SDK Web PPT](https://leizhou-dip-ing.github.io/WorkflowDesigner/sdk-guide/) and the relevant sample README.
-
