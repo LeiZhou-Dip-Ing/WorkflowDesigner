@@ -11,7 +11,7 @@ namespace WorkflowCore.WpfDemo.Tests;
 public sealed class WorkflowArchitectureTests
 {
     [Fact]
-    public void WpfClient_UsesWorkflowCoreAndWorkflowWpfSdkPackageBoundary()
+    public void WpfClient_UsesWorkflowWpfSdkWithoutDirectWorkflowCoreDependency()
     {
         var projectFile = File.ReadAllText(Path.Combine(
             GetRepositoryRoot(),
@@ -19,7 +19,7 @@ public sealed class WorkflowArchitectureTests
             "WorkflowDesigner",
             "WorkflowDesigner.csproj"));
 
-        Assert.Contains("Include=\"WorkflowCore\"", projectFile, StringComparison.Ordinal);
+        Assert.DoesNotContain("Include=\"WorkflowCore\"", projectFile, StringComparison.Ordinal);
         Assert.Contains("Include=\"WorkflowWpfSdk\"", projectFile, StringComparison.Ordinal);
         Assert.DoesNotContain("<ProjectReference", projectFile, StringComparison.Ordinal);
     }

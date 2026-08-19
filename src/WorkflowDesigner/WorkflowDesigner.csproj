@@ -10,7 +10,6 @@
     <RootNamespace>WorkflowCore.WpfDemo</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="WorkflowCore" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowWpfSdk" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowRuntime.ScriptCompiler" Version="$(WorkflowVersion)" />
   </ItemGroup>
