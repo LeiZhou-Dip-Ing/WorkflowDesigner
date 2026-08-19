@@ -47,6 +47,18 @@ public interface IRuntimeApiClient : IDisposable, IAsyncDisposable
 
     Task<WorkflowDocumentResponse> GetWorkflowAsync(string workflowId, CancellationToken cancellationToken = default);
 
+    Task<WorkflowPublishResponse> ImportProtectedWorkflowAsync(
+        string workflowId,
+        string filePath,
+        long expectedRevision,
+        CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
+
+    Task<WorkflowPresentationResponse> GetWorkflowPresentationAsync(
+        string workflowId,
+        CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
+
     Task<ActiveProjectIdentityResponse?> GetActiveProjectIdentityAsync(
         string workflowId,
         CancellationToken cancellationToken = default)

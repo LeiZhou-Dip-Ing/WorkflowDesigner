@@ -24,6 +24,7 @@ public sealed class ProjectWorkspaceFactory : IProjectWorkspaceFactory
     private readonly ISharpScriptTemplateFactory _scriptTemplateFactory;
     private readonly ISharpScriptLibraryManagerDialog _scriptLibraryManagerDialog;
     private readonly IWorkflowProjectFileService _projectFileService;
+    private readonly IProtectedWorkflowImportService _protectedWorkflowImporter;
 
     public ProjectWorkspaceFactory(
         IMethodEditorViewModelFactory methodEditorFactory,
@@ -38,7 +39,8 @@ public sealed class ProjectWorkspaceFactory : IProjectWorkspaceFactory
         IUiTimerFactory timerFactory,
         ISharpScriptTemplateFactory scriptTemplateFactory,
         ISharpScriptLibraryManagerDialog scriptLibraryManagerDialog,
-        IWorkflowProjectFileService projectFileService)
+        IWorkflowProjectFileService projectFileService,
+        IProtectedWorkflowImportService protectedWorkflowImporter)
     {
         _methodEditorFactory = methodEditorFactory;
         _scriptEditorFactory = scriptEditorFactory;
@@ -53,6 +55,7 @@ public sealed class ProjectWorkspaceFactory : IProjectWorkspaceFactory
         _scriptTemplateFactory = scriptTemplateFactory;
         _scriptLibraryManagerDialog = scriptLibraryManagerDialog;
         _projectFileService = projectFileService;
+        _protectedWorkflowImporter = protectedWorkflowImporter;
     }
 
     public IProjectWorkspace Create(OpenedWorkflowProject openedProject)
@@ -73,6 +76,7 @@ public sealed class ProjectWorkspaceFactory : IProjectWorkspaceFactory
             scriptTemplateFactory: _scriptTemplateFactory,
             scriptLibraryManagerDialog: _scriptLibraryManagerDialog,
             projectFileService: _projectFileService,
-            projectFilePath: openedProject.FullPath);
+            projectFilePath: openedProject.FullPath,
+            protectedWorkflowImporter: _protectedWorkflowImporter);
     }
 }

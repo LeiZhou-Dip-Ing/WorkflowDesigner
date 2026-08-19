@@ -58,6 +58,8 @@ public partial class App : PrismApplication
         containerRegistry.RegisterSingleton<ILocalDraftStore, LocalDraftStore>();
         containerRegistry.RegisterSingleton<IEditorDialogs, WindowsEditorDialogs>();
         containerRegistry.RegisterSingleton<IEditorFileDialogs, WindowsEditorFileDialogs>();
+        containerRegistry.RegisterSingleton<IProtectedWorkflowPresentation, ProtectedWorkflowPresentation>();
+        containerRegistry.RegisterSingleton<IProtectedWorkflowImportService, ProtectedWorkflowImportService>();
         containerRegistry.RegisterSingleton<IRecentProjectRepository, JsonRecentProjectRepository>();
         containerRegistry.RegisterSingleton<IWorkflowProjectFileService, WorkflowProjectFileService>();
         containerRegistry.RegisterSingleton<IProjectWorkspaceFactory, ProjectWorkspaceFactory>();

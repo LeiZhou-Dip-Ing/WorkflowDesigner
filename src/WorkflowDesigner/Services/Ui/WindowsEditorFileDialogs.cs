@@ -17,7 +17,9 @@ public sealed class WindowsEditorFileDialogs : IEditorFileDialogs
         => SelectOpenPath("Import Workflow Document", "Workflow document JSON (*.json)|*.json|All files (*.*)|*.*");
 
     public string? SelectProjectImportFile()
-        => SelectOpenPath("Import Workflow Project", "Workflow project JSON (*.json)|*.json|All files (*.*)|*.*");
+        => SelectOpenPath(
+            "Import Workflow Project",
+            "Workflow projects (*.json;*.wflowx)|*.json;*.wflowx|Protected workflow (*.wflowx)|*.wflowx|Workflow project JSON (*.json)|*.json");
 
     public string? SelectDocumentExportPath(string documentName, string suggestedFileName)
         => SelectSavePath(

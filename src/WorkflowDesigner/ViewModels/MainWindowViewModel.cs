@@ -112,7 +112,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         ISharpScriptTemplateFactory? scriptTemplateFactory = null,
         ISharpScriptLibraryManagerDialog? scriptLibraryManagerDialog = null,
         IWorkflowProjectFileService? projectFileService = null,
-        string? projectFilePath = null)
+        string? projectFilePath = null, IProtectedWorkflowImportService? protectedWorkflowImporter = null)
     {
         _methodEditorViewModelFactory = methodEditorViewModelFactory
             ?? throw new ArgumentNullException(nameof(methodEditorViewModelFactory));
@@ -126,6 +126,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         ArgumentNullException.ThrowIfNull(localDraftStore);
         _dialogs = dialogs ?? throw new ArgumentNullException(nameof(dialogs));
         _fileDialogs = fileDialogs ?? throw new ArgumentNullException(nameof(fileDialogs));
+        _protectedWorkflowImporter = protectedWorkflowImporter;
         _uiDispatcher = uiDispatcher ?? throw new ArgumentNullException(nameof(uiDispatcher));
         ArgumentNullException.ThrowIfNull(timerFactory);
         _jsonPreviewRefreshTimer = timerFactory.Create(TimeSpan.FromMilliseconds(200));
@@ -284,7 +285,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
             () => !IsRunning && SelectedDockPane?.Content is IExportableDockDocument);
         ImportJsonCommand = new RelayCommand(ImportJson, () => !IsRunning);
         ExportProjectJsonCommand = new RelayCommand(ExportProjectJson, () => !IsRunning);
-        ImportProjectJsonCommand = new RelayCommand(ImportProjectJson, () => !IsRunning);
+        ImportProjectJsonCommand = new RelayCommand(() => _ = ImportProjectAsync(), () => !IsRunning);
         ClearLogCommand = new RelayCommand(ClearLog);
         ToggleExplorerCommand = new RelayCommand(ToggleExplorer);
         ExpandExplorerCommand = new RelayCommand(() => IsExplorerExpanded = true);
@@ -1900,7 +1901,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         }
     }
 
-    private void ImportProjectJson()
+    private async Task ImportProjectAsync()
     {
         IsCreateMenuOpen = false;
         var filePath = _fileDialogs.SelectProjectImportFile();
@@ -1911,6 +1912,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
 
         try
         {
+            if (string.Equals(Path.GetExtension(filePath), ".wflowx", StringComparison.OrdinalIgnoreCase))
+            {
+                await ImportProtectedProjectAsync(filePath);
+                return;
+            }
+
             if (TryImportStandaloneDocument(filePath))
             {
                 return;
@@ -1942,7 +1949,11 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
                 _ = SynchronizeRuntimeAsync();
             }
         }
-        catch (Exception exception) when (exception is System.IO.IOException or UnauthorizedAccessException or JsonException or InvalidOperationException)
+        catch (Exception exception) when (exception is System.IO.IOException
+                                          or UnauthorizedAccessException
+                                          or JsonException
+                                          or InvalidOperationException
+                                          or System.Net.Http.HttpRequestException)
         {
             Debug.WriteLine(exception);
             StatusText = $"Could not import the Project: {exception.Message}";

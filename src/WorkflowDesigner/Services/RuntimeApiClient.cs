@@ -218,6 +218,39 @@ public sealed class RuntimeApiClient : IRuntimeApiClient
             ?? throw new InvalidOperationException("Workflow Runtime returned an empty workflow document.");
     }
 
+    public async Task<WorkflowPublishResponse> ImportProtectedWorkflowAsync(
+        string workflowId,
+        string filePath,
+        long expectedRevision,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(workflowId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+        await using var stream = File.OpenRead(filePath);
+        using var content = new MultipartFormDataContent();
+        using var fileContent = new StreamContent(stream);
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+        content.Add(fileContent, "file", Path.GetFileName(filePath));
+        content.Add(new StringContent(expectedRevision.ToString(System.Globalization.CultureInfo.InvariantCulture)), "revision");
+        using var response = await _httpClient.PostAsync(
+            $"api/workflows/{Uri.EscapeDataString(workflowId)}/encrypted",
+            content,
+            cancellationToken).ConfigureAwait(false);
+        return await ReadJsonAsync<WorkflowPublishResponse>(response, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<WorkflowPresentationResponse> GetWorkflowPresentationAsync(
+        string workflowId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(workflowId);
+        return await _httpClient.GetFromJsonAsync<WorkflowPresentationResponse>(
+                $"api/workflows/{Uri.EscapeDataString(workflowId)}/presentation",
+                cancellationToken)
+            .ConfigureAwait(false)
+            ?? throw new InvalidOperationException("Workflow Runtime returned an empty protected workflow presentation.");
+    }
+
     public async Task<ActiveProjectIdentityResponse?> GetActiveProjectIdentityAsync(
         string workflowId,
         CancellationToken cancellationToken = default)
