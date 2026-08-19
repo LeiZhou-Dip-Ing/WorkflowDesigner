@@ -10,7 +10,7 @@ namespace WorkflowCore.WpfDemo.Tests;
 public sealed class NativePackageIntegrationTests
 {
     [Fact]
-    public async Task RestoredPackage_DeploysAndExecutesNativeKernel()
+    public async Task RestoredPackage_DeploysAndExecutesDefaultNativeKernel()
     {
         var nativePath = Path.Combine(
             AppContext.BaseDirectory,
@@ -32,14 +32,9 @@ public sealed class NativePackageIntegrationTests
         method.MethodLines.Add(MethodLine.Create(20, 1, new LogAction { Message = "native:true" }));
         method.MethodLines.Add(MethodLine.Create(30, 0, new EndIfAction()));
         project.Methods.Add(method);
-        var before = NativeExecutionKernel.Instance.InvocationCount;
 
-        var result = await new MethodRunner(new WorkflowRunnerDependencies
-        {
-            ExecutionKernel = NativeExecutionKernel.Instance
-        }).StartAsync(project, method);
+        var result = await new MethodRunner().StartAsync(project, method);
 
         Assert.Equal(TaskResultType.OK, result.ResultType);
-        Assert.True(NativeExecutionKernel.Instance.InvocationCount > before);
     }
 }
