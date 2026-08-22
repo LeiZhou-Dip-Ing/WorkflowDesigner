@@ -25,6 +25,8 @@ public sealed class SampleActionPlugin : IWorkflowActionPlugin
             Category = "External plugins",
             Description = "A zero-parameter Action that implements the handler interface without inheriting the SDK Base.",
             DisplayTemplate = "Ping runtime",
+            Aliases = Array.Empty<string>(),
+            Fields = Array.Empty<WorkflowActionFieldDefinition>(),
             Icon = new WorkflowActionIcon
             {
                 ContentType = "image/svg+xml",

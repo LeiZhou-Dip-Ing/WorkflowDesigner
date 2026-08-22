@@ -2,13 +2,6 @@ using WorkflowRuntime.ActionSdk;
 
 namespace WorkflowRuntime.SampleActionPlugin;
 
-public enum TextTransformMode
-{
-    Preserve,
-    Uppercase,
-    Lowercase
-}
-
 [WorkflowAction(
     "sample.textTransform",
     "Text Transform",
@@ -19,7 +12,7 @@ public enum TextTransformMode
 public sealed class TextTransformAction : WorkflowActionBase
 {
     [WorkflowActionProperty(Description = "Letter-case conversion applied after trimming.", Order = 0)]
-    public TextTransformMode Mode { get; set; } = TextTransformMode.Preserve;
+    public string Mode { get; set; } = "Preserve";
 
     [WorkflowActionProperty(DisplayName = "Trim whitespace", Description = "Remove whitespace at both ends.", Order = 1)]
     public bool TrimWhitespace { get; set; } = true;
@@ -40,10 +33,10 @@ public sealed class TextTransformAction : WorkflowActionBase
     {
         cancellationToken.ThrowIfCancellationRequested();
         var value = TrimWhitespace ? Text.Trim() : Text;
-        value = Mode switch
+        value = Mode.Trim().ToLowerInvariant() switch
         {
-            TextTransformMode.Uppercase => value.ToUpperInvariant(),
-            TextTransformMode.Lowercase => value.ToLowerInvariant(),
+            "uppercase" => value.ToUpperInvariant(),
+            "lowercase" => value.ToLowerInvariant(),
             _ => value
         };
 

@@ -15,4 +15,20 @@
     <PackageReference Include="WorkflowRuntime.Vision.OpenCvSharp" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowRuntime.VisionSdk" Version="$(WorkflowVersion)" />
   </ItemGroup>
+  <ItemGroup>
+    <RuntimePluginProject Include="..\..\samples\WorkflowRuntime.SampleActionPlugin\WorkflowRuntime.SampleActionPlugin.csproj">
+      <PluginDirectory>$(TargetDir)plugins\WorkflowRuntime.SampleActionPlugin</PluginDirectory>
+      <DeployProperty>WorkflowRuntimePluginDeployDirectory</DeployProperty>
+    </RuntimePluginProject>
+    <RuntimePluginProject Include="..\..\samples\WorkflowRuntime.OpenCvSamplePlugin\WorkflowRuntime.OpenCvSamplePlugin.csproj">
+      <PluginDirectory>$(TargetDir)plugins\WorkflowRuntime.OpenCvSamplePlugin</PluginDirectory>
+      <DeployProperty>WorkflowRuntimePluginDirectory</DeployProperty>
+    </RuntimePluginProject>
+  </ItemGroup>
+  <Target Name="BuildRuntimePlugins" AfterTargets="Build" Condition="'$(BuildRuntimePlugins)' != 'false'">
+    <MSBuild
+      Projects="@(RuntimePluginProject)"
+      Targets="Build"
+      Properties="Configuration=$(Configuration);TargetFramework=net8.0;DeployToWorkflowRuntimeOnBuild=true;%(RuntimePluginProject.DeployProperty)=%(RuntimePluginProject.PluginDirectory)" />
+  </Target>
 </Project>

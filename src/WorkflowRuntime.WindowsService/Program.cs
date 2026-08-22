@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.AspNetCore.Http.Features;
 using WorkflowCore.Actions;
@@ -7,6 +9,7 @@ using WorkflowRuntime.Application.Catalog;
 using WorkflowRuntime.Application.Documents;
 using WorkflowRuntime.Application.Plugins;
 using WorkflowRuntime.Application.Runtime;
+using WorkflowRuntime.Application.Security;
 using WorkflowRuntime.Application.Storage;
 using WorkflowRuntime.Application.SharpScripts;
 using WorkflowRuntime.Application.SharpScripts.Libraries;
@@ -102,7 +105,10 @@ public static class Program
         builder.Services.AddSingleton<SharpScriptLibraryUsageGuard>();
         builder.Services.AddSingleton<WorkflowPublicationCoordinator>();
         builder.Services.AddSingleton<RuntimeWorkflowValidator>();
-        builder.Services.AddSingleton(_ => new PublishedWorkflowStore(options.StorageDirectory));
+        builder.Services.AddSingleton(_ => new PublishedWorkflowStore(
+            options.StorageDirectory,
+            CreateDocumentProtector(builder.Environment),
+            TimeProvider.System));
         builder.Services.AddSingleton<WorkflowRunLauncher>();
         builder.Services.AddWorkflowRuntimeRestServices(options.AllowRemoteAccess);
         builder.Services.AddSingleton<ActionPluginStartup>();
@@ -164,5 +170,26 @@ public static class Program
         return Path.IsPathRooted(path)
             ? Path.GetFullPath(path)
             : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, path));
+    }
+
+    private static WorkflowDocumentProtector CreateDocumentProtector(IHostEnvironment environment)
+    {
+        const string keyId = "primary";
+        const string environmentVariableName = "WORKFLOW_RUNTIME_ENCRYPTION_KEY";
+
+        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(environmentVariableName)))
+        {
+            return WorkflowDocumentProtector.FromEnvironment(keyId, environmentVariableName);
+        }
+
+        if (!environment.IsDevelopment())
+        {
+            throw new InvalidOperationException(
+                $"Required workflow encryption key environment variable '{environmentVariableName}' is not set.");
+        }
+
+        var developmentKey = SHA256.HashData(
+            Encoding.UTF8.GetBytes("WorkflowRuntime.WindowsService development workflow encryption key"));
+        return WorkflowDocumentProtector.Create("development", developmentKey);
     }
 }

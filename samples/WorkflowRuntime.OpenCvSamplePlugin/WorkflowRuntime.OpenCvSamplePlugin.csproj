@@ -7,7 +7,7 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <DeployToWorkflowRuntimeOnBuild Condition="'$(DeployToWorkflowRuntimeOnBuild)' == '' and '$(Configuration)' == 'Debug'">true</DeployToWorkflowRuntimeOnBuild>
     <DeployToWorkflowRuntimeOnBuild Condition="'$(DeployToWorkflowRuntimeOnBuild)' == ''">false</DeployToWorkflowRuntimeOnBuild>
-    <WorkflowRuntimePluginDirectory>$(MSBuildThisFileDirectory)..\..\src\WorkflowRuntime.WindowsService\bin\$(Configuration)\net8.0\plugins\WorkflowRuntime.OpenCvSamplePlugin</WorkflowRuntimePluginDirectory>
+    <WorkflowRuntimePluginDirectory Condition="'$(WorkflowRuntimePluginDirectory)' == ''">$(MSBuildThisFileDirectory)..\..\src\WorkflowRuntime.WindowsService\bin\$(Configuration)\net8.0\plugins\WorkflowRuntime.OpenCvSamplePlugin</WorkflowRuntimePluginDirectory>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="WorkflowSdk" Version="$(WorkflowVersion)" />
