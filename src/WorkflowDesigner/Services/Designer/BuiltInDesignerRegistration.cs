@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using WorkflowCore.WpfDemo.Views;
-using WorkflowDesigner.Contracts;
+using WorkflowRuntime.ActionSdk;
 using WorkflowDesigner.WpfSdk;
 
 namespace WorkflowCore.WpfDemo.Services.Designer;
@@ -27,7 +27,7 @@ public static class BuiltInDesignerRegistration
             context => new ImageWorkspaceView { DataContext = context });
 
         registry.RegisterActionEditor(
-            WorkflowActionEditorKeys.Vision,
+            WorkflowActionEditorKeys.Image,
             context => new ActionEditorWindow(context, isImageEditor: true));
 
         registry.RegisterActionEditor(

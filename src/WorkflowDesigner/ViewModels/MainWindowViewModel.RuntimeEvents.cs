@@ -48,7 +48,7 @@ public sealed partial class MainWindowViewModel
         void Apply()
         {
             _actionRunLog.Apply(runtimeEvent);
-            ApplyVisionPreviewEvent(runtimeEvent);
+            ApplyResourcePreviewEvent(runtimeEvent);
             ApplyDebugEvent(runtimeEvent);
         }
 
@@ -77,7 +77,7 @@ public sealed partial class MainWindowViewModel
         foreach (var runtimeEvent in events)
         {
             _actionRunLog.Apply(runtimeEvent);
-            ApplyVisionPreviewEvent(runtimeEvent);
+            ApplyResourcePreviewEvent(runtimeEvent);
             ApplyDebugEvent(runtimeEvent);
         }
     }
@@ -89,7 +89,7 @@ public sealed partial class MainWindowViewModel
             SetDebugLocation(runtimeEvent.MethodName, runtimeEvent.LineNumber);
             IsDebugPaused = true;
             StatusText = $"Paused after step {runtimeEvent.LineNumber}: {runtimeEvent.ActionType}.";
-            RefreshSelectedVisionPreview();
+            RefreshSelectedResourcePreview();
         }
         else if (string.Equals(runtimeEvent.EventType, "DebugResumed", StringComparison.OrdinalIgnoreCase))
         {
@@ -101,7 +101,7 @@ public sealed partial class MainWindowViewModel
         => _uiDispatcher.Post(() =>
         {
             FlushPendingRuntimeEvents();
-            RefreshSelectedVisionPreview();
+            RefreshSelectedResourcePreview();
             OnPropertyChanged(nameof(IsRunning));
             OnPropertyChanged(nameof(IsStepRun));
             RaiseCommandStates();

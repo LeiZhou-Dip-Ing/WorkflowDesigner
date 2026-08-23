@@ -1,4 +1,5 @@
-using WorkflowDesigner.Contracts;
+using WorkflowRuntime.ActionSdk;
+using WorkflowDesigner.WpfSdk;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;

@@ -385,7 +385,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
                 RefreshActionProperties();
                 RefreshSelectedMethodVariables();
                 RefreshJsonPreview();
-                RefreshSelectedVisionPreview();
+                RefreshSelectedResourcePreview();
                 NotifySelectedMethodDeploymentNoticeChanged();
                 RaiseCommandStates();
             }
@@ -403,7 +403,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
                 OnPropertyChanged();
                 SynchronizeSelectedMethodLineItem();
                 RefreshActionProperties();
-                RefreshSelectedVisionPreview();
+                RefreshSelectedResourcePreview();
                 RaiseCommandStates();
             }
         }

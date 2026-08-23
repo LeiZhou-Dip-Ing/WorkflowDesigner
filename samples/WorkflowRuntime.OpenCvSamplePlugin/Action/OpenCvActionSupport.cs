@@ -6,9 +6,9 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
 
 internal static class OpenCvActionSupport
 {
-    public static IWorkflowResourceActionContext RequireVision(IWorkflowActionContext context)
+    public static IWorkflowResourceActionContext RequireResources(IWorkflowActionContext context)
         => context as IWorkflowResourceActionContext
-           ?? throw new InvalidOperationException("The host does not expose the optional Vision Action context.");
+           ?? throw new InvalidOperationException("The host does not expose the optional Resource Action context.");
 
     public static Mat RequireImage(IWorkflowResourceActionContext vision, string handle, string fieldName = "Input image")
     {
@@ -58,17 +58,14 @@ internal static class OpenCvActionSupport
     public static WorkflowResourceMetadata Metadata(Mat image, string source)
         => new()
         {
-            Width = image.Width,
-            Height = image.Height,
-            Channels = image.Channels(),
-            DepthBits = checked((int)image.ElemSize1() * 8),
-            PixelFormat = image.Channels() switch
+            ResourceType = "image/opencv",
+            ContentType = "application/x-opencv-mat",
+            Source = source,
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                1 => "Gray",
-                3 => "Bgr",
-                4 => "Bgra",
-                _ => $"Channels{image.Channels()}"
-            },
-            Source = source
+                ["width"] = image.Width.ToString(), ["height"] = image.Height.ToString(),
+                ["channels"] = image.Channels().ToString(), ["depthBits"] = checked((int)image.ElemSize1() * 8).ToString(),
+                ["pixelFormat"] = image.Channels() switch { 1 => "Gray", 3 => "Bgr", 4 => "Bgra", _ => $"Channels{image.Channels()}" }
+            }
         };
 }

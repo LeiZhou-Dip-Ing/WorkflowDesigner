@@ -11,9 +11,8 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin",
     Description = "Inverts an image through an external Action SDK plugin.",
     DisplayTemplate = "Invert {InputImage} → {OutputImage}",
-    ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowActionEditorKeys.Vision)]
+    DoubleClickEditor = WorkflowActionEditorKeys.Image)]
 public sealed class InvertImageAction : WorkflowActionBase
 {
     [WorkflowActionInput(
@@ -47,23 +46,23 @@ public sealed class InvertImageAction : WorkflowActionBase
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var vision = RequireVisionContext(context);
-        var input = RequireImage(vision, InputImage);
+        var resources = RequireResourceContext(context);
+        var input = RequireImage(resources, InputImage);
 
         var output = new Mat();
         Cv2.BitwiseNot(input, output);
-        var sourceMetadata = vision.GetResourceMetadata(InputImage);
-        OutputImage = vision.StoreResource(
+        var sourceMetadata = resources.GetResourceMetadata(InputImage);
+        OutputImage = resources.StoreResource(
             output,
             sourceMetadata with { Source = "SDK plugin: Invert" },
             PublishPreview);
-        context.Log($"Inverted {sourceMetadata.Width} x {sourceMetadata.Height} image.");
+        context.Log("Inverted image resource.");
         return ValueTask.CompletedTask;
     }
 
-    private static IWorkflowResourceActionContext RequireVisionContext(IWorkflowActionContext context)
+    private static IWorkflowResourceActionContext RequireResourceContext(IWorkflowActionContext context)
         => context as IWorkflowResourceActionContext
-           ?? throw new InvalidOperationException("The host does not expose the optional Vision Action context.");
+           ?? throw new InvalidOperationException("The host does not expose the optional Resource Action context.");
 
     private static Mat RequireImage(IWorkflowResourceActionContext vision, string handle)
     {

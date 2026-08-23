@@ -12,9 +12,8 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin",
     Description = "Applies Gaussian blur through an external Action SDK plugin.",
     DisplayTemplate = "Blur {InputImage} ({KernelSize}) → {OutputImage}",
-    ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowActionEditorKeys.Vision)]
+    DoubleClickEditor = WorkflowActionEditorKeys.Image)]
 public sealed class GaussianBlurSdkAction : WorkflowActionBase
 {
     [WorkflowActionInput(
@@ -67,7 +66,7 @@ public sealed class GaussianBlurSdkAction : WorkflowActionBase
     {
         cancellationToken.ThrowIfCancellationRequested();
         var vision = context as IWorkflowResourceActionContext
-            ?? throw new InvalidOperationException("The host does not expose the optional Vision Action context.");
+            ?? throw new InvalidOperationException("The host does not expose the optional Resource Action context.");
         if (!vision.TryGetResource<Mat>(InputImage, out var input) || input == null)
         {
             throw new KeyNotFoundException($"Image handle '{InputImage}' was not found.");

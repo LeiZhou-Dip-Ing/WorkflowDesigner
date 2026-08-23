@@ -9,10 +9,12 @@ The WPF application project is `src\WorkflowDesigner\WorkflowDesigner.csproj`.
 Current main package references:
 
 - WorkflowCore
-- WorkflowWpfSdk
+- WorkflowRuntime.ActionSdk
+- WorkflowRuntime.ResourceSdk
+- WorkflowDesigner.WpfSdk
 - WorkflowRuntime.ScriptCompiler
 
-`WorkflowRuntime.ScriptCompiler` remains transitional because the current Designer source directly uses compiler services. The intended final shape is to expose that interaction through WorkflowCore or WorkflowWpfSdk so the app can return to only WorkflowCore + WorkflowWpfSdk as major platform references.
+`WorkflowRuntime.ScriptCompiler` remains a compiler-service package used by the Designer. Third-party Action extensions do not reference it.
 
 ## Source Separation
 
@@ -24,8 +26,6 @@ WorkflowDesigner no longer contains these source projects:
 - `src\WorkflowRuntime.ActionSdk`
 - `src\WorkflowRuntime.ScriptSdk`
 - `src\WorkflowRuntime.ScriptCompiler`
-- `src\WorkflowRuntime.VisionSdk`
-- `src\WorkflowDesigner.Contracts`
 - `src\WorkflowDesigner.WpfSdk`
 
 Those are restored as packages.
@@ -49,7 +49,7 @@ External WorkflowDesigner collaborators should not be invited to the private Wor
 The intended model is:
 
 - WorkflowDesigner repository access for source collaboration.
-- GitHub Packages package-level `Read` access for WorkflowCore, WorkflowSdk, WorkflowWpfSdk, and supporting WorkflowRuntime/WorkflowDesigner packages.
+- GitHub Packages package-level `Read` access for the exact WorkflowCore, WorkflowRuntime.ActionSdk, WorkflowRuntime.ResourceSdk and WorkflowDesigner.WpfSdk packages required by the repository.
 - User-level NuGet credentials on each developer machine.
 - No package token, password, PAT, or secret stored in this repository.
 

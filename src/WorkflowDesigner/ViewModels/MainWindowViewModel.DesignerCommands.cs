@@ -53,7 +53,7 @@ public sealed partial class MainWindowViewModel
         var result = await _runSession.RunPreviewAsync(workflowJson, SelectedMethod, inputs, stepMode);
         StatusText = result.Message;
         ClearDebugLocation();
-        RefreshSelectedVisionPreview();
+        RefreshSelectedResourcePreview();
         if (!result.Succeeded) _actionRunLog.AddRunFailure(SelectedMethod.Name, result.Message);
     }
 

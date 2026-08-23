@@ -32,11 +32,11 @@ public sealed class WorkflowDesignerActionContextAdapter : IWorkflowDesignerActi
     public IReadOnlyList<IWorkflowPropertyEditorModel> Properties
         => _owner.SelectedActionProperties.Cast<IWorkflowPropertyEditorModel>().ToArray();
 
-    public ImageSource? PreviewImage => _owner.SelectedVisionPreviewImage;
+    public ImageSource? PreviewImage => _owner.SelectedResourcePreviewImage;
 
-    public bool HasPreview => _owner.HasSelectedVisionPreview;
+    public bool HasPreview => _owner.HasSelectedResourcePreview;
 
-    public string PreviewInfo => _owner.SelectedVisionPreviewInfo;
+    public string PreviewInfo => _owner.SelectedResourcePreviewInfo;
 
     public bool CanRunPreview => _owner.CanRunDesignerPreview;
 
@@ -52,9 +52,9 @@ public sealed class WorkflowDesignerActionContextAdapter : IWorkflowDesignerActi
     private void OwnerOnPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
     {
         if (string.IsNullOrEmpty(eventArgs.PropertyName)
-            || eventArgs.PropertyName is nameof(MainWindowViewModel.SelectedVisionPreviewImage)
-                or nameof(MainWindowViewModel.HasSelectedVisionPreview)
-                or nameof(MainWindowViewModel.SelectedVisionPreviewInfo)
+            || eventArgs.PropertyName is nameof(MainWindowViewModel.SelectedResourcePreviewImage)
+                or nameof(MainWindowViewModel.HasSelectedResourcePreview)
+                or nameof(MainWindowViewModel.SelectedResourcePreviewInfo)
                 or nameof(MainWindowViewModel.IsRunning)
                 or nameof(MainWindowViewModel.IsRuntimeOnline))
         {

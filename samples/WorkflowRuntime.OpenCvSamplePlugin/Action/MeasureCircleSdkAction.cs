@@ -11,7 +11,6 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin / Measurement",
     Description = "Detects a dominant circle, calculates its diameter, and overlays the measured dimension.",
     DisplayTemplate = "Measure circle {InputImage} → {OutputImage}",
-    ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
     DoubleClickEditor = OpenCvDesignerKeys.MeasureCircleActionEditor)]
 public sealed class MeasureCircleSdkAction : WorkflowActionBase
@@ -60,7 +59,7 @@ public sealed class MeasureCircleSdkAction : WorkflowActionBase
     protected override ValueTask ExecuteActionAsync(IWorkflowActionContext context, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var vision = OpenCvActionSupport.RequireVision(context);
+        var vision = OpenCvActionSupport.RequireResources(context);
         var input = OpenCvActionSupport.RequireImage(vision, InputImage);
         using var gray = OpenCvActionSupport.ToGrayClone(input);
         using var smooth = new Mat();

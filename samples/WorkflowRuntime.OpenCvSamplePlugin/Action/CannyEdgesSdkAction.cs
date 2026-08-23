@@ -12,7 +12,6 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin",
     Description = "Detects image edges through an external Action SDK plugin.",
     DisplayTemplate = "Canny {InputImage} ({Threshold1}, {Threshold2}) → {OutputImage}",
-    ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
     DoubleClickEditor = OpenCvDesignerKeys.CannyActionEditor)]
 public sealed class CannyEdgesSdkAction : WorkflowActionBase
@@ -51,7 +50,7 @@ public sealed class CannyEdgesSdkAction : WorkflowActionBase
     {
         cancellationToken.ThrowIfCancellationRequested();
         var vision = context as IWorkflowResourceActionContext
-            ?? throw new InvalidOperationException("The host does not expose the optional Vision Action context.");
+            ?? throw new InvalidOperationException("The host does not expose the optional Resource Action context.");
         if (!vision.TryGetResource<Mat>(InputImage, out var input) || input == null)
         {
             throw new KeyNotFoundException($"Image handle '{InputImage}' was not found.");
@@ -60,15 +59,7 @@ public sealed class CannyEdgesSdkAction : WorkflowActionBase
         using var gray = ToGrayClone(input);
         var output = new Mat();
         Cv2.Canny(gray, output, Threshold1, Threshold2);
-        var metadata = new WorkflowResourceMetadata
-        {
-            Width = output.Width,
-            Height = output.Height,
-            Channels = output.Channels(),
-            DepthBits = checked((int)output.ElemSize1() * 8),
-            PixelFormat = "Gray",
-            Source = "SDK plugin: Canny"
-        };
+        var metadata = OpenCvActionSupport.Metadata(output, "SDK plugin: Canny");
         OutputImage = vision.StoreResource(output, metadata, PublishPreview);
         context.Log($"Canny edge detection completed ({Threshold1}, {Threshold2}).");
         return ValueTask.CompletedTask;

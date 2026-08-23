@@ -11,7 +11,6 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin / Measurement",
     Description = "Finds the longest line segment with Canny + probabilistic Hough transform and draws the result.",
     DisplayTemplate = "Measure line {InputImage} → {OutputImage}",
-    ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
     DoubleClickEditor = OpenCvDesignerKeys.MeasureLineActionEditor)]
 public sealed class MeasureLineSdkAction : WorkflowActionBase
@@ -62,7 +61,7 @@ public sealed class MeasureLineSdkAction : WorkflowActionBase
     protected override ValueTask ExecuteActionAsync(IWorkflowActionContext context, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var vision = OpenCvActionSupport.RequireVision(context);
+        var vision = OpenCvActionSupport.RequireResources(context);
         var input = OpenCvActionSupport.RequireImage(vision, InputImage);
         using var gray = OpenCvActionSupport.ToGrayClone(input);
         using var edges = new Mat();

@@ -3,7 +3,8 @@ using WorkflowCore.WpfDemo.Editor;
 using WorkflowCore.WpfDemo.Models;
 using WorkflowCore.WpfDemo.Services;
 using WorkflowCore.WpfDemo.Services.Editing;
-using WorkflowDesigner.Contracts;
+using WorkflowRuntime.ActionSdk;
+using WorkflowDesigner.WpfSdk;
 using WorkflowRuntime.Contracts;
 using Xunit;
 
@@ -12,7 +13,7 @@ namespace WorkflowCore.WpfDemo.Tests;
 public sealed class ActionEditorPresentationTests
 {
     [Fact]
-    public void ActionPresentationPolicy_UsesCatalogMetadataInsteadOfActionTypePrefixes()
+    public void ActionPresentationPolicy_UsesExplicitWorkspaceAndEditorKeys()
     {
         var descriptor = new WorkflowActionDescriptorDto
         {
@@ -21,21 +22,21 @@ public sealed class ActionEditorPresentationTests
             Category = "Custom",
             Presentation = new WorkflowActionPresentationDto
             {
-                ActionKind = "vision",
-                WorkspaceKind = "auto",
-                DoubleClickEditor = "vision"
+                ActionKind = "vendor.image-processing",
+                WorkspaceKind = "image",
+                DoubleClickEditor = "image"
             }
         };
 
         Assert.True(ActionPresentationPolicy.UsesImageWorkspace(descriptor));
         Assert.False(ActionPresentationPolicy.UsesPropertyWorkspace(descriptor));
         Assert.True(ActionPresentationPolicy.CanOpenOnDoubleClick(descriptor));
-        Assert.Equal(WorkflowActionEditorKeys.Vision, ActionPresentationPolicy.GetDoubleClickEditor(descriptor));
+        Assert.Equal(WorkflowActionEditorKeys.Image, ActionPresentationPolicy.GetDoubleClickEditor(descriptor));
     }
 
 
     [Fact]
-    public void ActionPresentationPolicy_ExplicitPropertiesWorkspaceOverridesVisionKind()
+    public void ActionPresentationPolicy_DoesNotInferWorkspaceFromActionKind()
     {
         var descriptor = new WorkflowActionDescriptorDto
         {
@@ -45,7 +46,7 @@ public sealed class ActionEditorPresentationTests
             Presentation = new WorkflowActionPresentationDto
             {
                 ActionKind = "vision",
-                WorkspaceKind = "properties"
+                WorkspaceKind = "auto"
             }
         };
 

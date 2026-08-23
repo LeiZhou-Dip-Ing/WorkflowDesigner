@@ -7,7 +7,7 @@ This project is the advanced extension example. It produces one deliverable:
 The same DLL contains two independent public entry points:
 
 - `Action/OpenCvSamplePlugin.cs` registers Runtime Actions through `WorkflowRuntime.ActionSdk`.
-- `UI/OpenCvSampleDesignerExtension.cs` registers optional WPF editors and workspaces through `WorkflowWpfSdk`.
+- `UI/OpenCvSampleDesignerExtension.cs` registers optional WPF editors and workspaces through `WorkflowDesigner.WpfSdk`.
 
 Shared IDs live under `Shared/`. Building the project deploys the same DLL to both the Runtime
 `plugins` directory and the Designer `designer-plugins` directory. No WorkflowCore, Runtime host,
@@ -21,8 +21,8 @@ though distribution is one DLL.
 ## Ordinary Actions stay simple
 
 Do not copy this WPF setup for a normal business Action. A normal Action plugin only references
-`WorkflowSdk`, declares metadata on its Action classes, and receives the generated property panel.
-It does not need the entry-point attribute, a `UI` folder, or `WorkflowWpfSdk`.
+`WorkflowRuntime.ActionSdk`, declares metadata on its Action classes, and receives the generated property panel.
+It does not need the entry-point attribute, a `UI` folder, `WorkflowDesigner.WpfSdk`, or `WorkflowRuntime.ResourceSdk`.
 
 ## Add an advanced extension
 
@@ -33,5 +33,5 @@ It does not need the entry-point attribute, a `UI` folder, or `WorkflowWpfSdk`.
 4. Put keys shared by Action metadata and UI registration under `Shared/`.
 5. Build this project. The single DLL is deployed to both hosts automatically in Debug builds.
 
-The Runtime receives image handles and publishes previews through the public Vision SDK. WPF never
+The Runtime receives image resource handles and publishes provider-owned previews through `WorkflowRuntime.ResourceSdk`. WPF never
 receives OpenCvSharp `Mat` instances from the Runtime process.

@@ -175,8 +175,9 @@ dotnet test tests\WorkflowCore.WpfDemo.Tests\WorkflowCore.WpfDemo.Tests.csproj -
 
 ## 公开扩展边界
 
-- 普通 Runtime Action 插件只需要引用 `WorkflowSdk`，元数据自动生成属性面板。
-- 需要自定义 WPF 体验的进阶插件可在同一项目中额外引用 `WorkflowWpfSdk`，并输出一个同时供两个宿主加载的 DLL。
+- 普通 Runtime Action 插件只需要引用 `WorkflowRuntime.ActionSdk`，元数据自动生成属性面板。
+- 需要自定义 WPF 体验的进阶插件在同一个 csproj 中按需引用 `WorkflowDesigner.WpfSdk`；需要运行期对象句柄与预览时再引用 `WorkflowRuntime.ResourceSdk`。
+- 一个第三方 Extension 对应一个 csproj。`Runtime/`、`Designer/`、`Shared/` 只是同一项目内的源码目录，最终输出一个同时供两个宿主加载的 DLL。
 - Designer 插件通过 `IWorkflowDesignerActionContext` 操作公开属性模型，不依赖 `MainWindowViewModel` 或 Runtime Action CLR 实例。
 - Runtime 与 Designer 保持独立部署；外部插件通过稳定公开契约连接。
 - WorkflowCore 源码保持私有。UI 协作者不需要、也不应被授予 Core 仓库权限。

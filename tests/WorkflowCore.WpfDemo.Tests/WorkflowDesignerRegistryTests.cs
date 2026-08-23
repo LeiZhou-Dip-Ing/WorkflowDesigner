@@ -1,6 +1,6 @@
 using System.Windows;
 using System.Reflection;
-using WorkflowDesigner.Contracts;
+using WorkflowRuntime.ActionSdk;
 using WorkflowDesigner.WpfSdk;
 using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 using WorkflowRuntime.OpenCvSamplePlugin.UI;

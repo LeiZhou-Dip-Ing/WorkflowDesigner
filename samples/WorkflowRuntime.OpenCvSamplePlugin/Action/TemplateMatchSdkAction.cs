@@ -11,7 +11,6 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin / Matching",
     Description = "Matches a template image against the input image with OpenCV MatchTemplate and overlays the best result.",
     DisplayTemplate = "Match {TemplateImage} in {InputImage} → {OutputImage}",
-    ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
     DoubleClickEditor = OpenCvDesignerKeys.TemplateMatchActionEditor)]
 public sealed class TemplateMatchSdkAction : WorkflowActionBase
@@ -50,7 +49,7 @@ public sealed class TemplateMatchSdkAction : WorkflowActionBase
     protected override ValueTask ExecuteActionAsync(IWorkflowActionContext context, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var vision = OpenCvActionSupport.RequireVision(context);
+        var vision = OpenCvActionSupport.RequireResources(context);
         var input = OpenCvActionSupport.RequireImage(vision, InputImage);
         var template = OpenCvActionSupport.RequireImage(vision, TemplateImage, "Template image");
         if (template.Width > input.Width || template.Height > input.Height)

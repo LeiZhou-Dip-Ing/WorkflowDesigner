@@ -13,7 +13,6 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin / Matching",
     Description = "Learns a masked gray/shape template from a hand-selected ROI, persists the model, then searches with angle and scale tolerance.",
     DisplayTemplate = "Learned template match {SearchImage} → {OutputImage}",
-    ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
     DoubleClickEditor = OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor)]
 public sealed class InteractiveTemplateMatchSdkAction : WorkflowActionBase
@@ -132,7 +131,7 @@ public sealed class InteractiveTemplateMatchSdkAction : WorkflowActionBase
     protected override ValueTask ExecuteActionAsync(IWorkflowActionContext context, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var vision = OpenCvActionSupport.RequireVision(context);
+        var vision = OpenCvActionSupport.RequireResources(context);
         var learning = OpenCvActionSupport.RequireImage(vision, TemplateSourceImage, "Learning image");
         var search = OpenCvActionSupport.RequireImage(vision, SearchImage, "Search image");
         var learnRoi = NormalizeRoi(learning.Size(), RoiX, RoiY, RoiWidth, RoiHeight, false);

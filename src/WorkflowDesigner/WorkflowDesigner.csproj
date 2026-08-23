@@ -13,7 +13,6 @@
     <PackageReference Include="WorkflowRuntime.ActionSdk" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowRuntime.Contracts" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowRuntime.ResourceSdk" Version="$(WorkflowVersion)" />
-    <PackageReference Include="WorkflowDesigner.Contracts" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowDesigner.WpfSdk" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowRuntime.ScriptCompiler" Version="$(WorkflowVersion)" />
   </ItemGroup>

@@ -85,12 +85,12 @@ internal sealed class VisionActionDesignerViewModel : INotifyPropertyChanged
 
     private static string FormatPropertyValue(IWorkflowPropertyEditorModel property)
     {
-        if (string.Equals(property.EditorKey, WorkflowDesigner.Contracts.WorkflowPropertyEditorKeys.Checkbox, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(property.EditorKey, WorkflowRuntime.ActionSdk.WorkflowPropertyEditorKeys.Checkbox, StringComparison.OrdinalIgnoreCase))
         {
             return property.BooleanValue ? "On" : "Off";
         }
 
-        if (string.Equals(property.EditorKey, WorkflowDesigner.Contracts.WorkflowPropertyEditorKeys.Select, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(property.EditorKey, WorkflowRuntime.ActionSdk.WorkflowPropertyEditorKeys.Select, StringComparison.OrdinalIgnoreCase))
         {
             return property.SelectedValue ?? property.ValueText;
         }

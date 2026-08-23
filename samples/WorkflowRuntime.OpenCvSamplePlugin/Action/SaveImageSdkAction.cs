@@ -10,9 +10,8 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin",
     Description = "Saves a runtime-owned image handle to disk with OpenCV.",
     DisplayTemplate = "Save {InputImage} → {FilePath}",
-    ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowActionEditorKeys.Vision)]
+    DoubleClickEditor = WorkflowActionEditorKeys.Image)]
 public sealed class SaveImageSdkAction : WorkflowActionBase
 {
     [WorkflowActionInput(DisplayName = "Input image", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
@@ -37,7 +36,7 @@ public sealed class SaveImageSdkAction : WorkflowActionBase
     protected override ValueTask ExecuteActionAsync(IWorkflowActionContext context, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var vision = OpenCvActionSupport.RequireVision(context);
+        var vision = OpenCvActionSupport.RequireResources(context);
         var input = OpenCvActionSupport.RequireImage(vision, InputImage);
         var path = Environment.ExpandEnvironmentVariables(FilePath?.Trim() ?? string.Empty);
         if (string.IsNullOrWhiteSpace(path))

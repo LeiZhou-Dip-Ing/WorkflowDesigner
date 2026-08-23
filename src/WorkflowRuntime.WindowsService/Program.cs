@@ -64,6 +64,8 @@ public static class Program
         builder.Services.AddSingleton<WorkflowResourceRuntimeRegistry>();
         builder.Services.AddSingleton<IWorkflowResourceRuntime>(provider =>
             provider.GetRequiredService<WorkflowResourceRuntimeRegistry>());
+        builder.Services.AddSingleton<IWorkflowResourcePreviewProvider>(provider =>
+            provider.GetRequiredService<WorkflowResourceRuntimeRegistry>());
         builder.Services.AddSingleton(provider => new WorkflowJsonSerializer(provider.GetRequiredService<ActionRegistry>()));
         builder.Services.AddSingleton<WorkflowValidator>();
         builder.Services.AddSingleton<RuntimeActionCatalog>();
@@ -121,34 +123,32 @@ public static class Program
         app.MapWorkflowRuntimeEndpoints();
 
         app.MapGet(
-                "/api/workflow-runtime/vision/previews/{runId:guid}/{lineNumber:int}",
-                (Guid runId, int lineNumber, string methodName, IWorkflowResourceRuntime resourceRuntime) =>
+                "/api/workflow-runtime/resources/previews/{runId:guid}/{lineNumber:int}",
+                (Guid runId, int lineNumber, string methodName, IWorkflowResourcePreviewProvider previews) =>
                 {
-                    if (!resourceRuntime.TryGetLatestPreview(runId, methodName, lineNumber, out var frame)
-                        || frame?.EncodedContent is not { Length: > 0 } encodedImage)
+                    if (!previews.TryGetLatestPreview(runId, methodName, lineNumber, out var frame)
+                        || frame?.Content is not { Length: > 0 } content)
                     {
                         return Results.NotFound();
                     }
 
-                    return Results.File(encodedImage, "image/png");
+                    return Results.File(content, NormalizeContentType(frame.ContentType));
                 })
-            .WithName("GetWorkflowVisionPreview")
-            .ExcludeFromDescription();
+            .WithName("GetWorkflowResourcePreview");
 
         app.MapGet(
-                "/api/workflow-runtime/vision/previews/latest/{lineNumber:int}",
-                (int lineNumber, string methodName, IWorkflowResourceRuntime resourceRuntime) =>
+                "/api/workflow-runtime/resources/previews/latest/{lineNumber:int}",
+                (int lineNumber, string methodName, IWorkflowResourcePreviewProvider previews) =>
                 {
-                    if (!resourceRuntime.TryGetLatestPreview(methodName, lineNumber, out var frame)
-                        || frame?.EncodedContent is not { Length: > 0 } encodedImage)
+                    if (!previews.TryGetLatestPreview(methodName, lineNumber, out var frame)
+                        || frame?.Content is not { Length: > 0 } content)
                     {
                         return Results.NotFound();
                     }
 
-                    return Results.File(encodedImage, "image/png");
+                    return Results.File(content, NormalizeContentType(frame.ContentType));
                 })
-            .WithName("GetLatestWorkflowVisionPreview")
-            .ExcludeFromDescription();
+            .WithName("GetLatestWorkflowResourcePreview");
 
         app.Run();
     }
@@ -160,6 +160,9 @@ public static class Program
             ? Path.GetFullPath(path)
             : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, path));
     }
+
+    private static string NormalizeContentType(string? contentType)
+        => string.IsNullOrWhiteSpace(contentType) ? "application/octet-stream" : contentType.Trim();
 
     private static WorkflowDocumentProtector CreateDocumentProtector(
         WorkflowRuntimeOptions options,

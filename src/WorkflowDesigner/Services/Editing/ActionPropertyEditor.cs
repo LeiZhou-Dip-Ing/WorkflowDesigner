@@ -1,4 +1,5 @@
-using WorkflowDesigner.Contracts;
+using WorkflowRuntime.ActionSdk;
+using WorkflowDesigner.WpfSdk;
 using System.Text.Json.Nodes;
 using WorkflowCore.WpfDemo.Editor;
 using WorkflowCore.WpfDemo.Models;

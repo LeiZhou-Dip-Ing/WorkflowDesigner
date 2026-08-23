@@ -1,4 +1,4 @@
-using WorkflowDesigner.Contracts;
+using WorkflowRuntime.ActionSdk;
 using WorkflowDesigner.WpfSdk;
 using WorkflowRuntime.Contracts;
 
@@ -19,15 +19,11 @@ public static class ActionPresentationPolicy
             return configured;
         }
 
-        return string.Equals(presentation?.ActionKind, WorkflowActionKindKeys.Vision, StringComparison.OrdinalIgnoreCase)
-            ? WorkflowWorkspaceKeys.Image
-            : WorkflowWorkspaceKeys.Properties;
+        return WorkflowWorkspaceKeys.Properties;
     }
 
     public static string GetWorkspaceFallbackKey(WorkflowActionDescriptorDto? descriptor)
-        => string.Equals(descriptor?.Presentation?.ActionKind, WorkflowActionKindKeys.Vision, StringComparison.OrdinalIgnoreCase)
-            ? WorkflowWorkspaceKeys.Image
-            : WorkflowWorkspaceKeys.Properties;
+        => WorkflowWorkspaceKeys.Properties;
 
     public static bool UsesPropertyWorkspace(WorkflowActionDescriptorDto? descriptor)
     {
@@ -55,10 +51,9 @@ public static class ActionPresentationPolicy
     public static bool UsesCustomWorkspace(WorkflowActionDescriptorDto? descriptor)
         => !UsesPropertyWorkspace(descriptor);
 
-    // V4 compatibility helper retained for callers/tests; custom vision workspaces also count as image workspaces.
+    // Compatibility helper retained for callers/tests; only an explicit image key selects it.
     public static bool UsesImageWorkspace(WorkflowActionDescriptorDto? descriptor)
-        => UsesCustomWorkspace(descriptor)
-           && string.Equals(GetWorkspaceFallbackKey(descriptor), WorkflowWorkspaceKeys.Image, StringComparison.OrdinalIgnoreCase);
+        => string.Equals(GetWorkspaceKey(descriptor), WorkflowWorkspaceKeys.Image, StringComparison.OrdinalIgnoreCase);
 
     public static bool CanOpenOnDoubleClick(WorkflowActionDescriptorDto? descriptor)
         => !string.IsNullOrWhiteSpace(descriptor?.Presentation?.DoubleClickEditor);
@@ -67,7 +62,5 @@ public static class ActionPresentationPolicy
         => DesignerKeyCompatibility.NormalizeActionEditor(descriptor?.Presentation?.DoubleClickEditor);
 
     public static string GetDoubleClickEditorFallback(WorkflowActionDescriptorDto? descriptor)
-        => string.Equals(descriptor?.Presentation?.ActionKind, WorkflowActionKindKeys.Vision, StringComparison.OrdinalIgnoreCase)
-            ? WorkflowActionEditorKeys.Vision
-            : WorkflowActionEditorKeys.Properties;
+        => WorkflowActionEditorKeys.Properties;
 }

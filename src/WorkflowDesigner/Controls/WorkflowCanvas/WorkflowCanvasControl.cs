@@ -12,7 +12,8 @@ using System.Windows.Shapes;
 using WorkflowCore.WpfDemo.Editor;
 using WorkflowCore.WpfDemo.ViewModels;
 using WorkflowRuntime.Contracts;
-using WorkflowDesigner.Contracts;
+using WorkflowRuntime.ActionSdk;
+using WorkflowDesigner.WpfSdk;
 
 namespace WorkflowCore.WpfDemo.Controls.WorkflowCanvas;
 

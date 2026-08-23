@@ -1,6 +1,6 @@
 using WorkflowCore.WpfDemo.Services.Designer;
 using WorkflowCore.WpfDemo.Services.Editing;
-using WorkflowDesigner.Contracts;
+using WorkflowRuntime.ActionSdk;
 using WorkflowDesigner.WpfSdk;
 using WorkflowRuntime.Contracts;
 

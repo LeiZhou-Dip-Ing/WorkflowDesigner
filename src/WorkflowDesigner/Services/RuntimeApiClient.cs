@@ -557,7 +557,7 @@ public sealed class RuntimeApiClient : IRuntimeApiClient
             .ConfigureAwait(false)
             ?? throw new InvalidOperationException("Workflow Runtime returned an empty run status.");
 
-    public async Task<byte[]?> GetVisionPreviewAsync(
+    public async Task<byte[]?> GetResourcePreviewAsync(
         Guid runId,
         string methodName,
         int lineNumber,
@@ -570,7 +570,7 @@ public sealed class RuntimeApiClient : IRuntimeApiClient
         }
 
         var relativeUri =
-            $"api/workflow-runtime/vision/previews/{runId:D}/{lineNumber}?methodName={Uri.EscapeDataString(methodName)}";
+            $"api/workflow-runtime/resources/previews/{runId:D}/{lineNumber}?methodName={Uri.EscapeDataString(methodName)}";
         using var response = await _httpClient.GetAsync(relativeUri, cancellationToken).ConfigureAwait(false);
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
@@ -581,7 +581,7 @@ public sealed class RuntimeApiClient : IRuntimeApiClient
         return await response.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<byte[]?> GetLatestVisionPreviewAsync(
+    public async Task<byte[]?> GetLatestResourcePreviewAsync(
         string methodName,
         int lineNumber,
         CancellationToken cancellationToken = default)
@@ -593,7 +593,7 @@ public sealed class RuntimeApiClient : IRuntimeApiClient
         }
 
         var relativeUri =
-            $"api/workflow-runtime/vision/previews/latest/{lineNumber}?methodName={Uri.EscapeDataString(methodName)}";
+            $"api/workflow-runtime/resources/previews/latest/{lineNumber}?methodName={Uri.EscapeDataString(methodName)}";
         using var response = await _httpClient.GetAsync(relativeUri, cancellationToken).ConfigureAwait(false);
         if (response.StatusCode == HttpStatusCode.NotFound)
         {

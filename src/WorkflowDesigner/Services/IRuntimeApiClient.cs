@@ -146,14 +146,14 @@ public interface IRuntimeApiClient : IDisposable, IAsyncDisposable
 
     Task<WorkflowRunStatusResponse> GetRunStatusAsync(Guid runId, CancellationToken cancellationToken = default);
 
-    Task<byte[]?> GetVisionPreviewAsync(
+    Task<byte[]?> GetResourcePreviewAsync(
         Guid runId,
         string methodName,
         int lineNumber,
         CancellationToken cancellationToken = default)
         => Task.FromResult<byte[]?>(null);
 
-    Task<byte[]?> GetLatestVisionPreviewAsync(
+    Task<byte[]?> GetLatestResourcePreviewAsync(
         string methodName,
         int lineNumber,
         CancellationToken cancellationToken = default)

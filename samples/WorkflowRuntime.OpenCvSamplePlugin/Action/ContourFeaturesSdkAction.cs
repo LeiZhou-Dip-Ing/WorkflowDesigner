@@ -11,7 +11,6 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin / Feature Extraction",
     Description = "Extracts contour-based object features from a binary mask and overlays bounding boxes, centroids and areas on the source image.",
     DisplayTemplate = "Features {MaskImage} on {SourceImage} → {OutputImage}",
-    ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = OpenCvDesignerKeys.ContourFeaturesWorkspace,
     DoubleClickEditor = OpenCvDesignerKeys.ContourFeaturesActionEditor)]
 public sealed class ContourFeaturesSdkAction : WorkflowActionBase
@@ -55,7 +54,7 @@ public sealed class ContourFeaturesSdkAction : WorkflowActionBase
     protected override ValueTask ExecuteActionAsync(IWorkflowActionContext context, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var vision = OpenCvActionSupport.RequireVision(context);
+        var vision = OpenCvActionSupport.RequireResources(context);
         var maskInput = OpenCvActionSupport.RequireImage(vision, MaskImage, "Binary mask");
         using var mask = OpenCvActionSupport.ToGrayClone(maskInput);
 

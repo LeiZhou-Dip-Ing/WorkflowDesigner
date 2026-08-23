@@ -11,9 +11,8 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin",
     Description = "Loads an image through an external Action SDK plugin and publishes a preview.",
     DisplayTemplate = "Load {FilePath} → {OutputImage}",
-    ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowActionEditorKeys.Vision)]
+    DoubleClickEditor = WorkflowActionEditorKeys.Image)]
 public sealed class LoadImageSdkAction : WorkflowActionBase
 {
     [WorkflowActionInput(
@@ -57,7 +56,7 @@ public sealed class LoadImageSdkAction : WorkflowActionBase
         cancellationToken.ThrowIfCancellationRequested();
         if (context is not IWorkflowResourceActionContext vision)
         {
-            throw new InvalidOperationException("The host does not expose the optional Vision Action context.");
+            throw new InvalidOperationException("The host does not expose the optional Resource Action context.");
         }
 
         var requestedPath = Environment.ExpandEnvironmentVariables(FilePath?.Trim() ?? string.Empty);
@@ -114,24 +113,10 @@ public sealed class LoadImageSdkAction : WorkflowActionBase
 
         var metadata = CreateMetadata(image, source);
         OutputImage = vision.StoreResource(image, metadata, PublishPreview);
-        context.Log($"Loaded {metadata.Width} x {metadata.Height} image from '{source}'.");
+        context.Log($"Loaded {image.Width} x {image.Height} image from '{source}'.");
         return ValueTask.CompletedTask;
     }
 
     private static WorkflowResourceMetadata CreateMetadata(Mat image, string source)
-        => new()
-        {
-            Width = image.Width,
-            Height = image.Height,
-            Channels = image.Channels(),
-            DepthBits = checked((int)image.ElemSize1() * 8),
-            PixelFormat = image.Channels() switch
-            {
-                1 => "Gray",
-                3 => "Bgr",
-                4 => "Bgra",
-                _ => $"Channels{image.Channels()}"
-            },
-            Source = source
-        };
+        => OpenCvActionSupport.Metadata(image, source);
 }

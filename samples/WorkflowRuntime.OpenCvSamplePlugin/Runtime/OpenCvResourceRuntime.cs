@@ -1,13 +1,10 @@
 using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
 using OpenCvSharp;
 using WorkflowRuntime.ResourceSdk;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin.Runtime;
 
-public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposable
+public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IWorkflowResourcePreviewProvider, IDisposable
 {
     private sealed class ImageEntry(Mat image, WorkflowResourceMetadata metadata, Guid runId)
     {
@@ -26,7 +23,6 @@ public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposabl
 
     private readonly OpenCvResourceRuntimeOptions _options;
     private readonly ConcurrentDictionary<string, ImageEntry> _images = new(StringComparer.Ordinal);
-    private readonly ConcurrentDictionary<string, SharedPreviewStream> _streams = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, PreviewEntry> _latestPreviews = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, PreviewEntry> _latestPreviewsByLine = new(StringComparer.OrdinalIgnoreCase);
     private bool _disposed;
@@ -34,8 +30,6 @@ public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposabl
     public OpenCvResourceRuntime(OpenCvResourceRuntimeOptions? options = null)
     {
         _options = options ?? new OpenCvResourceRuntimeOptions();
-        _options.PreviewDirectory = Path.GetFullPath(_options.PreviewDirectory);
-        Directory.CreateDirectory(_options.PreviewDirectory);
     }
 
     public bool CanStore(object resource) => resource is Mat;
@@ -114,35 +108,24 @@ public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposabl
         entry.LastAccessUtc = DateTimeOffset.UtcNow;
         lock (entry.SyncRoot)
         {
-            using var preview = CreateDisplayMat(entry.Image, out var pixelFormat);
-            var stride = checked((int)preview.Step());
-            var dataLength = checked(stride * preview.Rows);
-            var pixels = new byte[dataLength];
-            Marshal.Copy(preview.Data, pixels, 0, dataLength);
-
-            var stream = GetOrCreateStream(streamKey, dataLength);
-            var frame = stream.Write(
-                pixels,
-                runId,
-                handle,
-                streamKey,
-                preview.Width,
-                preview.Height,
-                stride,
-                pixelFormat,
-                methodName,
-                lineNumber,
-                actionType,
-                actionExecutionId);
-
-            // Persist one compressed preview per run/method/line on the Runtime side.
-            // SignalR remains a lightweight notification channel; the Designer fetches the
-            // actual PNG over REST after the run or whenever the user selects a workflow line.
+            using var preview = CreateDisplayMat(entry.Image);
             Cv2.ImEncode(".png", preview, out var encoded);
-            var completedFrame = frame with
+            var completedFrame = new WorkflowResourcePreviewFrame
             {
-                EncodedContent = encoded,
-                EncodedContentType = "png"
+                RunId = runId,
+                ResourceHandle = handle,
+                StreamKey = streamKey,
+                Sequence = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                Content = encoded,
+                ContentType = "image/png",
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["width"] = preview.Width.ToString(), ["height"] = preview.Height.ToString(), ["channels"] = preview.Channels().ToString()
+                },
+                MethodName = methodName,
+                LineNumber = lineNumber,
+                ActionType = actionType,
+                ActionExecutionId = actionExecutionId
             };
 
             if (!string.IsNullOrWhiteSpace(methodName) && lineNumber.HasValue)
@@ -179,7 +162,7 @@ public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposabl
 
         entry.LastAccessUtc = DateTimeOffset.UtcNow;
         frame = entry.Frame;
-        return frame.EncodedContent is { Length: > 0 };
+        return frame.Content is { Length: > 0 };
     }
 
     public bool TryGetLatestPreview(
@@ -201,7 +184,7 @@ public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposabl
 
         entry.LastAccessUtc = DateTimeOffset.UtcNow;
         frame = entry.Frame;
-        return frame.EncodedContent is { Length: > 0 };
+        return frame.Content is { Length: > 0 };
     }
 
     public int CleanupExpired()
@@ -217,16 +200,6 @@ public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposabl
 
             removedEntry.Image.Dispose();
             removed++;
-        }
-
-        foreach (var pair in _streams)
-        {
-            if (pair.Value.LastAccessUtc >= cutoff || !_streams.TryRemove(pair.Key, out var removedStream))
-            {
-                continue;
-            }
-
-            removedStream.Dispose();
         }
 
         foreach (var pair in _latestPreviews)
@@ -261,13 +234,7 @@ public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposabl
             pair.Value.Image.Dispose();
         }
 
-        foreach (var pair in _streams)
-        {
-            pair.Value.Dispose();
-        }
-
         _images.Clear();
-        _streams.Clear();
         _latestPreviews.Clear();
         _latestPreviewsByLine.Clear();
     }
@@ -278,7 +245,7 @@ public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposabl
     private static string CreateLatestPreviewLookupKey(string methodName, int lineNumber)
         => $"{methodName.Trim()}:{lineNumber}";
 
-    private Mat CreateDisplayMat(Mat source, out string pixelFormat)
+    private Mat CreateDisplayMat(Mat source)
     {
         Mat working;
         if (source.Depth() != 0)
@@ -295,7 +262,6 @@ public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposabl
         if (working.Channels() == 1)
         {
             display = working;
-            pixelFormat = "Gray8";
         }
         else
         {
@@ -315,7 +281,6 @@ public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposabl
             }
 
             working.Dispose();
-            pixelFormat = "Bgra32";
         }
 
         var maxWidth = Math.Max(1, _options.PreviewMaxWidth);
@@ -330,35 +295,6 @@ public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposabl
         Cv2.Resize(display, resized, new global::OpenCvSharp.Size(0, 0), scale, scale, InterpolationFlags.Area);
         display.Dispose();
         return resized;
-    }
-
-    private SharedPreviewStream GetOrCreateStream(string streamKey, int requiredCapacity)
-    {
-        while (true)
-        {
-            if (_streams.TryGetValue(streamKey, out var current) && current.SlotCapacity >= requiredCapacity)
-            {
-                return current;
-            }
-
-            var capacity = RoundUp(requiredCapacity, 1024 * 1024);
-            var path = Path.Combine(_options.PreviewDirectory, $"preview-{Hash(streamKey)}.gvis");
-            var replacement = new SharedPreviewStream(path, capacity);
-            if (current == null)
-            {
-                if (_streams.TryAdd(streamKey, replacement))
-                {
-                    return replacement;
-                }
-            }
-            else if (_streams.TryUpdate(streamKey, replacement, current))
-            {
-                current.Dispose();
-                return replacement;
-            }
-
-            replacement.Dispose();
-        }
     }
 
     private void TrimToLimit()
@@ -379,9 +315,4 @@ public sealed class OpenCvResourceRuntime : IWorkflowResourceRuntime, IDisposabl
         }
     }
 
-    private static string Hash(string value)
-        => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value))).ToLowerInvariant()[..24];
-
-    private static int RoundUp(int value, int block)
-        => checked(((value + block - 1) / block) * block);
 }

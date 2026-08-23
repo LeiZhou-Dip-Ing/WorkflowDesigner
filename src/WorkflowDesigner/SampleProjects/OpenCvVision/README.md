@@ -22,7 +22,7 @@ Pipeline:
 9. SDK Template Match (MatchTemplate)
 10. SDK Save Image (`%TEMP%\\WorkflowVisionDemo\\final-match.png`)
 
-Every processing/measurement Action has `PublishPreview = true`. Runtime publishes a `VisionPreview` event with the method name and line number. The WPF Designer caches previews by method + line, so after one run you can click Gray, Blur, Threshold, Canny, Measure Line, Measure Circle, or Template Match and see that exact Action's latest processed image.
+Every processing/measurement Action has `PublishPreview = true`. Runtime publishes a `ResourcePreview` event with the method name and line number. The WPF Designer caches previews by method + line, so after one run you can click Gray, Blur, Threshold, Canny, Measure Line, Measure Circle, or Template Match and see that exact Action's latest processed image.
 
 The demo uses `sample://source` and `sample://template`, which are generated inside the external OpenCV Runtime plugin, so no local image path is required.
 
