@@ -11,11 +11,11 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin",
     Description = "Applies a grayscale threshold operation similar to the preprocessing tools in the legacy vision project.",
     DisplayTemplate = "Threshold {InputImage} ({Threshold}) → {OutputImage}",
-    WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowActionEditorKeys.Image)]
+    WorkspaceKind = OpenCvDesignerKeys.ImageWorkspace,
+    DoubleClickEditor = OpenCvDesignerKeys.ImageActionEditor)]
 public sealed class ThresholdSdkAction : WorkflowActionBase
 {
-    [WorkflowActionInput(DisplayName = "Input image", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
+    [WorkflowActionInput(DisplayName = "Input image", ValueType = "resource", Editor = WorkflowPropertyEditorKeys.Variable,
         DataSource = "methodVariables", AllowCustomValue = false, AllowClear = true, Required = true, Order = 0)]
     public string InputImage { get; set; } = string.Empty;
 
@@ -35,7 +35,7 @@ public sealed class ThresholdSdkAction : WorkflowActionBase
         Required = true, Order = 4)]
     public bool PublishPreview { get; set; } = true;
 
-    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "image", Required = true, Order = 5)]
+    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "resource", Required = true, Order = 5)]
     public string OutputImage { get; private set; } = string.Empty;
 
     protected override ValueTask ExecuteActionAsync(IWorkflowActionContext context, CancellationToken cancellationToken)

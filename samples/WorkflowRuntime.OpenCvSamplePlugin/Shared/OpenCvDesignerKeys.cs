@@ -6,6 +6,8 @@ namespace WorkflowRuntime.OpenCvSamplePlugin.Shared;
 public static class OpenCvDesignerKeys
 {
     public const string OddKernelPropertyEditor = "sample.opencv.property.odd-kernel";
+    public const string ImageWorkspace = "sample.opencv.workspace.image";
+    public const string ImageActionEditor = "sample.opencv.editor.image";
 
     public const string GrayWorkspace = "sample.opencv.workspace.gray";
     public const string GaussianBlurWorkspace = "sample.opencv.workspace.gaussian-blur";
@@ -22,6 +24,13 @@ public static class OpenCvDesignerKeys
     public const string TemplateMatchActionEditor = "sample.opencv.editor.template-match";
     public const string InteractiveTemplateMatchActionEditor = "sample.opencv.editor.interactive-template-match";
     public const string ContourFeaturesActionEditor = "sample.opencv.editor.contour-features";
+}
+
+public static class OpenCvCommandIds
+{
+    public const string PreviewLearning = "sample.opencv.template.preview-learning";
+    public const string Learn = "sample.opencv.template.learn";
+    public const string Match = "sample.opencv.template.match";
 }
 
 public static class OpenCvActionFields

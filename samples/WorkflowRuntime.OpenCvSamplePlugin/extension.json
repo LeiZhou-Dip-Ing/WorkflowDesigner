@@ -1,0 +1,13 @@
+{
+  "extensionId": "workflow.sample-opencv",
+  "extensionVersion": "2.0.0-alpha.6",
+  "displayName": "OpenCV Sample Extension",
+  "entryAssembly": "WorkflowRuntime.OpenCvSamplePlugin.dll",
+  "sdkContractMajor": 2,
+  "capabilities": [
+    "runtime-actions",
+    "designer",
+    "resources",
+    "commands"
+  ]
+}

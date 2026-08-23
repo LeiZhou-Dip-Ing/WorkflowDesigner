@@ -13,15 +13,15 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin / Matching",
     Description = "Learns a masked gray/shape template from a hand-selected ROI, persists the model, then searches with angle and scale tolerance.",
     DisplayTemplate = "Learned template match {SearchImage} → {OutputImage}",
-    WorkspaceKind = WorkflowWorkspaceKeys.Image,
+    WorkspaceKind = OpenCvDesignerKeys.ImageWorkspace,
     DoubleClickEditor = OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor)]
 public sealed class InteractiveTemplateMatchSdkAction : WorkflowActionBase
 {
-    [WorkflowActionInput(DisplayName = "Learning image", Category = "Images", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
+    [WorkflowActionInput(DisplayName = "Learning image", Category = "Images", ValueType = "resource", Editor = WorkflowPropertyEditorKeys.Variable,
         DataSource = "methodVariables", AllowCustomValue = false, AllowClear = true, Required = true, Order = 0)]
     public string TemplateSourceImage { get; set; } = string.Empty;
 
-    [WorkflowActionInput(DisplayName = "Search image", Category = "Images", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
+    [WorkflowActionInput(DisplayName = "Search image", Category = "Images", ValueType = "resource", Editor = WorkflowPropertyEditorKeys.Variable,
         DataSource = "methodVariables", AllowCustomValue = false, AllowClear = true, Required = true, Order = 1)]
     public string SearchImage { get; set; } = string.Empty;
 
@@ -103,9 +103,9 @@ public sealed class InteractiveTemplateMatchSdkAction : WorkflowActionBase
         Category = "Designer state", ValueType = "string", Editor = WorkflowPropertyEditorKeys.Text, Required = false, Order = 91)]
     public string TemplateMaskData { get; set; } = string.Empty;
 
-    [WorkflowActionOutput(DisplayName = "Template image", ValueType = "image", Required = false, Order = 100)]
+    [WorkflowActionOutput(DisplayName = "Template image", ValueType = "resource", Required = false, Order = 100)]
     public string TemplateImage { get; private set; } = string.Empty;
-    [WorkflowActionOutput(DisplayName = "Match result image", ValueType = "image", Required = true, Order = 101)]
+    [WorkflowActionOutput(DisplayName = "Match result image", ValueType = "resource", Required = true, Order = 101)]
     public string OutputImage { get; private set; } = string.Empty;
     [WorkflowActionOutput(DisplayName = "Saved model path", ValueType = "string", Required = false, Order = 102)]
     public string SavedPath { get; private set; } = string.Empty;

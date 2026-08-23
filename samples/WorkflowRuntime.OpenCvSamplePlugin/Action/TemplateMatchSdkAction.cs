@@ -11,15 +11,15 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin / Matching",
     Description = "Matches a template image against the input image with OpenCV MatchTemplate and overlays the best result.",
     DisplayTemplate = "Match {TemplateImage} in {InputImage} → {OutputImage}",
-    WorkspaceKind = WorkflowWorkspaceKeys.Image,
+    WorkspaceKind = OpenCvDesignerKeys.ImageWorkspace,
     DoubleClickEditor = OpenCvDesignerKeys.TemplateMatchActionEditor)]
 public sealed class TemplateMatchSdkAction : WorkflowActionBase
 {
-    [WorkflowActionInput(DisplayName = "Input image", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
+    [WorkflowActionInput(DisplayName = "Input image", ValueType = "resource", Editor = WorkflowPropertyEditorKeys.Variable,
         DataSource = "methodVariables", AllowCustomValue = false, AllowClear = true, Required = true, Order = 0)]
     public string InputImage { get; set; } = string.Empty;
 
-    [WorkflowActionInput(DisplayName = "Template image", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
+    [WorkflowActionInput(DisplayName = "Template image", ValueType = "resource", Editor = WorkflowPropertyEditorKeys.Variable,
         DataSource = "methodVariables", AllowCustomValue = false, AllowClear = true, Required = true, Order = 1)]
     public string TemplateImage { get; set; } = string.Empty;
 
@@ -35,7 +35,7 @@ public sealed class TemplateMatchSdkAction : WorkflowActionBase
         Required = true, Order = 4)]
     public bool PublishPreview { get; set; } = true;
 
-    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "image", Required = true, Order = 10)]
+    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "resource", Required = true, Order = 10)]
     public string OutputImage { get; private set; } = string.Empty;
     [WorkflowActionOutput(DisplayName = "Matched", ValueType = "boolean", Required = false, Order = 11)]
     public bool Matched { get; private set; }

@@ -552,6 +552,19 @@ public sealed class RuntimeApiClient : IRuntimeApiClient
         return accepted.RunId;
     }
 
+    public async Task<WorkflowExtensionCommandResponseDto> ExecuteExtensionCommandAsync(
+        WorkflowExtensionCommandRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        using var response = await _httpClient.PostAsJsonAsync(
+            "api/workflow-runtime/extensions/commands",
+            request,
+            cancellationToken).ConfigureAwait(false);
+        return await ReadJsonAsync<WorkflowExtensionCommandResponseDto>(response, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     public async Task<WorkflowRunStatusResponse> GetRunStatusAsync(Guid runId, CancellationToken cancellationToken = default)
         => await _httpClient.GetFromJsonAsync<WorkflowRunStatusResponse>($"api/workflow-runs/{runId}", cancellationToken)
             .ConfigureAwait(false)

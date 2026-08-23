@@ -1,6 +1,5 @@
 using System.Text.Json;
-using System.Windows.Media;
-using WorkflowCore.WpfDemo.Services.Resources;
+using WorkflowDesigner.WpfSdk;
 using WorkflowRuntime.Contracts;
 using WorkflowRuntime.ResourceSdk;
 
@@ -8,39 +7,29 @@ namespace WorkflowCore.WpfDemo.ViewModels;
 
 public sealed partial class MainWindowViewModel
 {
-    private readonly Dictionary<string, ImageSource> _resourcePreviewImages = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, string> _resourcePreviewInfos = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, WorkflowDesignerResourcePreview> _resourcePreviews = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> _resourcePreviewFetches = new(StringComparer.OrdinalIgnoreCase);
     private readonly object _resourcePreviewFetchLock = new();
     private Guid? _resourcePreviewRunId;
-    private ImageSource? _selectedResourcePreviewImage;
-    private string _selectedResourcePreviewInfo = "Run an image Action with preview enabled.";
+    private WorkflowDesignerResourcePreview? _selectedResourcePreview;
 
-    public ImageSource? SelectedResourcePreviewImage
+    public WorkflowDesignerResourcePreview? SelectedResourcePreview
     {
-        get => _selectedResourcePreviewImage;
+        get => _selectedResourcePreview;
         private set
         {
-            if (SetProperty(ref _selectedResourcePreviewImage, value))
+            if (SetProperty(ref _selectedResourcePreview, value))
             {
                 OnPropertyChanged(nameof(HasSelectedResourcePreview));
             }
         }
     }
 
-    public bool HasSelectedResourcePreview => SelectedResourcePreviewImage != null;
-
-    public string SelectedResourcePreviewInfo
-    {
-        get => _selectedResourcePreviewInfo;
-        private set => SetProperty(ref _selectedResourcePreviewInfo, value);
-    }
+    public bool HasSelectedResourcePreview => SelectedResourcePreview != null;
 
     private void ApplyResourcePreviewEvent(WorkflowRuntimeEventDto runtimeEvent)
     {
-        // VisionPreview is accepted only as a legacy wire-event alias.
-        if ((!string.Equals(runtimeEvent.EventType, "ResourcePreview", StringComparison.OrdinalIgnoreCase)
-             && !string.Equals(runtimeEvent.EventType, "VisionPreview", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(runtimeEvent.EventType, "ResourcePreview", StringComparison.OrdinalIgnoreCase)
             || runtimeEvent.Payload == null)
         {
             return;
@@ -56,19 +45,13 @@ public sealed partial class MainWindowViewModel
         var key = GetResourcePreviewKey(frame.MethodName, frame.LineNumber);
         if (frame.Content is { Length: > 0 })
         {
-            try
-            {
-                var image = new ResourcePreviewReader().ReadEncoded(frame.Content);
-                image.Freeze();
-                _resourcePreviewImages[key] = image;
-                _resourcePreviewInfos[key] = $"{image.PixelWidth} x {image.PixelHeight} | {frame.ContentType} | frame {frame.Sequence}";
-                RefreshSelectedResourcePreview();
-                return;
-            }
-            catch (Exception exception)
-            {
-                _resourcePreviewInfos[key] = $"Preview content is not supported by the image workspace: {exception.Message}";
-            }
+            _resourcePreviews[key] = new WorkflowDesignerResourcePreview(
+                frame.Content,
+                frame.ContentType,
+                $"{frame.ContentType} | frame {frame.Sequence}",
+                frame.Sequence);
+            RefreshSelectedResourcePreview();
+            return;
         }
 
         RefreshSelectedResourcePreview();
@@ -83,12 +66,9 @@ public sealed partial class MainWindowViewModel
         var methodName = SelectedMethod?.Name;
         var lineNumber = GetSelectedPreviewLineNumber();
         var key = GetResourcePreviewKey(methodName, lineNumber);
-        SelectedResourcePreviewImage = _resourcePreviewImages.TryGetValue(key, out var image) ? image : null;
-        SelectedResourcePreviewInfo = _resourcePreviewInfos.TryGetValue(key, out var info)
-            ? info
-            : "Run the selected image Action to display its latest preview.";
+        SelectedResourcePreview = _resourcePreviews.TryGetValue(key, out var preview) ? preview : null;
 
-        if (SelectedResourcePreviewImage != null || string.IsNullOrWhiteSpace(methodName) || lineNumber is null or <= 0) return;
+        if (SelectedResourcePreview != null || string.IsNullOrWhiteSpace(methodName) || lineNumber is null or <= 0) return;
         var runId = _session.CurrentRunId ?? _runSession.LastRunId;
         _ = runId.HasValue
             ? FetchResourcePreviewFromRuntimeAsync(runId.Value, methodName, lineNumber.Value, key)
@@ -108,7 +88,7 @@ public sealed partial class MainWindowViewModel
                 return;
             }
 
-            ApplyFetchedImage(runId, key, content, "Runtime resource preview");
+            ApplyFetchedPreview(runId, key, content, "Runtime resource preview");
         }
         catch (Exception exception) { ApplyResourcePreviewError(key, exception); }
         finally { EndResourcePreviewFetch(requestKey); }
@@ -123,29 +103,25 @@ public sealed partial class MainWindowViewModel
             var content = await _runtimeApi.GetLatestResourcePreviewAsync(methodName, lineNumber).ConfigureAwait(false);
             if (content is not { Length: > 0 })
             {
-                _uiDispatcher.Post(() => _resourcePreviewInfos[key] = $"No Runtime preview found for {methodName} line {lineNumber}.");
                 return;
             }
 
-            ApplyFetchedImage(null, key, content, "Latest Runtime resource preview");
+            ApplyFetchedPreview(null, key, content, "Latest Runtime resource preview");
         }
         catch (Exception exception) { ApplyResourcePreviewError(key, exception); }
         finally { EndResourcePreviewFetch(requestKey); }
     }
 
-    private void ApplyFetchedImage(Guid? runId, string key, byte[] content, string source)
+    private void ApplyFetchedPreview(Guid? runId, string key, byte[] content, string source)
     {
-        var image = new ResourcePreviewReader().ReadEncoded(content);
-        image.Freeze();
         _uiDispatcher.Post(() =>
         {
             if (runId.HasValue) ResetResourcePreviewsForRun(runId.Value);
-            _resourcePreviewImages[key] = image;
-            _resourcePreviewInfos[key] = $"{image.PixelWidth} x {image.PixelHeight} | {source}";
+            var preview = new WorkflowDesignerResourcePreview(content, "application/octet-stream", source);
+            _resourcePreviews[key] = preview;
             if (string.Equals(key, GetResourcePreviewKey(SelectedMethod?.Name, GetSelectedPreviewLineNumber()), StringComparison.OrdinalIgnoreCase))
             {
-                SelectedResourcePreviewImage = image;
-                SelectedResourcePreviewInfo = _resourcePreviewInfos[key];
+                SelectedResourcePreview = preview;
             }
         });
     }
@@ -153,19 +129,14 @@ public sealed partial class MainWindowViewModel
     private void ApplyResourcePreviewError(string key, Exception exception)
         => _uiDispatcher.Post(() =>
         {
-            _resourcePreviewInfos[key] = $"Preview unavailable: {exception.Message}";
-            if (string.Equals(key, GetResourcePreviewKey(SelectedMethod?.Name, GetSelectedPreviewLineNumber()), StringComparison.OrdinalIgnoreCase))
-            {
-                SelectedResourcePreviewInfo = _resourcePreviewInfos[key];
-            }
+            System.Diagnostics.Debug.WriteLine($"Preview unavailable for {key}: {exception.Message}");
         });
 
     private void ResetResourcePreviewsForRun(Guid runId)
     {
         if (_resourcePreviewRunId == runId) return;
         _resourcePreviewRunId = runId;
-        _resourcePreviewImages.Clear();
-        _resourcePreviewInfos.Clear();
+        _resourcePreviews.Clear();
     }
 
     private bool BeginResourcePreviewFetch(string key)

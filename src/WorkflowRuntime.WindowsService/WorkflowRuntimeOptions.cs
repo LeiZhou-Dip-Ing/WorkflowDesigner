@@ -37,16 +37,6 @@ public sealed class WorkflowRuntimeOptions
 
     public int RuntimeEventQueueCapacity { get; set; } = RuntimeEventQueue.DefaultCapacity;
 
-    public string VisionPreviewDirectory { get; set; } = "data/vision-preview";
-
-    public int VisionPreviewMaxWidth { get; set; } = 1600;
-
-    public int VisionPreviewMaxHeight { get; set; } = 1000;
-
-    public int VisionResourceRetentionMinutes { get; set; } = 15;
-
-    public int VisionMaximumRetainedImages { get; set; } = 512;
-
     public List<WorkflowAutoStartOptions> AutoStart { get; set; } = new();
 }
 

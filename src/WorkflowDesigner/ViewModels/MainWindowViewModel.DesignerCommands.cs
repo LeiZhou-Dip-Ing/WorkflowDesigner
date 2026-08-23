@@ -1,19 +1,41 @@
-using System.IO;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using WorkflowDesigner.WpfSdk;
+using WorkflowRuntime.Contracts;
 
 namespace WorkflowCore.WpfDemo.ViewModels;
 
 public sealed partial class MainWindowViewModel
 {
-    internal Task RunDesignerCommandAsync(WorkflowDesignerCommandRequest request)
+    internal async Task<WorkflowDesignerCommandResult> RunDesignerCommandAsync(
+        WorkflowDesignerCommandRequest request,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
         if (string.IsNullOrWhiteSpace(request.CommandId))
             throw new ArgumentException("Designer command id is required.", nameof(request));
 
-        return RunSelectedMethodAsync(designerCommand: request);
+        var descriptor = SelectedActionDescriptor
+            ?? throw new InvalidOperationException("No Action is selected.");
+        var extensionId = descriptor.PluginId
+            ?? throw new InvalidOperationException("The selected Action is not owned by an extension.");
+        var payload = request.Payload.ToDictionary(
+            item => item.Key,
+            item => JsonSerializer.SerializeToElement(item.Value),
+            StringComparer.OrdinalIgnoreCase);
+        var response = await _runtimeApi.ExecuteExtensionCommandAsync(
+            new WorkflowExtensionCommandRequestDto
+            {
+                ExtensionId = extensionId,
+                CommandId = request.CommandId,
+                TargetActionId = SelectedMethodLine?.Action?.Uid.ToString("D"),
+                TargetActionType = descriptor.ActionType,
+                Payload = payload
+            },
+            cancellationToken);
+        return new WorkflowDesignerCommandResult(
+            response.Succeeded,
+            response.Message,
+            response.Data.ToDictionary(item => item.Key, item => (object?)item.Value));
     }
 
     private async Task RunSelectedMethodAsync(
@@ -42,13 +64,7 @@ public sealed partial class MainWindowViewModel
                 },
                 StringComparer.OrdinalIgnoreCase);
         var workflowJson = SerializeCurrentProjectSnapshot(force: true);
-        if (designerCommand != null && SelectedMethodLine?.Action is { } selectedAction)
-        {
-            workflowJson = ApplyDesignerCommandOverrides(
-                workflowJson,
-                selectedAction.Uid,
-                designerCommand.PropertyOverrides);
-        }
+        _ = designerCommand; // Legacy call shape retained; commands no longer mutate workflow JSON.
 
         var result = await _runSession.RunPreviewAsync(workflowJson, SelectedMethod, inputs, stepMode);
         StatusText = result.Message;
@@ -57,50 +73,4 @@ public sealed partial class MainWindowViewModel
         if (!result.Succeeded) _actionRunLog.AddRunFailure(SelectedMethod.Name, result.Message);
     }
 
-    private static string ApplyDesignerCommandOverrides(
-        string workflowJson,
-        Guid actionUid,
-        IReadOnlyDictionary<string, object?> overrides)
-    {
-        var root = JsonNode.Parse(workflowJson)
-            ?? throw new InvalidDataException("The workflow snapshot is empty.");
-        var action = FindActionDocument(root, actionUid)
-            ?? throw new InvalidOperationException($"Action '{actionUid}' was not found in the execution snapshot.");
-
-        foreach (var (name, value) in overrides)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Designer command property names cannot be empty.", nameof(overrides));
-
-            var existingName = action.Select(pair => pair.Key).FirstOrDefault(
-                key => string.Equals(key, name, StringComparison.OrdinalIgnoreCase));
-            var propertyName = existingName ?? char.ToLowerInvariant(name[0]) + name[1..];
-            action[propertyName] = JsonSerializer.SerializeToNode(value);
-        }
-
-        return root.ToJsonString();
-    }
-
-    private static JsonObject? FindActionDocument(JsonNode node, Guid actionUid)
-    {
-        if (node is JsonObject candidate
-            && Guid.TryParse(candidate["uid"]?.GetValue<string>(), out var uid)
-            && uid == actionUid
-            && candidate.ContainsKey("actionType"))
-            return candidate;
-
-        var children = node switch
-        {
-            JsonObject jsonObject => jsonObject.Select(pair => pair.Value),
-            JsonArray jsonArray => jsonArray.AsEnumerable(),
-            _ => Enumerable.Empty<JsonNode?>()
-        };
-        foreach (var child in children.Where(value => value != null))
-        {
-            var result = FindActionDocument(child!, actionUid);
-            if (result != null) return result;
-        }
-
-        return null;
-    }
 }

@@ -9,11 +9,9 @@ namespace WorkflowCore.WpfDemo.ViewModels;
 public sealed class ActionEditorDialogViewModel
 {
     public ActionEditorDialogViewModel(
-        IWorkflowDesignerActionContext context,
-        bool isImageEditor)
+        IWorkflowDesignerActionContext context)
     {
         Context = context ?? throw new ArgumentNullException(nameof(context));
-        IsImageEditor = isImageEditor;
         PropertiesView = CollectionViewSource.GetDefaultView(Context.Properties);
         PropertiesView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(IWorkflowPropertyEditorModel.Category)));
         PropertiesView.SortDescriptions.Add(new SortDescription(nameof(IWorkflowPropertyEditorModel.Category), ListSortDirection.Ascending));
@@ -25,10 +23,6 @@ public sealed class ActionEditorDialogViewModel
     public string Title => $"{Context.Descriptor.DisplayName} - Action Editor";
 
     public string Description => Context.Descriptor.Description;
-
-    public bool IsImageEditor { get; }
-
-    public bool IsPropertyEditor => !IsImageEditor;
 
     public ICollectionView PropertiesView { get; }
 

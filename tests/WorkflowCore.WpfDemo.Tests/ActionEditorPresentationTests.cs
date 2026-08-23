@@ -13,7 +13,7 @@ namespace WorkflowCore.WpfDemo.Tests;
 public sealed class ActionEditorPresentationTests
 {
     [Fact]
-    public void ActionPresentationPolicy_UsesExplicitWorkspaceAndEditorKeys()
+    public void ActionPresentationPolicy_LegacyImageKeysFallBackToGenericProperties()
     {
         var descriptor = new WorkflowActionDescriptorDto
         {
@@ -28,10 +28,10 @@ public sealed class ActionEditorPresentationTests
             }
         };
 
-        Assert.True(ActionPresentationPolicy.UsesImageWorkspace(descriptor));
-        Assert.False(ActionPresentationPolicy.UsesPropertyWorkspace(descriptor));
+        Assert.Equal(WorkflowWorkspaceKeys.Properties, ActionPresentationPolicy.GetWorkspaceKey(descriptor));
+        Assert.True(ActionPresentationPolicy.UsesPropertyWorkspace(descriptor));
         Assert.True(ActionPresentationPolicy.CanOpenOnDoubleClick(descriptor));
-        Assert.Equal(WorkflowActionEditorKeys.Image, ActionPresentationPolicy.GetDoubleClickEditor(descriptor));
+        Assert.Equal(WorkflowActionEditorKeys.Properties, ActionPresentationPolicy.GetDoubleClickEditor(descriptor));
     }
 
 
@@ -50,7 +50,6 @@ public sealed class ActionEditorPresentationTests
             }
         };
 
-        Assert.False(ActionPresentationPolicy.UsesImageWorkspace(descriptor));
         Assert.True(ActionPresentationPolicy.UsesPropertyWorkspace(descriptor));
     }
 
@@ -64,7 +63,6 @@ public sealed class ActionEditorPresentationTests
             Category = "Custom"
         };
 
-        Assert.False(ActionPresentationPolicy.UsesImageWorkspace(descriptor));
         Assert.True(ActionPresentationPolicy.UsesPropertyWorkspace(descriptor));
         Assert.False(ActionPresentationPolicy.CanOpenOnDoubleClick(descriptor));
     }
@@ -597,7 +595,8 @@ public sealed class ActionEditorPresentationTests
     public void DesignerKeyCompatibility_NormalizesLegacyKeysWithoutBlockingCustomKeys()
     {
         Assert.Equal(WorkflowPropertyEditorKeys.Number, DesignerKeyCompatibility.NormalizePropertyEditor("number"));
-        Assert.Equal(WorkflowWorkspaceKeys.Image, DesignerKeyCompatibility.NormalizeWorkspace("image"));
+        Assert.Equal(WorkflowWorkspaceKeys.Properties, DesignerKeyCompatibility.NormalizeWorkspace("image"));
+        Assert.Equal(WorkflowActionEditorKeys.Properties, DesignerKeyCompatibility.NormalizeActionEditor("vision"));
         Assert.Equal("vendor.custom.editor", DesignerKeyCompatibility.NormalizePropertyEditor("vendor.custom.editor"));
     }
 

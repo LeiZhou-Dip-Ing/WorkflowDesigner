@@ -159,6 +159,11 @@ public interface IRuntimeApiClient : IDisposable, IAsyncDisposable
         CancellationToken cancellationToken = default)
         => Task.FromResult<byte[]?>(null);
 
+    Task<WorkflowExtensionCommandResponseDto> ExecuteExtensionCommandAsync(
+        WorkflowExtensionCommandRequestDto request,
+        CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
+
     Task CancelRunAsync(Guid runId, CancellationToken cancellationToken = default);
 
     Task StepRunAsync(Guid runId, CancellationToken cancellationToken = default) => Task.CompletedTask;

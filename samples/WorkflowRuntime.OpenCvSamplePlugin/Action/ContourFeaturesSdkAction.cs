@@ -15,11 +15,11 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     DoubleClickEditor = OpenCvDesignerKeys.ContourFeaturesActionEditor)]
 public sealed class ContourFeaturesSdkAction : WorkflowActionBase
 {
-    [WorkflowActionInput(DisplayName = "Binary mask", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
+    [WorkflowActionInput(DisplayName = "Binary mask", ValueType = "resource", Editor = WorkflowPropertyEditorKeys.Variable,
         DataSource = "methodVariables", AllowCustomValue = false, AllowClear = true, Required = true, Order = 0)]
     public string MaskImage { get; set; } = string.Empty;
 
-    [WorkflowActionInput(DisplayName = "Source image", Description = "Optional image used as the annotation background.", ValueType = "image",
+    [WorkflowActionInput(DisplayName = "Source image", Description = "Optional image used as the annotation background.", ValueType = "resource",
         Editor = WorkflowPropertyEditorKeys.Variable, DataSource = "methodVariables", AllowCustomValue = false, AllowClear = true,
         Required = false, Order = 1)]
     public string SourceImage { get; set; } = string.Empty;
@@ -36,7 +36,7 @@ public sealed class ContourFeaturesSdkAction : WorkflowActionBase
         Required = true, Order = 4)]
     public bool PublishPreview { get; set; } = true;
 
-    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "image", Required = true, Order = 10)]
+    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "resource", Required = true, Order = 10)]
     public string OutputImage { get; private set; } = string.Empty;
 
     [WorkflowActionOutput(DisplayName = "Feature count", ValueType = "integer", Required = false, Order = 11)]

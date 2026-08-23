@@ -539,7 +539,7 @@ public static partial class MethodVariableReferences
             "number" => "number",
             "string" => "string",
             "array" => "array",
-            "image" => "image",
+            "image" => "resource",
             _ => "object"
         };
 

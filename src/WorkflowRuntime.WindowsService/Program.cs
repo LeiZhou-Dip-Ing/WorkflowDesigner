@@ -16,6 +16,8 @@ using WorkflowRuntime.Application.SharpScripts.Libraries;
 using WorkflowRuntime.ScriptCompiler;
 using WorkflowRuntime.RestService.Extensions;
 using WorkflowRuntime.ResourceSdk;
+using WorkflowRuntime.ActionSdk;
+using WorkflowRuntime.Contracts;
 
 namespace WorkflowRuntime.WindowsService;
 
@@ -30,7 +32,6 @@ public static class Program
         options.PluginDirectory = ResolvePath(options.PluginDirectory);
         options.SharpScriptDirectory = ResolvePath(options.SharpScriptDirectory);
         options.SharpScriptLibraryDirectory = ResolvePath(options.SharpScriptLibraryDirectory);
-        options.VisionPreviewDirectory = ResolvePath(options.VisionPreviewDirectory);
 
         builder.Host.UseWindowsService(serviceOptions =>
         {
@@ -78,6 +79,7 @@ public static class Program
             options.AllowedNuGetSources,
             options.MaximumScriptLibraryBytes));
         builder.Services.AddSingleton<ActionPluginLoader>();
+        builder.Services.AddSingleton<WorkflowExtensionCommandRegistry>();
         builder.Services.AddSingleton<SharpScriptReferenceProvider>();
         builder.Services.AddSingleton<ISharpScriptCompiler, SharpScriptCompiler>();
         builder.Services.AddSingleton(_ => new SharpScriptArtifactStore(options.SharpScriptDirectory));
@@ -106,7 +108,7 @@ public static class Program
         builder.Services.AddSingleton<SharpScriptStartup>();
         builder.Services.AddHostedService<PublishedWorkflowStartup>();
         builder.Services.AddHostedService<ExpiredRunCleanup>();
-        builder.Services.AddHostedService<VisionResourceCleanup>();
+        builder.Services.AddHostedService<ResourceCleanup>();
 
         var app = builder.Build();
         if (options.AllowRemoteAccess)
@@ -121,6 +123,33 @@ public static class Program
         app.UseWorkflowRuntimeApiDocumentation();
         app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
         app.MapWorkflowRuntimeEndpoints();
+
+        app.MapPost(
+                "/api/workflow-runtime/extensions/commands",
+                async (WorkflowExtensionCommandRequestDto request,
+                    WorkflowExtensionCommandRegistry commands,
+                    CancellationToken cancellationToken) =>
+                {
+                    var result = await commands.ExecuteAsync(
+                        new WorkflowExtensionCommandContext(
+                            request.ExtensionId,
+                            request.CommandId,
+                            request.TargetActionId,
+                            request.TargetActionType,
+                            request.Payload),
+                        cancellationToken);
+                    var data = result.Data.ToDictionary(
+                        item => item.Key,
+                        item => System.Text.Json.JsonSerializer.SerializeToElement(item.Value),
+                        StringComparer.OrdinalIgnoreCase);
+                    return Results.Ok(new WorkflowExtensionCommandResponseDto
+                    {
+                        Succeeded = result.Succeeded,
+                        Message = result.Message,
+                        Data = data
+                    });
+                })
+            .WithName("ExecuteWorkflowExtensionCommand");
 
         app.MapGet(
                 "/api/workflow-runtime/resources/previews/{runId:guid}/{lineNumber:int}",

@@ -1,11 +1,13 @@
 using WorkflowRuntime.ActionSdk;
+using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin;
 
 public sealed class OpenCvSamplePlugin : IWorkflowActionPlugin
 {
-    public string PluginId => "workflow.sample-opencv-actions";
-    public string PluginVersion => "1.6.0";
+    public string PluginId => OpenCvPluginIdentity.Id;
+    public string PluginVersion => OpenCvPluginIdentity.Version;
+    public string DisplayName => OpenCvPluginIdentity.DisplayName;
 
     public void Register(IWorkflowActionPluginBuilder builder)
     {
@@ -23,5 +25,8 @@ public sealed class OpenCvSamplePlugin : IWorkflowActionPlugin
         builder.AddAction<InteractiveTemplateMatchSdkAction>();
         builder.AddAction<TemplateMatchSdkAction>();
         builder.AddAction<SaveImageSdkAction>();
+        builder.AddCommand<OpenCvDesignerCommandHandler>(OpenCvCommandIds.PreviewLearning);
+        builder.AddCommand<OpenCvDesignerCommandHandler>(OpenCvCommandIds.Learn);
+        builder.AddCommand<OpenCvDesignerCommandHandler>(OpenCvCommandIds.Match);
     }
 }

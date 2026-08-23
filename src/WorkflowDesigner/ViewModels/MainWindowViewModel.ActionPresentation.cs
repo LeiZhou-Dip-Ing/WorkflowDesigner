@@ -23,11 +23,6 @@ public sealed partial class MainWindowViewModel
     public bool IsSelectedCustomWorkspace
         => !IsSelectedPropertyWorkspace;
 
-    // V4 compatibility alias used by tests and existing bindings.
-    public bool IsSelectedImageWorkspace
-        => string.Equals(SelectedActionWorkspaceFallbackKey, WorkflowWorkspaceKeys.Image, StringComparison.OrdinalIgnoreCase)
-           && IsSelectedCustomWorkspace;
-
     public IWorkflowDesignerActionContext? SelectedDesignerActionContext
         => SelectedActionDescriptor == null
             ? null
@@ -46,7 +41,6 @@ public sealed partial class MainWindowViewModel
         OnPropertyChanged(nameof(SelectedActionWorkspaceFallbackKey));
         OnPropertyChanged(nameof(IsSelectedPropertyWorkspace));
         OnPropertyChanged(nameof(IsSelectedCustomWorkspace));
-        OnPropertyChanged(nameof(IsSelectedImageWorkspace));
         OnPropertyChanged(nameof(SelectedDesignerActionContext));
         OnPropertyChanged(nameof(CanOpenSelectedActionEditor));
         OnPropertyChanged(nameof(SelectedActionDoubleClickEditor));

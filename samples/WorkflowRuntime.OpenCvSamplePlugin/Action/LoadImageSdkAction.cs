@@ -11,8 +11,8 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin",
     Description = "Loads an image through an external Action SDK plugin and publishes a preview.",
     DisplayTemplate = "Load {FilePath} → {OutputImage}",
-    WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowActionEditorKeys.Image)]
+    WorkspaceKind = OpenCvDesignerKeys.ImageWorkspace,
+    DoubleClickEditor = OpenCvDesignerKeys.ImageActionEditor)]
 public sealed class LoadImageSdkAction : WorkflowActionBase
 {
     [WorkflowActionInput(
@@ -44,7 +44,7 @@ public sealed class LoadImageSdkAction : WorkflowActionBase
     [WorkflowActionOutput(
         DisplayName = "Output image",
         Description = "Runtime-owned image handle. Bind this output to an image method variable.",
-        ValueType = "image",
+        ValueType = "resource",
         Required = true,
         Order = 3)]
     public string OutputImage { get; private set; } = string.Empty;

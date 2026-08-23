@@ -11,11 +11,11 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin / Preprocessing",
     Description = "Closes small gaps in a binary image with OpenCvSharp morphology.",
     DisplayTemplate = "Close {InputImage}, kernel {KernelSize}, iter {Iterations} → {OutputImage}",
-    WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowActionEditorKeys.Image)]
+    WorkspaceKind = OpenCvDesignerKeys.ImageWorkspace,
+    DoubleClickEditor = OpenCvDesignerKeys.ImageActionEditor)]
 public sealed class MorphologyCloseSdkAction : WorkflowActionBase
 {
-    [WorkflowActionInput(DisplayName = "Input image", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
+    [WorkflowActionInput(DisplayName = "Input image", ValueType = "resource", Editor = WorkflowPropertyEditorKeys.Variable,
         DataSource = "methodVariables", AllowCustomValue = false, AllowClear = true, Required = true, Order = 0)]
     public string InputImage { get; set; } = string.Empty;
 
@@ -31,7 +31,7 @@ public sealed class MorphologyCloseSdkAction : WorkflowActionBase
         Required = true, Order = 3)]
     public bool PublishPreview { get; set; } = true;
 
-    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "image", Required = true, Order = 10)]
+    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "resource", Required = true, Order = 10)]
     public string OutputImage { get; private set; } = string.Empty;
 
     protected override ValueTask ExecuteActionAsync(IWorkflowActionContext context, CancellationToken cancellationToken)

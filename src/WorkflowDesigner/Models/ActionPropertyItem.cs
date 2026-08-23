@@ -495,7 +495,7 @@ public sealed class ActionPropertyItem : INotifyPropertyChanged, IWorkflowProper
             "number" => "number",
             "string" => "string",
             "array" => "array",
-            "image" => "image",
+            "image" => "resource",
             _ => "object"
         };
 

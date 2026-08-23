@@ -11,11 +11,11 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin",
     Description = "Converts the input image to grayscale and publishes the processed frame to the Designer.",
     DisplayTemplate = "Gray {InputImage} → {OutputImage}",
-    WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowActionEditorKeys.Image)]
+    WorkspaceKind = OpenCvDesignerKeys.ImageWorkspace,
+    DoubleClickEditor = OpenCvDesignerKeys.ImageActionEditor)]
 public sealed class GrayScaleSdkAction : WorkflowActionBase
 {
-    [WorkflowActionInput(DisplayName = "Input image", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
+    [WorkflowActionInput(DisplayName = "Input image", ValueType = "resource", Editor = WorkflowPropertyEditorKeys.Variable,
         DataSource = "methodVariables", AllowCustomValue = false, AllowClear = true, Required = true, Order = 0)]
     public string InputImage { get; set; } = string.Empty;
 
@@ -23,7 +23,7 @@ public sealed class GrayScaleSdkAction : WorkflowActionBase
         Required = true, Order = 1)]
     public bool PublishPreview { get; set; } = true;
 
-    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "image", Required = true, Order = 2)]
+    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "resource", Required = true, Order = 2)]
     public string OutputImage { get; private set; } = string.Empty;
 
     protected override ValueTask ExecuteActionAsync(IWorkflowActionContext context, CancellationToken cancellationToken)

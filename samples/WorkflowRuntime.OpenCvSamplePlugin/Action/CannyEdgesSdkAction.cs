@@ -12,13 +12,13 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin",
     Description = "Detects image edges through an external Action SDK plugin.",
     DisplayTemplate = "Canny {InputImage} ({Threshold1}, {Threshold2}) → {OutputImage}",
-    WorkspaceKind = WorkflowWorkspaceKeys.Image,
+    WorkspaceKind = OpenCvDesignerKeys.ImageWorkspace,
     DoubleClickEditor = OpenCvDesignerKeys.CannyActionEditor)]
 public sealed class CannyEdgesSdkAction : WorkflowActionBase
 {
     [WorkflowActionInput(
         DisplayName = "Input image",
-        ValueType = "image",
+        ValueType = "resource",
         Editor = WorkflowPropertyEditorKeys.Variable,
         DataSource = "methodVariables",
         AllowCustomValue = false,
@@ -41,7 +41,7 @@ public sealed class CannyEdgesSdkAction : WorkflowActionBase
         Order = 3)]
     public bool PublishPreview { get; set; } = true;
 
-    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "image", Required = true, Order = 4)]
+    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "resource", Required = true, Order = 4)]
     public string OutputImage { get; private set; } = string.Empty;
 
     protected override ValueTask ExecuteActionAsync(

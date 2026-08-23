@@ -1,37 +1,86 @@
-# OpenCV single-DLL extension
+# OpenCV extension
 
-This project is the advanced extension example. It produces one deliverable:
+`WorkflowRuntime.OpenCvSamplePlugin.csproj` is one extension project with four capabilities:
 
-`WorkflowRuntime.OpenCvSamplePlugin.dll`
+- `Action/` contains Runtime Actions and command handlers.
+- `Runtime/` contains the OpenCV resource provider.
+- `UI/` contains WPF workspaces, property editors, dialogs, preview decoding, and ViewModels.
+- `Shared/` contains the stable identity, workspace/editor keys, command IDs, and field names.
 
-The same DLL contains two independent public entry points:
+All entry points use `OpenCvPluginIdentity.Id`, `Version`, and `DisplayName`. `extension.json`
+declares the entry assembly, SDK contract major, and capabilities. Runtime and Designer therefore
+load only `WorkflowRuntime.OpenCvSamplePlugin.dll`; dependency DLLs are resolver inputs, not
+extension entry points.
 
-- `Action/OpenCvSamplePlugin.cs` registers Runtime Actions through `WorkflowRuntime.ActionSdk`.
-- `UI/OpenCvSampleDesignerExtension.cs` registers optional WPF editors and workspaces through `WorkflowDesigner.WpfSdk`.
+## Packages
 
-Shared IDs live under `Shared/`. Building the project deploys the same DLL to both the Runtime
-`plugins` directory and the Designer `designer-plugins` directory. No WorkflowCore, Runtime host,
-or Designer source change is required when adding an OpenCV Action or its optional UI.
+The project references only public extension contracts:
 
-The assembly-level `WorkflowActionPluginEntryPoint` tells the Runtime exactly which Action plugin
-class to load, so it never reflects over the WPF types. The Designer independently discovers the
-`IWorkflowDesignerExtension` entry point. Runtime and UI remain separate at execution time even
-though distribution is one DLL.
+- `WorkflowRuntime.ActionSdk`
+- `WorkflowRuntime.ResourceSdk`
+- `WorkflowDesigner.WpfSdk`
 
-## Ordinary Actions stay simple
+It does not reference the WorkflowDesigner application or WorkflowCore implementation source.
+An ordinary metadata-only Action needs only `WorkflowRuntime.ActionSdk`; it does not need WPF or
+ResourceSdk.
 
-Do not copy this WPF setup for a normal business Action. A normal Action plugin only references
-`WorkflowRuntime.ActionSdk`, declares metadata on its Action classes, and receives the generated property panel.
-It does not need the entry-point attribute, a `UI` folder, `WorkflowDesigner.WpfSdk`, or `WorkflowRuntime.ResourceSdk`.
+## Add an Action
 
-## Add an advanced extension
+1. Create a `WorkflowActionBase` class under `Action/`.
+2. Declare inputs and outputs with metadata attributes. Resource handles use `ValueType = "resource"`.
+3. Use extension-owned `WorkspaceKind` and `DoubleClickEditor` keys when custom UI is needed.
+4. Register the Action in `OpenCvSamplePlugin.Register`.
 
-1. Add or edit Action classes only under `Action/`.
-2. Register them in `Action/OpenCvSamplePlugin.cs`.
-3. Add optional custom WPF editors under `UI/` and register them in
-   `UI/OpenCvSampleDesignerExtension.cs`.
-4. Put keys shared by Action metadata and UI registration under `Shared/`.
-5. Build this project. The single DLL is deployed to both hosts automatically in Debug builds.
+The generic property panel is generated from metadata. Actions that need no special UI stop here.
 
-The Runtime receives image resource handles and publishes provider-owned previews through `WorkflowRuntime.ResourceSdk`. WPF never
-receives OpenCvSharp `Mat` instances from the Runtime process.
+## Add a workspace or double-click editor
+
+1. Add XAML and its ViewModel under `UI/`. Keep state and commands in the ViewModel.
+2. Add a stable key to `OpenCvDesignerKeys`.
+3. Put the key on the Action metadata.
+4. Register `key -> factory` in `OpenCvSampleDesignerExtension`.
+
+`IWorkflowDesignerActionContext.Properties` edits the same Action state used by the generic
+property panel, so dirty state and undo/redo stay integrated. Preview is optional: request
+`IWorkflowDesignerResourcePreviewCapability` with `GetCapability<T>()`, then decode its content
+inside the extension. The host does not expose an image type.
+
+## Add a command
+
+Configuration such as score, velocity, or position remains in Action properties. Operations such
+as Learn, Match, Home, or Jog use commands:
+
+1. Add a stable ID under `OpenCvCommandIds`.
+2. Implement `IWorkflowExtensionCommandHandler` under `Action/`.
+3. Register it with `builder.AddCommand<THandler>(commandId)`.
+4. Call `context.ExecuteCommandAsync(new WorkflowDesignerCommandRequest(commandId, payload))`
+   from the UI ViewModel.
+
+The call path is Designer context -> Runtime command endpoint -> extension command registry ->
+handler -> result. It does not temporarily rewrite workflow JSON.
+
+## Deployment layout
+
+Debug builds deploy the same extension directory to Runtime and Designer:
+
+```text
+OpenCvSample/
+  extension.json
+  WorkflowRuntime.OpenCvSamplePlugin.dll
+  WorkflowRuntime.OpenCvSamplePlugin.deps.json
+  OpenCvSharp.dll
+  runtimes/win-x64/native/
+    OpenCvSharpExtern.dll
+    opencv_videoio_ffmpeg4130_64.dll
+```
+
+The extension implementation is one DLL. OpenCvSharp managed/native files remain separate vendor
+dependencies so the .NET dependency resolver and Windows native loader can load supported binary
+versions reliably.
+
+## Other extension shapes
+
+A HALCON project can use the same folders for HImage resources, ROI workspaces, shape-model
+dialogs, and Learn commands. A Motion project can omit ResourceSdk and provide Move/Home Actions,
+an axis workspace, and Jog/Home/Teach handlers. Both remain one csproj and use the same public SDK
+contracts and manifest model.

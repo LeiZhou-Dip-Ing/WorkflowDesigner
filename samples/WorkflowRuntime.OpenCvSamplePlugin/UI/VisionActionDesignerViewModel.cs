@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using System.Windows.Media;
 using WorkflowDesigner.WpfSdk;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin.UI;
@@ -13,6 +14,8 @@ namespace WorkflowRuntime.OpenCvSamplePlugin.UI;
 internal sealed class VisionActionDesignerViewModel : INotifyPropertyChanged
 {
     private readonly IWorkflowDesignerActionContext _context;
+    private readonly IWorkflowDesignerResourcePreviewCapability? _preview;
+    private ImageSource? _previewImage;
 
     public VisionActionDesignerViewModel(
         IWorkflowDesignerActionContext context,
@@ -21,6 +24,8 @@ internal sealed class VisionActionDesignerViewModel : INotifyPropertyChanged
         IEnumerable<string>? preferredFields = null)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
+        _preview = context.GetCapability<IWorkflowDesignerResourcePreviewCapability>();
+        _previewImage = OpenCvPreviewDecoder.Decode(_preview?.Current);
         Title = title;
         Description = description;
         var names = preferredFields?.ToArray() ?? Array.Empty<string>();
@@ -33,12 +38,15 @@ internal sealed class VisionActionDesignerViewModel : INotifyPropertyChanged
                 .ToArray();
         InputProperties = Properties.Where(property => !property.IsOutputBinding).ToArray();
         OutputProperties = Properties.Where(property => property.IsOutputBinding).ToArray();
-        RunCommand = new AsyncRelayCommand(context.RunPreviewAsync, () => context.CanRunPreview);
+        RunCommand = new AsyncRelayCommand(RefreshPreviewAsync, () => CanRunPreview);
         foreach (var property in Properties)
         {
             property.PropertyChanged += PropertyOnPropertyChanged;
         }
-        context.PropertyChanged += ContextOnPropertyChanged;
+        if (_preview != null)
+        {
+            _preview.PropertyChanged += PreviewOnPropertyChanged;
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -49,10 +57,10 @@ internal sealed class VisionActionDesignerViewModel : INotifyPropertyChanged
     public IReadOnlyList<IWorkflowPropertyEditorModel> Properties { get; }
     public IReadOnlyList<IWorkflowPropertyEditorModel> InputProperties { get; }
     public IReadOnlyList<IWorkflowPropertyEditorModel> OutputProperties { get; }
-    public object? PreviewImage => _context.PreviewImage;
-    public bool HasPreview => _context.HasPreview;
-    public string PreviewInfo => _context.PreviewInfo;
-    public bool CanRunPreview => _context.CanRunPreview;
+    public ImageSource? PreviewImage => _previewImage;
+    public bool HasPreview => _previewImage != null;
+    public string PreviewInfo => _preview?.Current?.Description ?? "No preview yet";
+    public bool CanRunPreview => _preview != null;
     public ICommand RunCommand { get; }
 
     public string ConfigurationSummary
@@ -98,23 +106,29 @@ internal sealed class VisionActionDesignerViewModel : INotifyPropertyChanged
         return string.IsNullOrWhiteSpace(property.ValueText) ? "—" : property.ValueText;
     }
 
-    private void ContextOnPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
+    private async Task RefreshPreviewAsync()
     {
-        if (string.IsNullOrWhiteSpace(eventArgs.PropertyName)
-            || eventArgs.PropertyName is nameof(IWorkflowDesignerActionContext.PreviewImage)
-                or nameof(IWorkflowDesignerActionContext.HasPreview)
-                or nameof(IWorkflowDesignerActionContext.PreviewInfo)
-                or nameof(IWorkflowDesignerActionContext.CanRunPreview))
+        if (_preview != null)
         {
-            OnPropertyChanged(nameof(PreviewImage));
-            OnPropertyChanged(nameof(HasPreview));
-            OnPropertyChanged(nameof(PreviewInfo));
-            OnPropertyChanged(nameof(CanRunPreview));
-            if (RunCommand is AsyncRelayCommand command)
-            {
-                command.RaiseCanExecuteChanged();
-            }
+            await _preview.RefreshAsync().ConfigureAwait(true);
         }
+    }
+
+    private void PreviewOnPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
+    {
+        if (!string.IsNullOrWhiteSpace(eventArgs.PropertyName)
+            && eventArgs.PropertyName is not nameof(IWorkflowDesignerResourcePreviewCapability.Current)
+                and not nameof(IWorkflowDesignerResourcePreviewCapability.HasContent))
+        {
+            return;
+        }
+
+        _previewImage = OpenCvPreviewDecoder.Decode(_preview?.Current);
+        OnPropertyChanged(nameof(PreviewImage));
+        OnPropertyChanged(nameof(HasPreview));
+        OnPropertyChanged(nameof(PreviewInfo));
+        OnPropertyChanged(nameof(CanRunPreview));
+        (RunCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

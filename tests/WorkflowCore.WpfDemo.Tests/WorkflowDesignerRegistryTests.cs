@@ -2,6 +2,7 @@ using System.Windows;
 using System.Reflection;
 using WorkflowRuntime.ActionSdk;
 using WorkflowDesigner.WpfSdk;
+using WorkflowRuntime.OpenCvSamplePlugin;
 using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 using WorkflowRuntime.OpenCvSamplePlugin.UI;
 using Xunit;
@@ -10,6 +11,22 @@ namespace WorkflowCore.WpfDemo.Tests;
 
 public sealed class WorkflowDesignerRegistryTests
 {
+    [Fact]
+    public void DesignerLoader_WithNoExtensions_ReturnsNoFailures()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), $"workflow-designer-empty-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var loader = new DesignerPluginLoader(new WorkflowDesignerRegistry());
+            Assert.Empty(loader.LoadDirectory(directory));
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
     [Fact]
     public void OpenCvExtension_UsesOneAssemblyForActionsAndDesignerUi()
     {
@@ -80,7 +97,21 @@ public sealed class WorkflowDesignerRegistryTests
                 StringComparison.OrdinalIgnoreCase));
 
         Assert.True(result.Loaded, result.Error);
-        Assert.Equal("sample.opencv.designer", result.PluginId);
+        Assert.Equal(OpenCvPluginIdentity.Id, result.PluginId);
         Assert.Contains(OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor, registry.ActionEditorKeys);
+    }
+
+    [Fact]
+    public void OpenCvCapabilitiesShareOneExtensionIdentity()
+    {
+        var actions = new OpenCvSamplePlugin();
+        var resources = new OpenCvResourceProviderPlugin();
+        var designer = new OpenCvSampleDesignerExtension();
+
+        Assert.Equal(OpenCvPluginIdentity.Id, actions.PluginId);
+        Assert.Equal(actions.PluginId, resources.PluginId);
+        Assert.Equal(actions.PluginId, designer.PluginId);
+        Assert.Equal(actions.PluginVersion, resources.PluginVersion);
+        Assert.Equal(actions.PluginVersion, designer.PluginVersion);
     }
 }

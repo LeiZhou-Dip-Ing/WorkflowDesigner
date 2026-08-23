@@ -11,11 +11,11 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin / Measurement",
     Description = "Finds the longest line segment with Canny + probabilistic Hough transform and draws the result.",
     DisplayTemplate = "Measure line {InputImage} → {OutputImage}",
-    WorkspaceKind = WorkflowWorkspaceKeys.Image,
+    WorkspaceKind = OpenCvDesignerKeys.ImageWorkspace,
     DoubleClickEditor = OpenCvDesignerKeys.MeasureLineActionEditor)]
 public sealed class MeasureLineSdkAction : WorkflowActionBase
 {
-    [WorkflowActionInput(DisplayName = "Input image", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
+    [WorkflowActionInput(DisplayName = "Input image", ValueType = "resource", Editor = WorkflowPropertyEditorKeys.Variable,
         DataSource = "methodVariables", AllowCustomValue = false, AllowClear = true, Required = true, Order = 0)]
     public string InputImage { get; set; } = string.Empty;
 
@@ -43,7 +43,7 @@ public sealed class MeasureLineSdkAction : WorkflowActionBase
         Required = true, Order = 6)]
     public bool PublishPreview { get; set; } = true;
 
-    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "image", Required = true, Order = 10)]
+    [WorkflowActionOutput(DisplayName = "Output image", ValueType = "resource", Required = true, Order = 10)]
     public string OutputImage { get; private set; } = string.Empty;
     [WorkflowActionOutput(DisplayName = "Line found", ValueType = "boolean", Required = false, Order = 11)]
     public bool Found { get; private set; }

@@ -12,13 +12,13 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     Category = "Vision / SDK Plugin",
     Description = "Applies Gaussian blur through an external Action SDK plugin.",
     DisplayTemplate = "Blur {InputImage} ({KernelSize}) → {OutputImage}",
-    WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowActionEditorKeys.Image)]
+    WorkspaceKind = OpenCvDesignerKeys.ImageWorkspace,
+    DoubleClickEditor = OpenCvDesignerKeys.ImageActionEditor)]
 public sealed class GaussianBlurSdkAction : WorkflowActionBase
 {
     [WorkflowActionInput(
         DisplayName = "Input image",
-        ValueType = "image",
+        ValueType = "resource",
         Editor = WorkflowPropertyEditorKeys.Variable,
         DataSource = "methodVariables",
         AllowCustomValue = false,
@@ -55,7 +55,7 @@ public sealed class GaussianBlurSdkAction : WorkflowActionBase
 
     [WorkflowActionOutput(
         DisplayName = "Output image",
-        ValueType = "image",
+        ValueType = "resource",
         Required = true,
         Order = 4)]
     public string OutputImage { get; private set; } = string.Empty;

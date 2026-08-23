@@ -7,8 +7,9 @@ namespace WorkflowRuntime.OpenCvSamplePlugin.UI;
 
 public sealed class OpenCvSampleDesignerExtension : IWorkflowDesignerExtension
 {
-    public string PluginId => "sample.opencv.designer";
+    public string PluginId => OpenCvPluginIdentity.Id;
     public string PluginVersion => OpenCvPluginIdentity.Version;
+    public string DisplayName => OpenCvPluginIdentity.DisplayName;
 
     public void Register(IWorkflowDesignerRegistry registry)
     {
@@ -19,7 +20,7 @@ public sealed class OpenCvSampleDesignerExtension : IWorkflowDesignerExtension
             (DataTemplate)resources["OddKernelPropertyEditorTemplate"],
             PluginId);
 
-        // Most Vision Actions use the host's clean image-only workspace on single click.
+        // The extension owns its shared resource workspace and specialized editors.
         // Contour Features demonstrates one optional external workspace that is still result-only:
         // it shows the processed image and read-only results, never the dialog's parameter editor.
         registry.RegisterWorkspace(
@@ -70,6 +71,25 @@ public sealed class OpenCvSampleDesignerExtension : IWorkflowDesignerExtension
             context => DesignerViewFactory.CreateWindow(
                 "InteractiveTemplateMatchWindow.xaml",
                 new InteractiveTemplateMatchViewModel(context)),
+            PluginId);
+
+        registry.RegisterWorkspace(
+            OpenCvDesignerKeys.ImageWorkspace,
+            context => DesignerViewFactory.CreateView(
+                "OpenCvImageWorkspaceView.xaml",
+                new VisionActionDesignerViewModel(
+                    context,
+                    context.Descriptor.DisplayName,
+                    context.Descriptor.Description)),
+            PluginId);
+
+        registry.RegisterActionEditor(
+            OpenCvDesignerKeys.ImageActionEditor,
+            context => CreateEditor(
+                context,
+                context.Descriptor.DisplayName,
+                context.Descriptor.Description,
+                context.Properties.Select(property => property.Name).ToArray()),
             PluginId);
     }
 

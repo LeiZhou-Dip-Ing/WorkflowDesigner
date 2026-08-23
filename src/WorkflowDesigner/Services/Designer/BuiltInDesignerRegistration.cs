@@ -22,17 +22,9 @@ public static class BuiltInDesignerRegistration
         RegisterTemplate(registry, WorkflowPropertyEditorKeys.Expression, "BuiltinPropertyLookupTemplate");
         RegisterTemplate(registry, WorkflowPropertyEditorKeys.Method, "BuiltinPropertyLookupTemplate");
 
-        registry.RegisterWorkspace(
-            WorkflowWorkspaceKeys.Image,
-            context => new ImageWorkspaceView { DataContext = context });
-
-        registry.RegisterActionEditor(
-            WorkflowActionEditorKeys.Image,
-            context => new ActionEditorWindow(context, isImageEditor: true));
-
         registry.RegisterActionEditor(
             WorkflowActionEditorKeys.Properties,
-            context => new ActionEditorWindow(context, isImageEditor: false));
+            context => new ActionEditorWindow(context));
     }
 
     private static void RegisterTemplate(

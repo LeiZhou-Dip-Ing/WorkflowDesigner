@@ -33,11 +33,6 @@ public static class ActionPresentationPolicy
             return true;
         }
 
-        if (string.Equals(key, WorkflowWorkspaceKeys.Image, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
         if (WorkflowDesignerRegistryHost.TryGetCurrent(out var registry)
             && registry != null
             && registry.WorkspaceKeys.Contains(key, StringComparer.OrdinalIgnoreCase))
@@ -50,10 +45,6 @@ public static class ActionPresentationPolicy
 
     public static bool UsesCustomWorkspace(WorkflowActionDescriptorDto? descriptor)
         => !UsesPropertyWorkspace(descriptor);
-
-    // Compatibility helper retained for callers/tests; only an explicit image key selects it.
-    public static bool UsesImageWorkspace(WorkflowActionDescriptorDto? descriptor)
-        => string.Equals(GetWorkspaceKey(descriptor), WorkflowWorkspaceKeys.Image, StringComparison.OrdinalIgnoreCase);
 
     public static bool CanOpenOnDoubleClick(WorkflowActionDescriptorDto? descriptor)
         => !string.IsNullOrWhiteSpace(descriptor?.Presentation?.DoubleClickEditor);

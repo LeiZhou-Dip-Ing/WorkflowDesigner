@@ -22,6 +22,7 @@
   <ItemGroup>
     <PackageReference Include="OpenCvSharp4" Version="4.13.0.20260627" />
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.13.0.20260627" />
+    <Content Include="extension.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Developer convenience only: keep the runtime host decoupled from this plugin at compile time,
@@ -35,10 +36,14 @@
       <RuntimePluginFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
       <RuntimePluginFiles Include="$(TargetDir)$(TargetName).deps.json" Condition="Exists('$(TargetDir)$(TargetName).deps.json')" />
       <RuntimePluginFiles Include="$(TargetDir)OpenCvSharp.dll" Condition="Exists('$(TargetDir)OpenCvSharp.dll')" />
-      <RuntimePluginFiles Include="$(TargetDir)OpenCvSharpExtern.dll" Condition="Exists('$(TargetDir)OpenCvSharpExtern.dll')" />
+      <RuntimePluginFiles Include="$(TargetDir)extension.json" />
+      <RuntimeNativeFiles Include="$(TargetDir)runtimes\**\*" />
     </ItemGroup>
     <Copy SourceFiles="@(RuntimePluginFiles)"
           DestinationFolder="$(WorkflowRuntimePluginDirectory)"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(RuntimeNativeFiles)"
+          DestinationFiles="@(RuntimeNativeFiles->'$(WorkflowRuntimePluginDirectory)\runtimes\%(RecursiveDir)%(Filename)%(Extension)')"
           SkipUnchangedFiles="true" />
   </Target>
 
@@ -50,9 +55,15 @@
       <DesignerPluginFiles Include="$(TargetPath)" />
       <DesignerPluginFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
       <DesignerPluginFiles Include="$(TargetDir)$(TargetName).deps.json" Condition="Exists('$(TargetDir)$(TargetName).deps.json')" />
+      <DesignerPluginFiles Include="$(TargetDir)OpenCvSharp.dll" Condition="Exists('$(TargetDir)OpenCvSharp.dll')" />
+      <DesignerPluginFiles Include="$(TargetDir)extension.json" />
+      <DesignerNativeFiles Include="$(TargetDir)runtimes\**\*" />
     </ItemGroup>
     <Copy SourceFiles="@(DesignerPluginFiles)"
           DestinationFolder="$(WorkflowDesignerPluginDirectory)"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(DesignerNativeFiles)"
+          DestinationFiles="@(DesignerNativeFiles->'$(WorkflowDesignerPluginDirectory)\runtimes\%(RecursiveDir)%(Filename)%(Extension)')"
           SkipUnchangedFiles="true" />
   </Target>
 </Project>

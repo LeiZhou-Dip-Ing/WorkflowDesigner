@@ -31,123 +31,25 @@
             </StackPanel>
         </Border>
 
-        <Grid Grid.Row="1" Margin="0,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="420" />
-                <ColumnDefinition Width="8" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <Border Grid.Column="0"
-                    Background="#FF333333"
-                    BorderBrush="{StaticResource BorderBrushSoft}"
-                    BorderThickness="1">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Grid.ColumnSpan" Value="1" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsPropertyEditor}" Value="True">
-                                <Setter Property="Grid.ColumnSpan" Value="3" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="38" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Properties"
-                               Margin="10,0"
-                               VerticalAlignment="Center"
-                               FontWeight="SemiBold" />
-                    <controls:ActionPropertyPanel Grid.Row="1"
-                                                  ItemsSource="{Binding PropertiesView}"
-                                                  ActionContext="{Binding Context}"
-                                                  CreateValueCommand="{Binding CreateValueCommand}"
-                                                  ClearValueCommand="{Binding ClearValueCommand}" />
-                </Grid>
-            </Border>
-
-            <GridSplitter Grid.Column="1"
-                          Width="8"
-                          HorizontalAlignment="Stretch"
-                          Background="Transparent">
-                <GridSplitter.Style>
-                    <Style TargetType="GridSplitter">
-                        <Setter Property="Visibility" Value="Visible" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsPropertyEditor}" Value="True">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </GridSplitter.Style>
-            </GridSplitter>
-
-            <Border Grid.Column="2"
-                    Background="#FF242424"
-                    BorderBrush="{StaticResource BorderBrushSoft}"
-                    BorderThickness="1">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Visibility" Value="Collapsed" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsImageEditor}" Value="True">
-                                <Setter Property="Visibility" Value="Visible" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <Grid Margin="8">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="38" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Processed image for this step"
-                               Margin="6,0"
-                               VerticalAlignment="Center"
-                               FontWeight="SemiBold" />
-                    <Border Grid.Row="1"
-                            Background="#FF111111"
-                            BorderBrush="#FF4C4C4C"
-                            BorderThickness="1">
-                        <Grid>
-                            <Image Source="{Binding Context.PreviewImage}" Stretch="Uniform" />
-                            <TextBlock Text="No image preview yet"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="#FF858585">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Context.HasPreview}" Value="False">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </Grid>
-                    </Border>
-                    <TextBlock Grid.Row="2"
-                               Margin="4,7,4,0"
-                               Text="{Binding Context.PreviewInfo}"
-                               Foreground="{StaticResource MutedTextBrush}"
-                               TextTrimming="CharacterEllipsis" />
-                </Grid>
-            </Border>
-        </Grid>
+        <Border Grid.Row="1" Margin="0,10"
+                Background="#FF333333"
+                BorderBrush="{StaticResource BorderBrushSoft}"
+                BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="38" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="Properties" Margin="10,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                <controls:ActionPropertyPanel Grid.Row="1"
+                                              ItemsSource="{Binding PropertiesView}"
+                                              ActionContext="{Binding Context}"
+                                              CreateValueCommand="{Binding CreateValueCommand}"
+                                              ClearValueCommand="{Binding ClearValueCommand}" />
+            </Grid>
+        </Border>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button x:Name="RunPreviewButton"
-                    Content="Run / Refresh Preview"
-                    Width="150"
-                    IsEnabled="{Binding Context.CanRunPreview}"
-                    Visibility="{Binding IsImageEditor, Converter={StaticResource BooleanToVisibilityConverter}}"
-                    Click="RunPreviewButton_OnClick" />
             <Button Content="Close" Width="90" IsCancel="True" Click="CloseButton_OnClick" />
         </StackPanel>
     </Grid>

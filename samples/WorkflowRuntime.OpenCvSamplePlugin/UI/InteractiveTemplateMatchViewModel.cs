@@ -14,6 +14,7 @@ public enum TemplateBrushShape { Circle, Rectangle }
 internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
 {
     private readonly IWorkflowDesignerActionContext _context;
+    private readonly IWorkflowDesignerResourcePreviewCapability? _preview;
     private bool _running;
     private string _status = "选择学习图像和搜索图像，然后点击“开始学习”。";
     private ImageSource? _displayImage;
@@ -28,8 +29,12 @@ internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
     public InteractiveTemplateMatchViewModel(IWorkflowDesignerActionContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        _displayImage = context.PreviewImage;
-        context.PropertyChanged += ContextOnPropertyChanged;
+        _preview = context.GetCapability<IWorkflowDesignerResourcePreviewCapability>();
+        _displayImage = OpenCvPreviewDecoder.Decode(_preview?.Current);
+        if (_preview != null)
+        {
+            _preview.PropertyChanged += PreviewOnPropertyChanged;
+        }
         StartLearningCommand = new AsyncRelayCommand(StartLearningAsync, () => CanRun);
         LearnModelCommand = new AsyncRelayCommand(LearnModelAsync, () => CanRun);
         ExecuteMatchCommand = new AsyncRelayCommand(ExecuteMatchAsync, () => CanRun);
@@ -47,8 +52,8 @@ internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
     public ImageSource? DisplayImage { get => _displayImage; private set { if (ReferenceEquals(_displayImage, value)) return; _displayImage = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasImage)); } }
     public bool HasImage => DisplayImage != null;
     public bool IsRunning { get => _running; private set { if (_running == value) return; _running = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanRun)); RaiseCommandStates(); } }
-    public bool CanRun => !IsRunning && _context.CanRunPreview;
-    public string PreviewInfo => _context.PreviewInfo;
+    public bool CanRun => !IsRunning && _preview != null;
+    public string PreviewInfo => _preview?.Current?.Description ?? "No preview yet";
     public string Status { get => _status; private set { if (_status == value) return; _status = value; OnPropertyChanged(); } }
     public bool HasLearnedMask => _mask is { Length: > 0 };
 
@@ -111,7 +116,7 @@ internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
     public async Task StartLearningAsync()
     {
         await RunAsync("正在加载学习图像…", "sample.opencv.template.preview-learning", "PreviewLearning");
-        if (_context.PreviewImage is BitmapSource bitmap)
+        if (OpenCvPreviewDecoder.Decode(_preview?.Current) is BitmapSource bitmap)
         {
             _learningImage = bitmap;
             DisplayImage = bitmap;
@@ -128,7 +133,7 @@ internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
         EnsureMaskForCurrentRoi(reset: false);
         SetText("TemplateMaskData", EncodeMask());
         await RunAsync("正在提取特征、保存模型并验证匹配…", "sample.opencv.template.learn", "LearnAndMatch");
-        DisplayImage = _context.PreviewImage;
+        DisplayImage = OpenCvPreviewDecoder.Decode(_preview?.Current);
         Tool = TemplateEditorTool.Pointer;
         Status = "学习完成：模型、模板图和掩膜已保存；当前 Action 已切换为 MatchOnly。";
     }
@@ -136,7 +141,7 @@ internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
     public async Task ExecuteMatchAsync()
     {
         await RunAsync("正在使用已学习模型执行匹配…", "sample.opencv.template.match", "MatchOnly");
-        DisplayImage = _context.PreviewImage;
+        DisplayImage = OpenCvPreviewDecoder.Decode(_preview?.Current);
         Tool = TemplateEditorTool.Pointer;
         Status = "执行完成。结果轮廓、中心、分数、角度和缩放已输出。";
     }
@@ -217,13 +222,25 @@ internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
         {
             if (commandId == null)
             {
-                await _context.RunPreviewAsync().ConfigureAwait(true);
+                if (_preview != null)
+                {
+                    await _preview.RefreshAsync().ConfigureAwait(true);
+                }
             }
             else
             {
-                await _context.RunCommandAsync(new WorkflowDesignerCommandRequest(
+                var result = await _context.ExecuteCommandAsync(new WorkflowDesignerCommandRequest(
                     commandId,
                     new Dictionary<string, object?> { ["Operation"] = operation })).ConfigureAwait(true);
+                if (!result.Succeeded)
+                {
+                    throw new InvalidOperationException(result.Message);
+                }
+
+                if (_preview != null)
+                {
+                    await _preview.RefreshAsync().ConfigureAwait(true);
+                }
             }
 
             OnPropertyChanged(nameof(PreviewInfo));
@@ -258,14 +275,16 @@ internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
     private void SetNumber(string name, int value) { var property = Find(name); if (property != null) property.ValueText = value.ToString(CultureInfo.InvariantCulture); }
     private int GetInt(string name, int fallback) => int.TryParse(Find(name)?.ValueText, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : fallback;
 
-    private void ContextOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void PreviewOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(e.PropertyName) || e.PropertyName is nameof(IWorkflowDesignerActionContext.CanRunPreview))
+        if (string.IsNullOrWhiteSpace(e.PropertyName)
+            || e.PropertyName is nameof(IWorkflowDesignerResourcePreviewCapability.Current)
+                or nameof(IWorkflowDesignerResourcePreviewCapability.HasContent))
         {
             OnPropertyChanged(nameof(CanRun));
+            OnPropertyChanged(nameof(PreviewInfo));
             RaiseCommandStates();
         }
-        if (string.IsNullOrWhiteSpace(e.PropertyName) || e.PropertyName is nameof(IWorkflowDesignerActionContext.PreviewInfo)) OnPropertyChanged(nameof(PreviewInfo));
     }
     private void RaiseCommandStates()
     {

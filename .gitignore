@@ -18,8 +18,6 @@ TestResults/
 *.nupkg
 *.snupkg
 NuGet.local.Config
-src/WorkflowRuntime.WindowsService/
-
 *.log
 *.tmp
 *.bak

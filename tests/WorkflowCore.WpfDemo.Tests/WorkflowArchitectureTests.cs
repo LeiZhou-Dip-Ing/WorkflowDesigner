@@ -6,6 +6,7 @@ using WorkflowCore.WpfDemo.Services.Editing;
 using WorkflowCore.WpfDemo.Services.Runtime;
 using WorkflowCore.WpfDemo.Services.Workspace;
 using WorkflowRuntime.OpenCvSamplePlugin;
+using System.Text.Json;
 
 namespace WorkflowCore.WpfDemo.Tests;
 
@@ -85,6 +86,25 @@ public sealed class WorkflowArchitectureTests
     }
 
     [Fact]
+    public void DesignerHost_DoesNotReferenceOpenCvOrOwnImageWorkspaceUi()
+    {
+        var designerDirectory = Path.Combine(GetRepositoryRoot(), "src", "WorkflowDesigner");
+        var project = File.ReadAllText(Path.Combine(designerDirectory, "WorkflowDesigner.csproj"));
+
+        Assert.DoesNotContain("OpenCv", project, StringComparison.OrdinalIgnoreCase);
+        Assert.False(File.Exists(Path.Combine(designerDirectory, "Views", "ImageWorkspaceView.xaml")));
+
+        var builtInRegistration = File.ReadAllText(Path.Combine(
+            designerDirectory,
+            "Services",
+            "Designer",
+            "BuiltInDesignerRegistration.cs"));
+        Assert.DoesNotContain("OpenCv", builtInRegistration, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("Vision", builtInRegistration, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("ImageWorkspace", builtInRegistration, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void OpenCvAdvancedUi_UsesMvvmCommandsAndBehaviorWithoutCodeBehind()
     {
         var uiDirectory = Path.Combine(
@@ -133,6 +153,24 @@ public sealed class WorkflowArchitectureTests
     }
 
     [Fact]
+    public void OpenCvManifest_UsesPublishedExtensionCapabilities()
+    {
+        using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(
+            GetRepositoryRoot(),
+            "samples",
+            "WorkflowRuntime.OpenCvSamplePlugin",
+            "extension.json")));
+        var capabilities = manifest.RootElement.GetProperty("capabilities")
+            .EnumerateArray()
+            .Select(item => item.GetString()!)
+            .ToArray();
+
+        Assert.Equal(
+            ["runtime-actions", "designer", "resources", "commands"],
+            capabilities);
+    }
+
+    [Fact]
     public void TemplateMatchDesignerCommands_DoNotPersistTemporaryOperationState()
     {
         var source = File.ReadAllText(Path.Combine(
@@ -142,7 +180,8 @@ public sealed class WorkflowArchitectureTests
             "UI",
             "InteractiveTemplateMatchViewModel.cs"));
 
-        Assert.Contains("RunCommandAsync", source, StringComparison.Ordinal);
+        Assert.Contains("ExecuteCommandAsync", source, StringComparison.Ordinal);
+        Assert.Contains("WorkflowDesignerCommandRequest", source, StringComparison.Ordinal);
         Assert.DoesNotContain("SetText(\"Operation\"", source, StringComparison.Ordinal);
     }
 
