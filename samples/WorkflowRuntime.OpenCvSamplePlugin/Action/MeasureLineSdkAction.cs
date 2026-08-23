@@ -1,5 +1,4 @@
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
 using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 
@@ -90,7 +89,7 @@ public sealed class MeasureLineSdkAction : WorkflowActionBase
                 new Scalar(0, 0, 255), 2, LineTypes.AntiAlias);
         }
 
-        OutputImage = vision.StoreImage(annotated, OpenCvActionSupport.Metadata(annotated, "SDK plugin: MeasureLine"), PublishPreview);
+        OutputImage = vision.StoreResource(annotated, OpenCvActionSupport.Metadata(annotated, "SDK plugin: MeasureLine"), PublishPreview);
         context.Log(Found ? $"Line found: ({X1:0},{Y1:0}) -> ({X2:0},{Y2:0}), length {Length:0.0}px." : "No line segment found.");
         return ValueTask.CompletedTask;
     }

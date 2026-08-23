@@ -1,7 +1,6 @@
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
-using WorkflowRuntime.VisionSdk;
+using WorkflowRuntime.ResourceSdk;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin;
 
@@ -14,7 +13,7 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     DisplayTemplate = "Load {FilePath} → {OutputImage}",
     ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowDesigner.Contracts.WorkflowActionEditorKeys.Vision)]
+    DoubleClickEditor = WorkflowActionEditorKeys.Vision)]
 public sealed class LoadImageSdkAction : WorkflowActionBase
 {
     [WorkflowActionInput(
@@ -56,7 +55,7 @@ public sealed class LoadImageSdkAction : WorkflowActionBase
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (context is not IWorkflowVisionActionContext vision)
+        if (context is not IWorkflowResourceActionContext vision)
         {
             throw new InvalidOperationException("The host does not expose the optional Vision Action context.");
         }
@@ -114,12 +113,12 @@ public sealed class LoadImageSdkAction : WorkflowActionBase
         }
 
         var metadata = CreateMetadata(image, source);
-        OutputImage = vision.StoreImage(image, metadata, PublishPreview);
+        OutputImage = vision.StoreResource(image, metadata, PublishPreview);
         context.Log($"Loaded {metadata.Width} x {metadata.Height} image from '{source}'.");
         return ValueTask.CompletedTask;
     }
 
-    private static VisionImageMetadata CreateMetadata(Mat image, string source)
+    private static WorkflowResourceMetadata CreateMetadata(Mat image, string source)
         => new()
         {
             Width = image.Width,

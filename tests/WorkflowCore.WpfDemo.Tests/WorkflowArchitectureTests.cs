@@ -5,13 +5,14 @@ using WorkflowCore.WpfDemo.Services.Drafts;
 using WorkflowCore.WpfDemo.Services.Editing;
 using WorkflowCore.WpfDemo.Services.Runtime;
 using WorkflowCore.WpfDemo.Services.Workspace;
+using WorkflowRuntime.OpenCvSamplePlugin;
 
 namespace WorkflowCore.WpfDemo.Tests;
 
 public sealed class WorkflowArchitectureTests
 {
     [Fact]
-    public void WpfClient_UsesWorkflowWpfSdkWithoutDirectWorkflowCoreDependency()
+    public void WpfClient_UsesExplicitSdkPackagesWithoutDirectWorkflowCoreDependency()
     {
         var projectFile = File.ReadAllText(Path.Combine(
             GetRepositoryRoot(),
@@ -20,7 +21,9 @@ public sealed class WorkflowArchitectureTests
             "WorkflowDesigner.csproj"));
 
         Assert.DoesNotContain("Include=\"WorkflowCore\"", projectFile, StringComparison.Ordinal);
-        Assert.Contains("Include=\"WorkflowWpfSdk\"", projectFile, StringComparison.Ordinal);
+        Assert.Contains("Include=\"WorkflowDesigner.WpfSdk\"", projectFile, StringComparison.Ordinal);
+        Assert.Contains("Include=\"WorkflowRuntime.ActionSdk\"", projectFile, StringComparison.Ordinal);
+        Assert.DoesNotContain("Include=\"WorkflowWpfSdk\"", projectFile, StringComparison.Ordinal);
         Assert.DoesNotContain("<ProjectReference", projectFile, StringComparison.Ordinal);
     }
 
@@ -114,6 +117,33 @@ public sealed class WorkflowArchitectureTests
 
         Assert.DoesNotContain("WorkflowWpfSdk", project, StringComparison.Ordinal);
         Assert.DoesNotContain("WorkflowDesigner.WpfSdk", project, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void OpenCvSingleAssembly_DeclaresRuntimeResourceAndDesignerEntryPoints()
+    {
+        var attributeNames = typeof(OpenCvSamplePlugin).Assembly
+            .GetCustomAttributesData()
+            .Select(attribute => attribute.AttributeType.Name)
+            .ToArray();
+
+        Assert.Contains("WorkflowActionPluginEntryPointAttribute", attributeNames);
+        Assert.Contains("WorkflowResourceProviderEntryPointAttribute", attributeNames);
+        Assert.Contains("WorkflowDesignerExtensionEntryPointAttribute", attributeNames);
+    }
+
+    [Fact]
+    public void TemplateMatchDesignerCommands_DoNotPersistTemporaryOperationState()
+    {
+        var source = File.ReadAllText(Path.Combine(
+            GetRepositoryRoot(),
+            "samples",
+            "WorkflowRuntime.OpenCvSamplePlugin",
+            "UI",
+            "InteractiveTemplateMatchViewModel.cs"));
+
+        Assert.Contains("RunCommandAsync", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("SetText(\"Operation\"", source, StringComparison.Ordinal);
     }
 
     private static string GetRepositoryRoot([CallerFilePath] string sourceFile = "")

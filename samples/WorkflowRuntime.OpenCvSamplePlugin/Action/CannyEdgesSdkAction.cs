@@ -1,8 +1,7 @@
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
 using WorkflowRuntime.OpenCvSamplePlugin.Shared;
-using WorkflowRuntime.VisionSdk;
+using WorkflowRuntime.ResourceSdk;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin;
 
@@ -51,9 +50,9 @@ public sealed class CannyEdgesSdkAction : WorkflowActionBase
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var vision = context as IWorkflowVisionActionContext
+        var vision = context as IWorkflowResourceActionContext
             ?? throw new InvalidOperationException("The host does not expose the optional Vision Action context.");
-        if (!vision.TryGetImage<Mat>(InputImage, out var input) || input == null)
+        if (!vision.TryGetResource<Mat>(InputImage, out var input) || input == null)
         {
             throw new KeyNotFoundException($"Image handle '{InputImage}' was not found.");
         }
@@ -61,7 +60,7 @@ public sealed class CannyEdgesSdkAction : WorkflowActionBase
         using var gray = ToGrayClone(input);
         var output = new Mat();
         Cv2.Canny(gray, output, Threshold1, Threshold2);
-        var metadata = new VisionImageMetadata
+        var metadata = new WorkflowResourceMetadata
         {
             Width = output.Width,
             Height = output.Height,
@@ -70,7 +69,7 @@ public sealed class CannyEdgesSdkAction : WorkflowActionBase
             PixelFormat = "Gray",
             Source = "SDK plugin: Canny"
         };
-        OutputImage = vision.StoreImage(output, metadata, PublishPreview);
+        OutputImage = vision.StoreResource(output, metadata, PublishPreview);
         context.Log($"Canny edge detection completed ({Threshold1}, {Threshold2}).");
         return ValueTask.CompletedTask;
     }

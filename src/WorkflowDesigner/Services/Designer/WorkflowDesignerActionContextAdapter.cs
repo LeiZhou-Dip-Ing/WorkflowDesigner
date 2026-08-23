@@ -42,6 +42,9 @@ public sealed class WorkflowDesignerActionContextAdapter : IWorkflowDesignerActi
 
     public Task RunPreviewAsync() => _owner.RunDesignerPreviewAsync();
 
+    public Task RunCommandAsync(WorkflowDesignerCommandRequest request)
+        => _owner.RunDesignerCommandAsync(request);
+
     public ICommand CreateValueCommand => _owner.CreatePropertyValueCommand;
 
     public ICommand ClearValueCommand => _owner.ClearPropertyValueCommand;

@@ -1,5 +1,4 @@
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
 using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 
@@ -14,7 +13,7 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     DisplayTemplate = "Threshold {InputImage} ({Threshold}) → {OutputImage}",
     ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowDesigner.Contracts.WorkflowActionEditorKeys.Vision)]
+    DoubleClickEditor = WorkflowActionEditorKeys.Vision)]
 public sealed class ThresholdSdkAction : WorkflowActionBase
 {
     [WorkflowActionInput(DisplayName = "Input image", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
@@ -49,7 +48,7 @@ public sealed class ThresholdSdkAction : WorkflowActionBase
         var output = new Mat();
         var thresholdType = ParseThresholdType(ThresholdMode);
         Cv2.Threshold(gray, output, Math.Clamp(Threshold, 0, 255), Math.Clamp(MaxValue, 0, 255), thresholdType);
-        OutputImage = vision.StoreImage(output, OpenCvActionSupport.Metadata(output, $"SDK plugin: Threshold {ThresholdMode}"), PublishPreview);
+        OutputImage = vision.StoreResource(output, OpenCvActionSupport.Metadata(output, $"SDK plugin: Threshold {ThresholdMode}"), PublishPreview);
         context.Log($"Threshold completed: {ThresholdMode}, value={Threshold:0.##}.");
         return ValueTask.CompletedTask;
     }

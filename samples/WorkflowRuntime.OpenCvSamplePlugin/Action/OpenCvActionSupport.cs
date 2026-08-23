@@ -1,23 +1,23 @@
 using OpenCvSharp;
 using WorkflowRuntime.ActionSdk;
-using WorkflowRuntime.VisionSdk;
+using WorkflowRuntime.ResourceSdk;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin;
 
 internal static class OpenCvActionSupport
 {
-    public static IWorkflowVisionActionContext RequireVision(IWorkflowActionContext context)
-        => context as IWorkflowVisionActionContext
+    public static IWorkflowResourceActionContext RequireVision(IWorkflowActionContext context)
+        => context as IWorkflowResourceActionContext
            ?? throw new InvalidOperationException("The host does not expose the optional Vision Action context.");
 
-    public static Mat RequireImage(IWorkflowVisionActionContext vision, string handle, string fieldName = "Input image")
+    public static Mat RequireImage(IWorkflowResourceActionContext vision, string handle, string fieldName = "Input image")
     {
         if (string.IsNullOrWhiteSpace(handle))
         {
             throw new InvalidOperationException($"{fieldName} is required.");
         }
 
-        if (!vision.TryGetImage<Mat>(handle, out var image) || image == null)
+        if (!vision.TryGetResource<Mat>(handle, out var image) || image == null)
         {
             throw new KeyNotFoundException($"Image handle '{handle}' was not found.");
         }
@@ -55,7 +55,7 @@ internal static class OpenCvActionSupport
         return bgr;
     }
 
-    public static VisionImageMetadata Metadata(Mat image, string source)
+    public static WorkflowResourceMetadata Metadata(Mat image, string source)
         => new()
         {
             Width = image.Width,

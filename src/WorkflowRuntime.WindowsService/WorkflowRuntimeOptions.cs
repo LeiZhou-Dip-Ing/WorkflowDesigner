@@ -11,6 +11,10 @@ public sealed class WorkflowRuntimeOptions
 
     public string StorageDirectory { get; set; } = "data/workflows";
 
+    public string WorkflowEncryptionKeyId { get; set; } = "primary";
+
+    public string WorkflowEncryptionKeyEnvironmentVariable { get; set; } = "WORKFLOW_RUNTIME_ENCRYPTION_KEY";
+
     public string PluginDirectory { get; set; } = "plugins";
 
     public string SharpScriptDirectory { get; set; } = "data/sharp-scripts";

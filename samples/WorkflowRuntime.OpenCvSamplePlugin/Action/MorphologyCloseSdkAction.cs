@@ -1,5 +1,4 @@
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
 using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 
@@ -14,7 +13,7 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     DisplayTemplate = "Close {InputImage}, kernel {KernelSize}, iter {Iterations} → {OutputImage}",
     ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowDesigner.Contracts.WorkflowActionEditorKeys.Vision)]
+    DoubleClickEditor = WorkflowActionEditorKeys.Vision)]
 public sealed class MorphologyCloseSdkAction : WorkflowActionBase
 {
     [WorkflowActionInput(DisplayName = "Input image", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
@@ -53,7 +52,7 @@ public sealed class MorphologyCloseSdkAction : WorkflowActionBase
         var output = new Mat();
         Cv2.MorphologyEx(gray, output, MorphTypes.Close, kernel, iterations: Math.Max(1, Iterations));
 
-        OutputImage = vision.StoreImage(
+        OutputImage = vision.StoreResource(
             output,
             OpenCvActionSupport.Metadata(output, $"SDK plugin: Morphology Close {k}x{k}, iter={Iterations}"),
             PublishPreview);

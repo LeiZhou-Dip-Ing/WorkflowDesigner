@@ -3,7 +3,7 @@ using System.IO.MemoryMappedFiles;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using WorkflowRuntime.VisionSdk;
+using WorkflowRuntime.ResourceSdk;
 
 namespace WorkflowCore.WpfDemo.Services.Vision;
 
@@ -12,13 +12,13 @@ public sealed class VisionPreviewReader
     private WriteableBitmap? _bitmap;
     private byte[] _buffer = Array.Empty<byte>();
 
-    public WriteableBitmap ReadLatest(VisionPreviewFrame frame)
+    public WriteableBitmap ReadLatest(WorkflowResourcePreviewFrame frame)
     {
         ArgumentNullException.ThrowIfNull(frame);
 
-        if (frame.EncodedImage is { Length: > 0 })
+        if (frame.EncodedContent is { Length: > 0 })
         {
-            return ReadEncoded(frame.EncodedImage);
+            return ReadEncoded(frame.EncodedContent);
         }
 
         if (!File.Exists(frame.MappingFilePath))

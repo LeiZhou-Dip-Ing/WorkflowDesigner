@@ -1,14 +1,14 @@
-using WorkflowRuntime.VisionSdk;
+using WorkflowRuntime.ResourceSdk;
 
 namespace WorkflowRuntime.WindowsService;
 
 public sealed class VisionResourceCleanup : BackgroundService
 {
-    private readonly IWorkflowVisionRuntime _visionRuntime;
+    private readonly IWorkflowResourceRuntime _visionRuntime;
     private readonly ILogger<VisionResourceCleanup> _logger;
 
     public VisionResourceCleanup(
-        IWorkflowVisionRuntime visionRuntime,
+        IWorkflowResourceRuntime visionRuntime,
         ILogger<VisionResourceCleanup> logger)
     {
         _visionRuntime = visionRuntime;

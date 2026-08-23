@@ -1,7 +1,6 @@
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.AspNetCore.Http.Features;
+using System.Security.Cryptography;
 using WorkflowCore.Actions;
 using WorkflowCore.Design;
 using WorkflowCore.Serialization;
@@ -9,15 +8,14 @@ using WorkflowRuntime.Application.Catalog;
 using WorkflowRuntime.Application.Documents;
 using WorkflowRuntime.Application.Plugins;
 using WorkflowRuntime.Application.Runtime;
+using WorkflowRuntime.Application.Resources;
 using WorkflowRuntime.Application.Security;
 using WorkflowRuntime.Application.Storage;
 using WorkflowRuntime.Application.SharpScripts;
 using WorkflowRuntime.Application.SharpScripts.Libraries;
 using WorkflowRuntime.ScriptCompiler;
 using WorkflowRuntime.RestService.Extensions;
-using WorkflowRuntime.Vision.OpenCvSharp;
-using WorkflowRuntime.Vision.OpenCvSharp.Runtime;
-using WorkflowRuntime.VisionSdk;
+using WorkflowRuntime.ResourceSdk;
 
 namespace WorkflowRuntime.WindowsService;
 
@@ -40,15 +38,11 @@ public static class Program
         });
         builder.WebHost.UseUrls(options.Url);
 
-        _ = OpenCvBuiltInActionModule.OpenCvSharpAssembly;
-
         var actionRegistry = new ActionRegistry();
         var metadataRegistry = new ActionMetadataRegistry();
         var assetRegistry = new ActionAssetRegistry();
         new BuiltInActionModule().RegisterActions(actionRegistry);
         new BuiltInActionMetadataModule().RegisterMetadata(metadataRegistry, assetRegistry);
-        new OpenCvBuiltInActionModule().RegisterActions(actionRegistry);
-        new OpenCvBuiltInActionMetadataModule().RegisterMetadata(metadataRegistry, assetRegistry);
 
         builder.Services.AddSingleton(options);
         builder.Services.Configure<FormOptions>(formOptions =>
@@ -67,16 +61,9 @@ public static class Program
         builder.Services.AddSingleton(actionRegistry);
         builder.Services.AddSingleton(metadataRegistry);
         builder.Services.AddSingleton(assetRegistry);
-        builder.Services.AddSingleton(new OpenCvVisionRuntimeOptions
-        {
-            PreviewDirectory = options.VisionPreviewDirectory,
-            PreviewMaxWidth = options.VisionPreviewMaxWidth,
-            PreviewMaxHeight = options.VisionPreviewMaxHeight,
-            ResourceRetentionMinutes = options.VisionResourceRetentionMinutes,
-            MaximumRetainedImages = options.VisionMaximumRetainedImages
-        });
-        builder.Services.AddSingleton<OpenCvVisionRuntime>();
-        builder.Services.AddSingleton<IWorkflowVisionRuntime>(provider => provider.GetRequiredService<OpenCvVisionRuntime>());
+        builder.Services.AddSingleton<WorkflowResourceRuntimeRegistry>();
+        builder.Services.AddSingleton<IWorkflowResourceRuntime>(provider =>
+            provider.GetRequiredService<WorkflowResourceRuntimeRegistry>());
         builder.Services.AddSingleton(provider => new WorkflowJsonSerializer(provider.GetRequiredService<ActionRegistry>()));
         builder.Services.AddSingleton<WorkflowValidator>();
         builder.Services.AddSingleton<RuntimeActionCatalog>();
@@ -105,10 +92,12 @@ public static class Program
         builder.Services.AddSingleton<SharpScriptLibraryUsageGuard>();
         builder.Services.AddSingleton<WorkflowPublicationCoordinator>();
         builder.Services.AddSingleton<RuntimeWorkflowValidator>();
-        builder.Services.AddSingleton(_ => new PublishedWorkflowStore(
+        builder.Services.AddSingleton(_ => CreateDocumentProtector(
+            options,
+            builder.Environment.IsDevelopment()));
+        builder.Services.AddSingleton(provider => new PublishedWorkflowStore(
             options.StorageDirectory,
-            CreateDocumentProtector(builder.Environment),
-            TimeProvider.System));
+            provider.GetRequiredService<WorkflowDocumentProtector>()));
         builder.Services.AddSingleton<WorkflowRunLauncher>();
         builder.Services.AddWorkflowRuntimeRestServices(options.AllowRemoteAccess);
         builder.Services.AddSingleton<ActionPluginStartup>();
@@ -133,10 +122,10 @@ public static class Program
 
         app.MapGet(
                 "/api/workflow-runtime/vision/previews/{runId:guid}/{lineNumber:int}",
-                (Guid runId, int lineNumber, string methodName, OpenCvVisionRuntime visionRuntime) =>
+                (Guid runId, int lineNumber, string methodName, IWorkflowResourceRuntime resourceRuntime) =>
                 {
-                    if (!visionRuntime.TryGetLatestPreview(runId, methodName, lineNumber, out var frame)
-                        || frame?.EncodedImage is not { Length: > 0 } encodedImage)
+                    if (!resourceRuntime.TryGetLatestPreview(runId, methodName, lineNumber, out var frame)
+                        || frame?.EncodedContent is not { Length: > 0 } encodedImage)
                     {
                         return Results.NotFound();
                     }
@@ -148,10 +137,10 @@ public static class Program
 
         app.MapGet(
                 "/api/workflow-runtime/vision/previews/latest/{lineNumber:int}",
-                (int lineNumber, string methodName, OpenCvVisionRuntime visionRuntime) =>
+                (int lineNumber, string methodName, IWorkflowResourceRuntime resourceRuntime) =>
                 {
-                    if (!visionRuntime.TryGetLatestPreview(methodName, lineNumber, out var frame)
-                        || frame?.EncodedImage is not { Length: > 0 } encodedImage)
+                    if (!resourceRuntime.TryGetLatestPreview(methodName, lineNumber, out var frame)
+                        || frame?.EncodedContent is not { Length: > 0 } encodedImage)
                     {
                         return Results.NotFound();
                     }
@@ -172,24 +161,54 @@ public static class Program
             : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, path));
     }
 
-    private static WorkflowDocumentProtector CreateDocumentProtector(IHostEnvironment environment)
+    private static WorkflowDocumentProtector CreateDocumentProtector(
+        WorkflowRuntimeOptions options,
+        bool isDevelopment)
     {
-        const string keyId = "primary";
-        const string environmentVariableName = "WORKFLOW_RUNTIME_ENCRYPTION_KEY";
-
-        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(environmentVariableName)))
+        if (!string.IsNullOrWhiteSpace(
+                Environment.GetEnvironmentVariable(options.WorkflowEncryptionKeyEnvironmentVariable)))
         {
-            return WorkflowDocumentProtector.FromEnvironment(keyId, environmentVariableName);
+            return WorkflowDocumentProtector.FromEnvironment(
+                options.WorkflowEncryptionKeyId,
+                options.WorkflowEncryptionKeyEnvironmentVariable);
         }
 
-        if (!environment.IsDevelopment())
+        if (!isDevelopment)
         {
-            throw new InvalidOperationException(
-                $"Required workflow encryption key environment variable '{environmentVariableName}' is not set.");
+            return WorkflowDocumentProtector.FromEnvironment(
+                options.WorkflowEncryptionKeyId,
+                options.WorkflowEncryptionKeyEnvironmentVariable);
         }
 
-        var developmentKey = SHA256.HashData(
-            Encoding.UTF8.GetBytes("WorkflowRuntime.WindowsService development workflow encryption key"));
-        return WorkflowDocumentProtector.Create("development", developmentKey);
+        Directory.CreateDirectory(options.StorageDirectory);
+        var keyPath = Path.Combine(options.StorageDirectory, ".development-encryption-key");
+        byte[] key;
+        if (File.Exists(keyPath))
+        {
+            key = File.ReadAllBytes(keyPath);
+        }
+        else
+        {
+            key = RandomNumberGenerator.GetBytes(32);
+            try
+            {
+                using var stream = new FileStream(keyPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+                stream.Write(key);
+            }
+            catch (IOException) when (File.Exists(keyPath))
+            {
+                CryptographicOperations.ZeroMemory(key);
+                key = File.ReadAllBytes(keyPath);
+            }
+        }
+
+        try
+        {
+            return WorkflowDocumentProtector.Create(options.WorkflowEncryptionKeyId, key);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(key);
+        }
     }
 }

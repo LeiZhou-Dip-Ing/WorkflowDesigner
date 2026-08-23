@@ -1482,45 +1482,6 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
     internal Task RunDesignerPreviewAsync()
         => RunSelectedMethodAsync();
 
-    private async Task RunSelectedMethodAsync(bool stepMode = false)
-    {
-        if (SelectedMethod == null || IsRunning)
-        {
-            return;
-        }
-
-        // The run panel represents the currently selected test run. Keeping rows from a
-        // previously selected method makes it look as if Runtime executed the wrong entry point.
-        _actionRunLog.Clear();
-        ClearDebugLocation();
-        Variables.Clear();
-        PrepareProject();
-        StatusText = stepMode
-            ? $"Starting step run for '{SelectedMethod.Name}'..."
-            : $"Testing current editor method '{SelectedMethod.Name}' on Runtime...";
-        var inputs = SelectedMethod.Inputs
-            .OrderBy(input => input.Order)
-            .ToDictionary(
-                input => input.Name,
-                input =>
-                {
-                    var variable = SelectedMethod.MethodVariables.FirstOrDefault(candidate =>
-                        candidate.IsActive
-                        && string.Equals(candidate.VariableName, input.VariableName, StringComparison.OrdinalIgnoreCase));
-                    return JsonSerializer.SerializeToNode(variable?.Value ?? variable?.DefaultValue ?? input.DefaultValue);
-                },
-                StringComparer.OrdinalIgnoreCase);
-        var workflowJson = SerializeCurrentProjectSnapshot(force: true);
-        var result = await _runSession.RunPreviewAsync(workflowJson, SelectedMethod, inputs, stepMode);
-        StatusText = result.Message;
-        ClearDebugLocation();
-        RefreshSelectedVisionPreview();
-        if (!result.Succeeded)
-        {
-            _actionRunLog.AddRunFailure(SelectedMethod.Name, result.Message);
-        }
-    }
-
     public bool IsSynchronizingRuntime
     {
         get => _isSynchronizingRuntime;

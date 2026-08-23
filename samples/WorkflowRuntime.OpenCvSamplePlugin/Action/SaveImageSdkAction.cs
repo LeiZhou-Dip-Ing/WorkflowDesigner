@@ -1,5 +1,4 @@
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin;
@@ -13,7 +12,7 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     DisplayTemplate = "Save {InputImage} → {FilePath}",
     ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowDesigner.Contracts.WorkflowActionEditorKeys.Vision)]
+    DoubleClickEditor = WorkflowActionEditorKeys.Vision)]
 public sealed class SaveImageSdkAction : WorkflowActionBase
 {
     [WorkflowActionInput(DisplayName = "Input image", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,

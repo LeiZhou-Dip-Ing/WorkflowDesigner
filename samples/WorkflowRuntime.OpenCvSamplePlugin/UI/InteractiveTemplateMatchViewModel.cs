@@ -110,8 +110,7 @@ internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
 
     public async Task StartLearningAsync()
     {
-        SetText("Operation", "PreviewLearning");
-        await RunAsync("正在加载学习图像…");
+        await RunAsync("正在加载学习图像…", "sample.opencv.template.preview-learning", "PreviewLearning");
         if (_context.PreviewImage is BitmapSource bitmap)
         {
             _learningImage = bitmap;
@@ -128,9 +127,7 @@ internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
         if (_learningImage == null) { Status = "请先点击“开始学习”加载学习图像。"; return; }
         EnsureMaskForCurrentRoi(reset: false);
         SetText("TemplateMaskData", EncodeMask());
-        SetText("Operation", "LearnAndMatch");
-        await RunAsync("正在提取特征、保存模型并验证匹配…");
-        SetText("Operation", "MatchOnly");
+        await RunAsync("正在提取特征、保存模型并验证匹配…", "sample.opencv.template.learn", "LearnAndMatch");
         DisplayImage = _context.PreviewImage;
         Tool = TemplateEditorTool.Pointer;
         Status = "学习完成：模型、模板图和掩膜已保存；当前 Action 已切换为 MatchOnly。";
@@ -138,8 +135,7 @@ internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
 
     public async Task ExecuteMatchAsync()
     {
-        SetText("Operation", "MatchOnly");
-        await RunAsync("正在使用已学习模型执行匹配…");
+        await RunAsync("正在使用已学习模型执行匹配…", "sample.opencv.template.match", "MatchOnly");
         DisplayImage = _context.PreviewImage;
         Tool = TemplateEditorTool.Pointer;
         Status = "执行完成。结果轮廓、中心、分数、角度和缩放已输出。";
@@ -213,11 +209,25 @@ internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
         }
     }
 
-    private async Task RunAsync(string runningStatus)
+    private async Task RunAsync(string runningStatus, string? commandId = null, string? operation = null)
     {
         if (!CanRun) return;
         IsRunning = true; Status = runningStatus;
-        try { await _context.RunPreviewAsync().ConfigureAwait(true); OnPropertyChanged(nameof(PreviewInfo)); }
+        try
+        {
+            if (commandId == null)
+            {
+                await _context.RunPreviewAsync().ConfigureAwait(true);
+            }
+            else
+            {
+                await _context.RunCommandAsync(new WorkflowDesignerCommandRequest(
+                    commandId,
+                    new Dictionary<string, object?> { ["Operation"] = operation })).ConfigureAwait(true);
+            }
+
+            OnPropertyChanged(nameof(PreviewInfo));
+        }
         catch (Exception exception) { Status = $"操作失败：{exception.Message}"; }
         finally { IsRunning = false; }
     }

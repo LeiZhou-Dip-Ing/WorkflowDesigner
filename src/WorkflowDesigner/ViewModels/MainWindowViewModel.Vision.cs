@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Windows.Media;
 using WorkflowCore.WpfDemo.Services.Vision;
 using WorkflowRuntime.Contracts;
-using WorkflowRuntime.VisionSdk;
+using WorkflowRuntime.ResourceSdk;
 
 namespace WorkflowCore.WpfDemo.ViewModels;
 
@@ -39,13 +39,14 @@ public sealed partial class MainWindowViewModel
 
     private void ApplyVisionPreviewEvent(WorkflowRuntimeEventDto runtimeEvent)
     {
-        if (!string.Equals(runtimeEvent.EventType, "VisionPreview", StringComparison.OrdinalIgnoreCase)
+        if ((!string.Equals(runtimeEvent.EventType, "ResourcePreview", StringComparison.OrdinalIgnoreCase)
+             && !string.Equals(runtimeEvent.EventType, "VisionPreview", StringComparison.OrdinalIgnoreCase))
             || runtimeEvent.Payload == null)
         {
             return;
         }
 
-        var frame = runtimeEvent.Payload.Deserialize<VisionPreviewFrame>(new JsonSerializerOptions
+        var frame = runtimeEvent.Payload.Deserialize<WorkflowResourcePreviewFrame>(new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });

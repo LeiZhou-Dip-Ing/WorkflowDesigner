@@ -1,5 +1,4 @@
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
 using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 
@@ -78,7 +77,7 @@ public sealed class TemplateMatchSdkAction : WorkflowActionBase
         Cv2.PutText(annotated, $"Score={Score:0.000}", new Point(Math.Max(5, location.X), Math.Max(25, location.Y - 10)),
             HersheyFonts.HersheySimplex, 0.7, color, 2, LineTypes.AntiAlias);
 
-        OutputImage = vision.StoreImage(annotated, OpenCvActionSupport.Metadata(annotated, "SDK plugin: TemplateMatch"), PublishPreview);
+        OutputImage = vision.StoreResource(annotated, OpenCvActionSupport.Metadata(annotated, "SDK plugin: TemplateMatch"), PublishPreview);
         context.Log($"Template match score {Score:0.000} at ({MatchX:0},{MatchY:0}); accepted={Matched}.");
         return ValueTask.CompletedTask;
     }

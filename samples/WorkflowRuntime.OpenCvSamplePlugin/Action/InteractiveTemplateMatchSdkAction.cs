@@ -1,9 +1,8 @@
 using System.Text.Json;
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
 using WorkflowRuntime.OpenCvSamplePlugin.Shared;
-using WorkflowRuntime.VisionSdk;
+using WorkflowRuntime.ResourceSdk;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin;
 
@@ -166,7 +165,7 @@ public sealed class InteractiveTemplateMatchSdkAction : WorkflowActionBase
             TemplateWidth = template.Width;
             TemplateHeight = template.Height;
             var templatePreview = RenderTemplatePreview(template, mask, model);
-            TemplateImage = vision.StoreImage(templatePreview,
+            TemplateImage = vision.StoreResource(templatePreview,
                 OpenCvActionSupport.Metadata(templatePreview, "SDK learned template"), false);
 
             var matches = FindMatches(search, searchRoi, template, mask, model, cancellationToken);
@@ -183,7 +182,7 @@ public sealed class InteractiveTemplateMatchSdkAction : WorkflowActionBase
             }
 
             var annotated = RenderMatches(search, searchRoi, matches);
-            OutputImage = vision.StoreImage(annotated,
+            OutputImage = vision.StoreResource(annotated,
                 OpenCvActionSupport.Metadata(annotated, "SDK learned template match"), PublishPreview);
             context.Log(Matched
                 ? $"Template model matched {MatchCount} time(s); best score={Score:0.000}, center=({MatchX:0.0},{MatchY:0.0}), angle={MatchAngle:0.0}°, scale={MatchScale:0.00}."
@@ -312,13 +311,13 @@ public sealed class InteractiveTemplateMatchSdkAction : WorkflowActionBase
         return output;
     }
 
-    private void PublishLearningPreview(IWorkflowVisionActionContext vision, Mat source, Rect learnRoi, Rect searchRoi)
+    private void PublishLearningPreview(IWorkflowResourceActionContext vision, Mat source, Rect learnRoi, Rect searchRoi)
     {
         var preview = OpenCvActionSupport.ToBgrClone(source);
         Cv2.Rectangle(preview, searchRoi, new Scalar(255, 170, 0), 2, LineTypes.AntiAlias);
         Cv2.Rectangle(preview, learnRoi, new Scalar(0, 255, 255), 3, LineTypes.AntiAlias);
         Cv2.PutText(preview, "LEARNING ROI", new Point(learnRoi.X, Math.Max(24, learnRoi.Y - 8)), HersheyFonts.HersheySimplex, .65, new Scalar(0, 255, 255), 2);
-        OutputImage = vision.StoreImage(preview, OpenCvActionSupport.Metadata(preview, "SDK template learning preview"), true);
+        OutputImage = vision.StoreResource(preview, OpenCvActionSupport.Metadata(preview, "SDK template learning preview"), true);
     }
 
     private static Mat RenderTemplatePreview(Mat template, Mat mask, LearnedTemplateModel model)

@@ -1,12 +1,11 @@
 using WorkflowRuntime.ActionSdk;
-using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin;
 
 public sealed class OpenCvSamplePlugin : IWorkflowActionPlugin
 {
     public string PluginId => "workflow.sample-opencv-actions";
-    public string PluginVersion => OpenCvPluginIdentity.Version;
+    public string PluginVersion => "1.6.0";
 
     public void Register(IWorkflowActionPluginBuilder builder)
     {

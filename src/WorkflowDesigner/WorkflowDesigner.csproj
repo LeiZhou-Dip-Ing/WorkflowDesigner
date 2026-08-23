@@ -10,8 +10,11 @@
     <RootNamespace>WorkflowCore.WpfDemo</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="WorkflowWpfSdk" Version="$(WorkflowVersion)" />
-    <PackageReference Include="WorkflowDesigner.WpfSdk" Version="2.0.0-alpha.4" />
+    <PackageReference Include="WorkflowRuntime.ActionSdk" Version="$(WorkflowVersion)" />
+    <PackageReference Include="WorkflowRuntime.Contracts" Version="$(WorkflowVersion)" />
+    <PackageReference Include="WorkflowRuntime.ResourceSdk" Version="$(WorkflowVersion)" />
+    <PackageReference Include="WorkflowDesigner.Contracts" Version="$(WorkflowVersion)" />
+    <PackageReference Include="WorkflowDesigner.WpfSdk" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowRuntime.ScriptCompiler" Version="$(WorkflowVersion)" />
   </ItemGroup>
   <ItemGroup>

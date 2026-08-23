@@ -1,5 +1,4 @@
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
 using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 
@@ -98,7 +97,7 @@ public sealed class MeasureCircleSdkAction : WorkflowActionBase
                 new Scalar(0, 0, 255), 2, LineTypes.AntiAlias);
         }
 
-        OutputImage = vision.StoreImage(annotated, OpenCvActionSupport.Metadata(annotated, "SDK plugin: MeasureCircle"), PublishPreview);
+        OutputImage = vision.StoreResource(annotated, OpenCvActionSupport.Metadata(annotated, "SDK plugin: MeasureCircle"), PublishPreview);
         context.Log(Found
             ? $"Circle found at ({CenterX:0.0},{CenterY:0.0}); diameter {Diameter:0.0}px."
             : "No circle found.");

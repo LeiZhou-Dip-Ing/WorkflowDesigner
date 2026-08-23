@@ -1,7 +1,6 @@
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
-using WorkflowRuntime.VisionSdk;
+using WorkflowRuntime.ResourceSdk;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin;
 
@@ -14,7 +13,7 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     DisplayTemplate = "Invert {InputImage} → {OutputImage}",
     ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowDesigner.Contracts.WorkflowActionEditorKeys.Vision)]
+    DoubleClickEditor = WorkflowActionEditorKeys.Vision)]
 public sealed class InvertImageAction : WorkflowActionBase
 {
     [WorkflowActionInput(
@@ -53,8 +52,8 @@ public sealed class InvertImageAction : WorkflowActionBase
 
         var output = new Mat();
         Cv2.BitwiseNot(input, output);
-        var sourceMetadata = vision.GetImageMetadata(InputImage);
-        OutputImage = vision.StoreImage(
+        var sourceMetadata = vision.GetResourceMetadata(InputImage);
+        OutputImage = vision.StoreResource(
             output,
             sourceMetadata with { Source = "SDK plugin: Invert" },
             PublishPreview);
@@ -62,13 +61,13 @@ public sealed class InvertImageAction : WorkflowActionBase
         return ValueTask.CompletedTask;
     }
 
-    private static IWorkflowVisionActionContext RequireVisionContext(IWorkflowActionContext context)
-        => context as IWorkflowVisionActionContext
+    private static IWorkflowResourceActionContext RequireVisionContext(IWorkflowActionContext context)
+        => context as IWorkflowResourceActionContext
            ?? throw new InvalidOperationException("The host does not expose the optional Vision Action context.");
 
-    private static Mat RequireImage(IWorkflowVisionActionContext vision, string handle)
+    private static Mat RequireImage(IWorkflowResourceActionContext vision, string handle)
     {
-        if (!vision.TryGetImage<Mat>(handle, out var input) || input == null)
+        if (!vision.TryGetResource<Mat>(handle, out var input) || input == null)
         {
             throw new KeyNotFoundException($"Image handle '{handle}' was not found.");
         }

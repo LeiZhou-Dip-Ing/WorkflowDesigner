@@ -8,7 +8,7 @@
     <WorkflowRuntimePluginDeployDirectory Condition="'$(WorkflowRuntimePluginDeployDirectory)' == ''">$(MSBuildProjectDirectory)\..\..\src\WorkflowRuntime.WindowsService\bin\$(Configuration)\net8.0\plugins\WorkflowRuntime.SampleActionPlugin</WorkflowRuntimePluginDeployDirectory>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="WorkflowSdk" Version="$(WorkflowVersion)" />
+    <PackageReference Include="WorkflowRuntime.ActionSdk" Version="$(WorkflowVersion)" />
   </ItemGroup>
   <Target Name="DeploySampleActionPlugin"
           AfterTargets="Build"

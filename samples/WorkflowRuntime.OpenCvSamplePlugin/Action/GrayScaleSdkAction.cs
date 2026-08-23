@@ -1,5 +1,4 @@
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
 using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 
@@ -14,7 +13,7 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     DisplayTemplate = "Gray {InputImage} → {OutputImage}",
     ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowDesigner.Contracts.WorkflowActionEditorKeys.Vision)]
+    DoubleClickEditor = WorkflowActionEditorKeys.Vision)]
 public sealed class GrayScaleSdkAction : WorkflowActionBase
 {
     [WorkflowActionInput(DisplayName = "Input image", ValueType = "image", Editor = WorkflowPropertyEditorKeys.Variable,
@@ -34,7 +33,7 @@ public sealed class GrayScaleSdkAction : WorkflowActionBase
         var vision = OpenCvActionSupport.RequireVision(context);
         var input = OpenCvActionSupport.RequireImage(vision, InputImage);
         var output = OpenCvActionSupport.ToGrayClone(input);
-        OutputImage = vision.StoreImage(output, OpenCvActionSupport.Metadata(output, "SDK plugin: Gray"), PublishPreview);
+        OutputImage = vision.StoreResource(output, OpenCvActionSupport.Metadata(output, "SDK plugin: Gray"), PublishPreview);
         context.Log($"Converted image to grayscale ({output.Width} x {output.Height}).");
         return ValueTask.CompletedTask;
     }

@@ -1,5 +1,4 @@
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
 using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 
@@ -61,7 +60,7 @@ public sealed class ContourFeaturesSdkAction : WorkflowActionBase
         using var mask = OpenCvActionSupport.ToGrayClone(maskInput);
 
         Mat annotated;
-        if (!string.IsNullOrWhiteSpace(SourceImage) && vision.TryGetImage<Mat>(SourceImage, out var source) && source != null)
+        if (!string.IsNullOrWhiteSpace(SourceImage) && vision.TryGetResource<Mat>(SourceImage, out var source) && source != null)
         {
             annotated = OpenCvActionSupport.ToBgrClone(source);
         }
@@ -146,7 +145,7 @@ public sealed class ContourFeaturesSdkAction : WorkflowActionBase
             2,
             LineTypes.AntiAlias);
 
-        OutputImage = vision.StoreImage(
+        OutputImage = vision.StoreResource(
             annotated,
             OpenCvActionSupport.Metadata(annotated, $"SDK plugin: Contour Features count={FeatureCount}"),
             PublishPreview);

@@ -1,8 +1,7 @@
 using OpenCvSharp;
-using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
 using WorkflowRuntime.OpenCvSamplePlugin.Shared;
-using WorkflowRuntime.VisionSdk;
+using WorkflowRuntime.ResourceSdk;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin;
 
@@ -15,7 +14,7 @@ namespace WorkflowRuntime.OpenCvSamplePlugin;
     DisplayTemplate = "Blur {InputImage} ({KernelSize}) → {OutputImage}",
     ActionKind = WorkflowActionKinds.Vision,
     WorkspaceKind = WorkflowWorkspaceKeys.Image,
-    DoubleClickEditor = WorkflowDesigner.Contracts.WorkflowActionEditorKeys.Vision)]
+    DoubleClickEditor = WorkflowActionEditorKeys.Vision)]
 public sealed class GaussianBlurSdkAction : WorkflowActionBase
 {
     [WorkflowActionInput(
@@ -67,9 +66,9 @@ public sealed class GaussianBlurSdkAction : WorkflowActionBase
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var vision = context as IWorkflowVisionActionContext
+        var vision = context as IWorkflowResourceActionContext
             ?? throw new InvalidOperationException("The host does not expose the optional Vision Action context.");
-        if (!vision.TryGetImage<Mat>(InputImage, out var input) || input == null)
+        if (!vision.TryGetResource<Mat>(InputImage, out var input) || input == null)
         {
             throw new KeyNotFoundException($"Image handle '{InputImage}' was not found.");
         }
@@ -82,8 +81,8 @@ public sealed class GaussianBlurSdkAction : WorkflowActionBase
 
         var output = new Mat();
         Cv2.GaussianBlur(input, output, new Size(kernel, kernel), Math.Max(0, SigmaX));
-        var metadata = vision.GetImageMetadata(InputImage);
-        OutputImage = vision.StoreImage(
+        var metadata = vision.GetResourceMetadata(InputImage);
+        OutputImage = vision.StoreResource(
             output,
             metadata with { Source = $"SDK plugin: GaussianBlur {kernel}x{kernel}" },
             PublishPreview);

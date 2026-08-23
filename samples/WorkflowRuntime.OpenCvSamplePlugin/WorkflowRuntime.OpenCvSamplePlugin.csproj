@@ -14,14 +14,14 @@
     <WorkflowDesignerPluginDirectory Condition="'$(WorkflowDesignerPluginDirectory)' == ''">$(MSBuildThisFileDirectory)..\..\src\WorkflowDesigner\bin\$(Configuration)\net8.0-windows\designer-plugins\OpenCvSample</WorkflowDesignerPluginDirectory>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="WorkflowSdk" Version="$(WorkflowVersion)" />
-    <PackageReference Include="WorkflowRuntime.ActionSdk" Version="2.0.0-alpha.4" />
-    <PackageReference Include="WorkflowDesigner.WpfSdk" Version="2.0.0-alpha.4" />
-    <PackageReference Include="WorkflowWpfSdk" Version="$(WorkflowVersion)" />
+    <PackageReference Include="WorkflowRuntime.ActionSdk" Version="$(WorkflowVersion)" />
+    <PackageReference Include="WorkflowRuntime.ResourceSdk" Version="$(WorkflowVersion)" />
+    <PackageReference Include="WorkflowDesigner.WpfSdk" Version="$(WorkflowVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenCvSharp4" Version="4.13.0.20260627" ExcludeAssets="runtime" />
+    <PackageReference Include="OpenCvSharp4" Version="4.13.0.20260627" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.13.0.20260627" />
   </ItemGroup>
 
   <!-- Developer convenience only: keep the runtime host decoupled from this plugin at compile time,
@@ -30,11 +30,12 @@
           AfterTargets="Build"
           Condition="'$(DeployToWorkflowRuntimeOnBuild)' == 'true'">
     <MakeDir Directories="$(WorkflowRuntimePluginDirectory)" />
-    <Delete Files="$(WorkflowRuntimePluginDirectory)\WorkflowRuntime.OpenCvSamplePlugin.Contracts.dll" />
     <ItemGroup>
       <RuntimePluginFiles Include="$(TargetPath)" />
       <RuntimePluginFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
       <RuntimePluginFiles Include="$(TargetDir)$(TargetName).deps.json" Condition="Exists('$(TargetDir)$(TargetName).deps.json')" />
+      <RuntimePluginFiles Include="$(TargetDir)OpenCvSharp.dll" Condition="Exists('$(TargetDir)OpenCvSharp.dll')" />
+      <RuntimePluginFiles Include="$(TargetDir)OpenCvSharpExtern.dll" Condition="Exists('$(TargetDir)OpenCvSharpExtern.dll')" />
     </ItemGroup>
     <Copy SourceFiles="@(RuntimePluginFiles)"
           DestinationFolder="$(WorkflowRuntimePluginDirectory)"
@@ -45,13 +46,6 @@
           AfterTargets="Build"
           Condition="'$(DeployToWorkflowDesignerOnBuild)' == 'true'">
     <MakeDir Directories="$(WorkflowDesignerPluginDirectory)" />
-    <ItemGroup>
-      <LegacyDesignerPluginFiles Include="$(WorkflowDesignerPluginDirectory)\WorkflowRuntime.OpenCvSamplePlugin.Contracts.dll" />
-      <LegacyDesignerPluginFiles Include="$(WorkflowDesignerPluginDirectory)\WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf.dll" />
-      <LegacyDesignerPluginFiles Include="$(WorkflowDesignerPluginDirectory)\WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf.pdb" />
-      <LegacyDesignerPluginFiles Include="$(WorkflowDesignerPluginDirectory)\WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf.deps.json" />
-    </ItemGroup>
-    <Delete Files="@(LegacyDesignerPluginFiles)" />
     <ItemGroup>
       <DesignerPluginFiles Include="$(TargetPath)" />
       <DesignerPluginFiles Include="$(TargetDir)$(TargetName).pdb" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
