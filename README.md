@@ -36,7 +36,7 @@ flowchart LR
 | Designer UI | 画布、停靠窗口、属性面板、编辑器体验 | [`src/WorkflowDesigner`](src/WorkflowDesigner) |
 | 外部 Actions | 使用公开 SDK 增加可拖放的流程能力 | [`samples/WorkflowRuntime.SampleActionPlugin`](samples/WorkflowRuntime.SampleActionPlugin) |
 | 视觉 Actions | OpenCV Action、预览与图像工作流示例 | [`samples/WorkflowRuntime.OpenCvSamplePlugin`](samples/WorkflowRuntime.OpenCvSamplePlugin) |
-| Designer 扩展 | 自定义属性编辑器、工作区与双击编辑器 | [`samples/WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf`](samples/WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf) |
+| Designer 扩展 | 单 DLL 内的可选 UI、自定义属性编辑器、工作区与双击编辑器 | [`samples/WorkflowRuntime.OpenCvSamplePlugin/UI`](samples/WorkflowRuntime.OpenCvSamplePlugin/UI) |
 | 质量保障 | 公开契约、UI 行为与架构边界测试 | [`tests/WorkflowCore.WpfDemo.Tests`](tests/WorkflowCore.WpfDemo.Tests) |
 
 ## 扩展 SDK 实战指南
@@ -54,7 +54,7 @@ flowchart LR
 - `RegisterPropertyEditor` 自定义单个属性编辑器。
 - `RegisterWorkspace` 扩展选中 Action 的工作区。
 - `RegisterActionEditor` 扩展双击专用编辑器。
-- OpenCV 插件如何把 Runtime Action 与可选 WPF 体验保持分离。
+- OpenCV 插件如何在一个交付 DLL 内把 Runtime Action 与可选 WPF 体验保持分离。
 
 教程支持中文/英文即时切换、键盘翻页以及每个示例的源码直达链接。
 
@@ -175,8 +175,8 @@ dotnet test tests\WorkflowCore.WpfDemo.Tests\WorkflowCore.WpfDemo.Tests.csproj -
 
 ## 公开扩展边界
 
-- Runtime Action 插件只需要引用 `WorkflowSdk`。
-- 可选 WPF Designer 插件只需要引用 `WorkflowWpfSdk`。
+- 普通 Runtime Action 插件只需要引用 `WorkflowSdk`，元数据自动生成属性面板。
+- 需要自定义 WPF 体验的进阶插件可在同一项目中额外引用 `WorkflowWpfSdk`，并输出一个同时供两个宿主加载的 DLL。
 - Designer 插件通过 `IWorkflowDesignerActionContext` 操作公开属性模型，不依赖 `MainWindowViewModel` 或 Runtime Action CLR 实例。
 - Runtime 与 Designer 保持独立部署；外部插件通过稳定公开契约连接。
 - WorkflowCore 源码保持私有。UI 协作者不需要、也不应被授予 Core 仓库权限。

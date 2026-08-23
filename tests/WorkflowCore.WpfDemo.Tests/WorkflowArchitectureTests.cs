@@ -81,6 +81,41 @@ public sealed class WorkflowArchitectureTests
         Assert.NotNull(typeof(MethodDeploymentTracker));
     }
 
+    [Fact]
+    public void OpenCvAdvancedUi_UsesMvvmCommandsAndBehaviorWithoutCodeBehind()
+    {
+        var uiDirectory = Path.Combine(
+            GetRepositoryRoot(),
+            "samples",
+            "WorkflowRuntime.OpenCvSamplePlugin",
+            "UI");
+
+        Assert.Empty(Directory.EnumerateFiles(uiDirectory, "*.xaml.cs", SearchOption.AllDirectories));
+        foreach (var xamlPath in Directory.EnumerateFiles(uiDirectory, "*.xaml", SearchOption.AllDirectories))
+        {
+            var xaml = File.ReadAllText(xamlPath);
+            Assert.DoesNotContain(" Click=", xaml, StringComparison.Ordinal);
+            Assert.DoesNotContain(" MouseLeftButton", xaml, StringComparison.Ordinal);
+            Assert.DoesNotContain(" SelectionChanged=", xaml, StringComparison.Ordinal);
+            Assert.DoesNotContain(" ValueChanged=", xaml, StringComparison.Ordinal);
+        }
+
+        Assert.True(File.Exists(Path.Combine(uiDirectory, "TemplateMatchCanvasBehavior.cs")));
+    }
+
+    [Fact]
+    public void OrdinaryActionSdkPlugin_DoesNotRequireDesignerUiPackages()
+    {
+        var project = File.ReadAllText(Path.Combine(
+            GetRepositoryRoot(),
+            "samples",
+            "WorkflowRuntime.SampleActionPlugin",
+            "WorkflowRuntime.SampleActionPlugin.csproj"));
+
+        Assert.DoesNotContain("WorkflowWpfSdk", project, StringComparison.Ordinal);
+        Assert.DoesNotContain("WorkflowDesigner.WpfSdk", project, StringComparison.Ordinal);
+    }
+
     private static string GetRepositoryRoot([CallerFilePath] string sourceFile = "")
         => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(sourceFile)!, "..", ".."));
 }

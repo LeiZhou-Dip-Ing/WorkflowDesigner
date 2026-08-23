@@ -3,14 +3,14 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using WorkflowDesigner.WpfSdk;
 
-namespace WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf;
+namespace WorkflowRuntime.OpenCvSamplePlugin.UI;
 
 /// <summary>
 /// Action-specific view model used by external OpenCV workspaces/dialogs. It edits the same
 /// property models as the generic metadata Property Panel, and asks the host to run the current
 /// editor method so every Vision Action can publish its own line-scoped preview.
 /// </summary>
-public sealed class VisionActionDesignerViewModel : INotifyPropertyChanged
+internal sealed class VisionActionDesignerViewModel : INotifyPropertyChanged
 {
     private readonly IWorkflowDesignerActionContext _context;
 
@@ -33,7 +33,7 @@ public sealed class VisionActionDesignerViewModel : INotifyPropertyChanged
                 .ToArray();
         InputProperties = Properties.Where(property => !property.IsOutputBinding).ToArray();
         OutputProperties = Properties.Where(property => property.IsOutputBinding).ToArray();
-        RunCommand = new AsyncDesignerCommand(context.RunPreviewAsync, () => context.CanRunPreview);
+        RunCommand = new AsyncRelayCommand(context.RunPreviewAsync, () => context.CanRunPreview);
         foreach (var property in Properties)
         {
             property.PropertyChanged += PropertyOnPropertyChanged;
@@ -110,7 +110,7 @@ public sealed class VisionActionDesignerViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(HasPreview));
             OnPropertyChanged(nameof(PreviewInfo));
             OnPropertyChanged(nameof(CanRunPreview));
-            if (RunCommand is AsyncDesignerCommand command)
+            if (RunCommand is AsyncRelayCommand command)
             {
                 command.RaiseCanExecuteChanged();
             }
@@ -120,42 +120,4 @@ public sealed class VisionActionDesignerViewModel : INotifyPropertyChanged
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-    private sealed class AsyncDesignerCommand : ICommand
-    {
-        private readonly Func<Task> _execute;
-        private readonly Func<bool> _canExecute;
-        private bool _running;
-
-        public AsyncDesignerCommand(Func<Task> execute, Func<bool> canExecute)
-        {
-            _execute = execute;
-            _canExecute = canExecute;
-        }
-
-        public event EventHandler? CanExecuteChanged;
-
-        public bool CanExecute(object? parameter) => !_running && _canExecute();
-
-        public async void Execute(object? parameter)
-        {
-            if (!CanExecute(parameter))
-            {
-                return;
-            }
-
-            _running = true;
-            RaiseCanExecuteChanged();
-            try
-            {
-                await _execute().ConfigureAwait(true);
-            }
-            finally
-            {
-                _running = false;
-                RaiseCanExecuteChanged();
-            }
-        }
-
-        public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-    }
 }

@@ -1,5 +1,4 @@
-<UserControl x:Class="WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf.FeatureResultWorkspaceView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#FF252525">
     <Grid Margin="8">

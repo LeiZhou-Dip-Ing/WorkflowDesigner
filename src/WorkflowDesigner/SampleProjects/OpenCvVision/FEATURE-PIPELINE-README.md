@@ -16,4 +16,4 @@ Run method `FeaturePipeline` once, then click each row. Every Vision Action publ
 
 The feature Action also exposes scalar outputs: feature count, largest area, and largest feature center X/Y.
 
-The preprocessing and feature workspaces are provided by the optional external `WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf` plugin. Without that Designer DLL, the Actions remain runnable and fall back to the generic metadata UI.
+The preprocessing and feature workspaces are provided by the optional UI entry point inside `WorkflowRuntime.OpenCvSamplePlugin.dll`. Without loading its Designer entry point, the Actions remain runnable and fall back to the generic metadata UI.

@@ -1,14 +1,29 @@
 using System.Windows;
+using System.Reflection;
 using WorkflowDesigner.Contracts;
 using WorkflowDesigner.WpfSdk;
-using WorkflowRuntime.OpenCvSamplePlugin.Contracts;
-using WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf;
+using WorkflowRuntime.OpenCvSamplePlugin.Shared;
+using WorkflowRuntime.OpenCvSamplePlugin.UI;
 using Xunit;
 
 namespace WorkflowCore.WpfDemo.Tests;
 
 public sealed class WorkflowDesignerRegistryTests
 {
+    [Fact]
+    public void OpenCvExtension_UsesOneAssemblyForActionsAndDesignerUi()
+    {
+        var assembly = typeof(WorkflowRuntime.OpenCvSamplePlugin.OpenCvSamplePlugin).Assembly;
+
+        Assert.Same(assembly, typeof(OpenCvSampleDesignerExtension).Assembly);
+        Assert.Equal(
+            typeof(WorkflowRuntime.OpenCvSamplePlugin.OpenCvSamplePlugin),
+            Assert.Single(assembly.GetCustomAttributes<WorkflowRuntime.ActionSdk.WorkflowActionPluginEntryPointAttribute>()).PluginType);
+        Assert.Equal(
+            typeof(OpenCvSampleDesignerExtension),
+            Assert.Single(assembly.GetCustomAttributes<WorkflowRuntime.ActionSdk.WorkflowDesignerExtensionEntryPointAttribute>()).ExtensionType);
+    }
+
     [Fact]
     public void Registry_NormalizesLegacyKeysAndRejectsSilentReplacement()
     {
@@ -48,5 +63,24 @@ public sealed class WorkflowDesignerRegistryTests
         Assert.Contains(OpenCvDesignerKeys.TemplateMatchActionEditor, registry.ActionEditorKeys);
         Assert.Contains(OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor, registry.ActionEditorKeys);
         Assert.NotEqual(OpenCvDesignerKeys.TemplateMatchActionEditor, OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor);
+    }
+
+    [Fact]
+    public void DesignerLoader_LoadsUiEntryPointFromTheSingleOpenCvAssembly()
+    {
+        var assemblyPath = typeof(OpenCvSampleDesignerExtension).Assembly.Location;
+        var registry = new WorkflowDesignerRegistry();
+        var loader = new DesignerPluginLoader(registry);
+
+        var result = Assert.Single(
+            loader.LoadDirectory(Path.GetDirectoryName(assemblyPath)!),
+            item => string.Equals(
+                Path.GetFullPath(item.AssemblyPath),
+                Path.GetFullPath(assemblyPath),
+                StringComparison.OrdinalIgnoreCase));
+
+        Assert.True(result.Loaded, result.Error);
+        Assert.Equal("sample.opencv.designer", result.PluginId);
+        Assert.Contains(OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor, registry.ActionEditorKeys);
     }
 }

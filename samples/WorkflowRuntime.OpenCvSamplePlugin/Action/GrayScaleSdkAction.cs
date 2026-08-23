@@ -1,7 +1,7 @@
 using OpenCvSharp;
 using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
-using WorkflowRuntime.OpenCvSamplePlugin.Contracts;
+using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin;
 

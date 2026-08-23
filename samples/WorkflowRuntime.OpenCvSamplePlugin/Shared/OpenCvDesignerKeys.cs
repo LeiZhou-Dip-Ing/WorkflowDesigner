@@ -1,4 +1,4 @@
-namespace WorkflowRuntime.OpenCvSamplePlugin.Contracts;
+namespace WorkflowRuntime.OpenCvSamplePlugin.Shared;
 
 /// <summary>
 /// Stable plugin-owned protocol keys shared by the Runtime Action assembly and optional Designer UI assembly.

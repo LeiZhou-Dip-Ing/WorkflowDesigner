@@ -1,19 +1,18 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Markup;
 using WorkflowDesigner.WpfSdk;
-using WorkflowRuntime.OpenCvSamplePlugin.Contracts;
+using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 
-namespace WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf;
+namespace WorkflowRuntime.OpenCvSamplePlugin.UI;
 
 public sealed class OpenCvSampleDesignerExtension : IWorkflowDesignerExtension
 {
     public string PluginId => "sample.opencv.designer";
-    public string PluginVersion => "1.7.0";
+    public string PluginVersion => OpenCvPluginIdentity.Version;
 
     public void Register(IWorkflowDesignerRegistry registry)
     {
-        var resources = LoadResources();
+        var resources = DesignerViewFactory.LoadResources("OpenCvDesignerResources.xaml");
 
         registry.RegisterPropertyEditor(
             OpenCvDesignerKeys.OddKernelPropertyEditor,
@@ -25,14 +24,13 @@ public sealed class OpenCvSampleDesignerExtension : IWorkflowDesignerExtension
         // it shows the processed image and read-only results, never the dialog's parameter editor.
         registry.RegisterWorkspace(
             OpenCvDesignerKeys.ContourFeaturesWorkspace,
-            context => new FeatureResultWorkspaceView
-            {
-                DataContext = new VisionActionDesignerViewModel(
+            context => DesignerViewFactory.CreateView(
+                "FeatureResultWorkspaceView.xaml",
+                new VisionActionDesignerViewModel(
                     context,
                     "Contour Feature Extraction",
                     "Processed feature result",
-                    new[] { "OutputImage", "FeatureCount", "LargestArea", "LargestCenterX", "LargestCenterY" })
-            },
+                    new[] { "OutputImage", "FeatureCount", "LargestArea", "LargestCenterX", "LargestCenterY" })),
             PluginId);
 
         registry.RegisterActionEditor(
@@ -69,17 +67,10 @@ public sealed class OpenCvSampleDesignerExtension : IWorkflowDesignerExtension
 
         registry.RegisterActionEditor(
             OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor,
-            context => new InteractiveTemplateMatchWindow(new InteractiveTemplateMatchViewModel(context)),
+            context => DesignerViewFactory.CreateWindow(
+                "InteractiveTemplateMatchWindow.xaml",
+                new InteractiveTemplateMatchViewModel(context)),
             PluginId);
-    }
-
-    private static ResourceDictionary LoadResources()
-    {
-        const string resourceName = "OpenCvDesignerResources.xaml";
-        using var stream = typeof(OpenCvSampleDesignerExtension).Assembly.GetManifestResourceStream(resourceName)
-            ?? throw new InvalidOperationException($"Embedded WPF resource '{resourceName}' was not found.");
-        return XamlReader.Load(stream) as ResourceDictionary
-            ?? throw new InvalidOperationException($"Embedded WPF resource '{resourceName}' is not a ResourceDictionary.");
     }
 
     private static Window CreateEditor(
@@ -87,5 +78,7 @@ public sealed class OpenCvSampleDesignerExtension : IWorkflowDesignerExtension
         string title,
         string description,
         params string[] fields)
-        => new VisionToolEditorWindow(new VisionActionDesignerViewModel(context, title, description, fields));
+        => DesignerViewFactory.CreateWindow(
+            "VisionToolEditorWindow.xaml",
+            new VisionActionDesignerViewModel(context, title, description, fields));
 }

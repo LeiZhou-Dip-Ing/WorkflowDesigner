@@ -36,7 +36,7 @@ The diagram intentionally describes only the public collaboration boundary. It d
 | Designer UI | Canvas, docking, property panel, and editor experience | [`src/WorkflowDesigner`](src/WorkflowDesigner) |
 | External Actions | Add drag-and-drop workflow capabilities through the public SDK | [`samples/WorkflowRuntime.SampleActionPlugin`](samples/WorkflowRuntime.SampleActionPlugin) |
 | Vision Actions | OpenCV Actions, previews, and image workflow examples | [`samples/WorkflowRuntime.OpenCvSamplePlugin`](samples/WorkflowRuntime.OpenCvSamplePlugin) |
-| Designer extensions | Custom property editors, workspaces, and double-click editors | [`samples/WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf`](samples/WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf) |
+| Designer extensions | Optional UI, property editors, workspaces, and double-click editors in one DLL | [`samples/WorkflowRuntime.OpenCvSamplePlugin/UI`](samples/WorkflowRuntime.OpenCvSamplePlugin/UI) |
 | Quality | Public contracts, UI behavior, and architecture boundary tests | [`tests/WorkflowCore.WpfDemo.Tests`](tests/WorkflowCore.WpfDemo.Tests) |
 
 ## Extension SDK field guide
@@ -138,8 +138,8 @@ dotnet test tests\WorkflowCore.WpfDemo.Tests\WorkflowCore.WpfDemo.Tests.csproj -
 
 ## Public extension boundary
 
-- Runtime Action plugins reference `WorkflowSdk` only.
-- Optional WPF Designer plugins reference `WorkflowWpfSdk` only.
+- Ordinary Runtime Action plugins reference only `WorkflowSdk`; metadata generates the property panel.
+- Advanced plugins that need custom WPF can additionally reference `WorkflowWpfSdk` in the same project and ship one DLL to both hosts.
 - Designer plugins edit public property models through `IWorkflowDesignerActionContext`; they do not depend on `MainWindowViewModel` or Runtime Action CLR instances.
 - Runtime and Designer remain independently deployable and connect through stable public contracts.
 - WorkflowCore source remains private. UI collaborators neither need nor should receive Core repository access.

@@ -2,7 +2,7 @@ using System.Text.Json;
 using OpenCvSharp;
 using WorkflowDesigner.Contracts;
 using WorkflowRuntime.ActionSdk;
-using WorkflowRuntime.OpenCvSamplePlugin.Contracts;
+using WorkflowRuntime.OpenCvSamplePlugin.Shared;
 using WorkflowRuntime.VisionSdk;
 
 namespace WorkflowRuntime.OpenCvSamplePlugin;

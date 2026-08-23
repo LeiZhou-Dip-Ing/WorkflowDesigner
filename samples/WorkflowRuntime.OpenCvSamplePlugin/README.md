@@ -1,32 +1,37 @@
-# OpenCV external Runtime Action plugin
+# OpenCV single-DLL extension
 
-This plugin is deliberately outside the Runtime host and uses only public SDK contracts plus OpenCvSharp.
-
-Actions:
-
-- SDK Load Image (`sample://source` / `sample://template` supported for the self-contained demo)
-- SDK Convert to Gray
-- SDK Invert Image
-- SDK Gaussian Blur
-- SDK Threshold
-- SDK Canny Edges
-- SDK Measure Line (Canny + HoughLinesP)
-- SDK Measure Circle (HoughCircles)
-- SDK Template Match (MatchTemplate)
-- SDK Save Image
-
-Every image-producing Action returns a Runtime-owned image handle through an Action output. With `PublishPreview = true`, the output is also published as a line-scoped `VisionPreview` event. That is how Gray/Blur/Threshold/etc. each get their own processed image in the Designer without sending OpenCvSharp `Mat` objects into WPF.
-
-The optional UI is implemented separately by `WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf`.
-# OpenCV Action SDK plugin
-
-This project is one extensible Runtime plugin and produces one Action assembly:
+This project is the advanced extension example. It produces one deliverable:
 
 `WorkflowRuntime.OpenCvSamplePlugin.dll`
 
-Each tool is an Action class registered by `OpenCvSamplePlugin`. Adding another image tool does
-not create another plugin project or Runtime DLL.
+The same DLL contains two independent public entry points:
 
-`InteractiveTemplateMatchSdkAction` keeps the original `TemplateMatchSdkAction` intact and adds a
-complete learn-and-match workflow: rectangular ROI learning, optional template-file persistence,
-OpenCV template matching, score/position outputs, and an annotated preview.
+- `Action/OpenCvSamplePlugin.cs` registers Runtime Actions through `WorkflowRuntime.ActionSdk`.
+- `UI/OpenCvSampleDesignerExtension.cs` registers optional WPF editors and workspaces through `WorkflowWpfSdk`.
+
+Shared IDs live under `Shared/`. Building the project deploys the same DLL to both the Runtime
+`plugins` directory and the Designer `designer-plugins` directory. No WorkflowCore, Runtime host,
+or Designer source change is required when adding an OpenCV Action or its optional UI.
+
+The assembly-level `WorkflowActionPluginEntryPoint` tells the Runtime exactly which Action plugin
+class to load, so it never reflects over the WPF types. The Designer independently discovers the
+`IWorkflowDesignerExtension` entry point. Runtime and UI remain separate at execution time even
+though distribution is one DLL.
+
+## Ordinary Actions stay simple
+
+Do not copy this WPF setup for a normal business Action. A normal Action plugin only references
+`WorkflowSdk`, declares metadata on its Action classes, and receives the generated property panel.
+It does not need the entry-point attribute, a `UI` folder, or `WorkflowWpfSdk`.
+
+## Add an advanced extension
+
+1. Add or edit Action classes only under `Action/`.
+2. Register them in `Action/OpenCvSamplePlugin.cs`.
+3. Add optional custom WPF editors under `UI/` and register them in
+   `UI/OpenCvSampleDesignerExtension.cs`.
+4. Put keys shared by Action metadata and UI registration under `Shared/`.
+5. Build this project. The single DLL is deployed to both hosts automatically in Debug builds.
+
+The Runtime receives image handles and publishes previews through the public Vision SDK. WPF never
+receives OpenCvSharp `Mat` instances from the Runtime process.

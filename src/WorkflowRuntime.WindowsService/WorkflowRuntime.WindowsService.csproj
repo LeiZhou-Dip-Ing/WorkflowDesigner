@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.1" />
     <PackageReference Include="WorkflowCore" Version="$(WorkflowVersion)" />
-    <PackageReference Include="WorkflowRuntime.Application" Version="$(WorkflowVersion)" />
+    <PackageReference Include="WorkflowRuntime.Application" Version="2.0.0-alpha.4" />
     <PackageReference Include="WorkflowRuntime.Contracts" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowRuntime.RestService" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowRuntime.Vision.OpenCvSharp" Version="$(WorkflowVersion)" />
@@ -29,6 +29,6 @@
     <MSBuild
       Projects="@(RuntimePluginProject)"
       Targets="Build"
-      Properties="Configuration=$(Configuration);TargetFramework=net8.0;DeployToWorkflowRuntimeOnBuild=true;%(RuntimePluginProject.DeployProperty)=%(RuntimePluginProject.PluginDirectory)" />
+      Properties="Configuration=$(Configuration);DeployToWorkflowRuntimeOnBuild=true;%(RuntimePluginProject.DeployProperty)=%(RuntimePluginProject.PluginDirectory)" />
   </Target>
 </Project>

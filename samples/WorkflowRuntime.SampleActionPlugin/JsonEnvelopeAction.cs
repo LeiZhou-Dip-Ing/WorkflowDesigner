@@ -19,10 +19,10 @@ public sealed class JsonEnvelopeAction : WorkflowActionBase
     public int SchemaVersion { get; set; } = 1;
 
     [WorkflowActionInput(Description = "Any JSON object, array, or scalar value.", Required = true, Editor = "json", Order = 2)]
-    public string Payload { get; set; } = "{}";
+    public JsonElement Payload { get; set; } = JsonSerializer.SerializeToElement(new { });
 
     [WorkflowActionOutput(Description = "The complete event envelope.", Required = true, Order = 3)]
-    public string Envelope { get; private set; } = "{}";
+    public JsonElement Envelope { get; private set; }
 
     protected override ValueTask ExecuteActionAsync(IWorkflowActionContext context, CancellationToken cancellationToken)
     {
@@ -32,12 +32,11 @@ public sealed class JsonEnvelopeAction : WorkflowActionBase
             throw new InvalidOperationException("Event name cannot be empty.");
         }
 
-        var payload = JsonSerializer.Deserialize<JsonElement>(Payload).Clone();
-        Envelope = JsonSerializer.Serialize(new
+        Envelope = JsonSerializer.SerializeToElement(new
         {
             eventName = EventName.Trim(),
             schemaVersion = SchemaVersion,
-            payload
+            payload = Payload
         });
         context.Log($"JSON envelope created for '{EventName}'.");
         return ValueTask.CompletedTask;

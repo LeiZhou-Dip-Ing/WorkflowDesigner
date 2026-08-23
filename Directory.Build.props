@@ -8,12 +8,6 @@
   </PropertyGroup>
 
   <!-- The generated WPF temporary file names already contain the full project name. Use short buckets for the longest projects. -->
-  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf'">
-    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory).obj\ocvui\</BaseIntermediateOutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'WorkflowRuntime.OpenCvSamplePlugin.Contracts'">
-    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory).obj\ocvc\</BaseIntermediateOutputPath>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(MSBuildProjectName)' == 'WorkflowRuntime.OpenCvSamplePlugin'">
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory).obj\ocva\</BaseIntermediateOutputPath>
   </PropertyGroup>

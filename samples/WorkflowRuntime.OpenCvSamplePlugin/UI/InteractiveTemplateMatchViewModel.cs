@@ -3,14 +3,15 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Input;
 using WorkflowDesigner.WpfSdk;
 
-namespace WorkflowRuntime.OpenCvSamplePlugin.Designer.Wpf;
+namespace WorkflowRuntime.OpenCvSamplePlugin.UI;
 
 public enum TemplateEditorTool { Pointer, LearnRoi, AddMask, EraseMask }
 public enum TemplateBrushShape { Circle, Rectangle }
 
-public sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
+internal sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
 {
     private readonly IWorkflowDesignerActionContext _context;
     private bool _running;
@@ -29,13 +30,23 @@ public sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _displayImage = context.PreviewImage;
         context.PropertyChanged += ContextOnPropertyChanged;
+        StartLearningCommand = new AsyncRelayCommand(StartLearningAsync, () => CanRun);
+        LearnModelCommand = new AsyncRelayCommand(LearnModelAsync, () => CanRun);
+        ExecuteMatchCommand = new AsyncRelayCommand(ExecuteMatchAsync, () => CanRun);
+        EditMaskCommand = new RelayCommand(_ => EditMask());
+        SelectToolCommand = new RelayCommand(parameter =>
+        {
+            if (parameter is TemplateEditorTool tool) Tool = tool;
+        });
+        ResetMaskAllCommand = new RelayCommand(_ => ResetMask(includeAll: true));
+        ResetMaskEmptyCommand = new RelayCommand(_ => ResetMask(includeAll: false));
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public IWorkflowDesignerActionContext Context => _context;
     public ImageSource? DisplayImage { get => _displayImage; private set { if (ReferenceEquals(_displayImage, value)) return; _displayImage = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasImage)); } }
     public bool HasImage => DisplayImage != null;
-    public bool IsRunning { get => _running; private set { if (_running == value) return; _running = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanRun)); } }
+    public bool IsRunning { get => _running; private set { if (_running == value) return; _running = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanRun)); RaiseCommandStates(); } }
     public bool CanRun => !IsRunning && _context.CanRunPreview;
     public string PreviewInfo => _context.PreviewInfo;
     public string Status { get => _status; private set { if (_status == value) return; _status = value; OnPropertyChanged(); } }
@@ -50,6 +61,14 @@ public sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
     public bool IsMaskTool => Tool is TemplateEditorTool.AddMask or TemplateEditorTool.EraseMask;
     public TemplateBrushShape BrushShape { get => _brushShape; set { if (_brushShape == value) return; _brushShape = value; OnPropertyChanged(); } }
     public int BrushSize { get => _brushSize; set { var next = Math.Clamp(value, 2, 100); if (_brushSize == next) return; _brushSize = next; OnPropertyChanged(); } }
+
+    public ICommand StartLearningCommand { get; }
+    public ICommand LearnModelCommand { get; }
+    public ICommand ExecuteMatchCommand { get; }
+    public ICommand EditMaskCommand { get; }
+    public ICommand SelectToolCommand { get; }
+    public ICommand ResetMaskAllCommand { get; }
+    public ICommand ResetMaskEmptyCommand { get; }
 
     public IWorkflowPropertyEditorModel? LearningImageProperty => Find("TemplateSourceImage");
     public IWorkflowPropertyEditorModel? SearchImageProperty => Find("SearchImage");
@@ -231,8 +250,18 @@ public sealed class InteractiveTemplateMatchViewModel : INotifyPropertyChanged
 
     private void ContextOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(e.PropertyName) || e.PropertyName is nameof(IWorkflowDesignerActionContext.CanRunPreview)) OnPropertyChanged(nameof(CanRun));
+        if (string.IsNullOrWhiteSpace(e.PropertyName) || e.PropertyName is nameof(IWorkflowDesignerActionContext.CanRunPreview))
+        {
+            OnPropertyChanged(nameof(CanRun));
+            RaiseCommandStates();
+        }
         if (string.IsNullOrWhiteSpace(e.PropertyName) || e.PropertyName is nameof(IWorkflowDesignerActionContext.PreviewInfo)) OnPropertyChanged(nameof(PreviewInfo));
+    }
+    private void RaiseCommandStates()
+    {
+        (StartLearningCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (LearnModelCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (ExecuteMatchCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
     }
     private void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }
