@@ -21,8 +21,8 @@ public sealed class SharpScriptLibraryCache : ISharpScriptLibraryCache
     public SharpScriptLibraryCache(IRuntimeApiClient runtimeApi)
         : this(runtimeApi, Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Gbo",
-            "WorkflowCore",
+            "AutomationPro",
+            "Workspace",
             "ScriptLibraries"))
     {
     }

@@ -7,7 +7,7 @@
 
     <!-- Dialog property groups use the same chrome and arrow as the original inline property panel. -->
     <Style x:Key="PropertyGroupExpanderStyle" TargetType="Expander">
-        <Setter Property="Foreground" Value="#FFF4F8FB" />
+        <Setter Property="Foreground" Value="#FF1F2937" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="Template">
@@ -24,7 +24,7 @@
                                       Background="#FF525252"
                                       BorderBrush="#FF686868"
                                       BorderThickness="0,1,0,1"
-                                      Foreground="#FFF4F8FB"
+                                      Foreground="#FF1F2937"
                                       Focusable="False"
                                       HorizontalAlignment="Stretch">
                             <ToggleButton.Template>
@@ -56,7 +56,7 @@
                                             <Setter TargetName="Arrow" Property="Data" Value="M1,2 L9,2 L5,8 Z" />
                                         </Trigger>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#FF5B5B5B" />
+                                            <Setter Property="Background" Value="#FFD5DEE8" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -80,9 +80,9 @@
 
     <!-- Keep the built-in Action editors visually identical to the original property grid. -->
     <Style x:Key="PropertyCheckBoxStyle" TargetType="CheckBox">
-        <Setter Property="Foreground" Value="#FFF3F5F7" />
-        <Setter Property="Background" Value="#FF343434" />
-        <Setter Property="BorderBrush" Value="#FF777777" />
+        <Setter Property="Foreground" Value="#FF1F2937" />
+        <Setter Property="Background" Value="#FFFFFFFF" />
+        <Setter Property="BorderBrush" Value="#FF94A3B8" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Template">
             <Setter.Value>
@@ -93,7 +93,7 @@
                                 Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}">
                             <Path x:Name="CheckMark" Data="M2,7 L5.5,10.5 L13,2.5"
-                                  Stroke="#FF62B915" StrokeThickness="2"
+                                  Stroke="#FF1677C8" StrokeThickness="2"
                                   StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed" />
                         </Border>
                         <ContentPresenter Grid.Column="1" Margin="5,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True" />
@@ -102,7 +102,7 @@
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="CheckMark" Property="Visibility" Value="Visible" />
                             <Setter TargetName="Box" Property="Background" Value="#FF2E3B27" />
-                            <Setter TargetName="Box" Property="BorderBrush" Value="#FF62B915" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="#FF1677C8" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="#FFA6A6A6" /></Trigger>
                         <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45" /></Trigger>
@@ -113,20 +113,20 @@
     </Style>
 
     <Style x:Key="PropertyComboBoxItemStyle" TargetType="ComboBoxItem">
-        <Setter Property="Foreground" Value="#FFF3F5F7" />
-        <Setter Property="Background" Value="#FF333333" />
+        <Setter Property="Foreground" Value="#FF1F2937" />
+        <Setter Property="Background" Value="#FFF1F5F9" />
         <Setter Property="Padding" Value="7,4" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Style.Triggers>
-            <Trigger Property="IsHighlighted" Value="True"><Setter Property="Background" Value="#FF4A4A4A" /></Trigger>
-            <Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#FF355A28" /></Trigger>
+            <Trigger Property="IsHighlighted" Value="True"><Setter Property="Background" Value="#FFDCECF9" /></Trigger>
+            <Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#FFDCECF9" /></Trigger>
         </Style.Triggers>
     </Style>
 
     <Style x:Key="PropertyComboBoxStyle" TargetType="ComboBox">
-        <Setter Property="Foreground" Value="#FFF3F5F7" />
-        <Setter Property="Background" Value="#FF3A3A3A" />
-        <Setter Property="BorderBrush" Value="#FF676767" />
+        <Setter Property="Foreground" Value="#FF1F2937" />
+        <Setter Property="Background" Value="#FFEAF3FC" />
+        <Setter Property="BorderBrush" Value="#FFCBD5E1" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="MinHeight" Value="23" />
         <Setter Property="ItemContainerStyle" Value="{StaticResource PropertyComboBoxItemStyle}" />
@@ -152,7 +152,7 @@
                                         <ControlTemplate TargetType="ToggleButton">
                                             <Border Background="{TemplateBinding Background}">
                                                 <Path Data="M2,3 L6,7 L10,3" Width="10" Height="7" Stretch="Fill"
-                                                      Stroke="#FFD5D9DC" StrokeThickness="1.5"
+                                                      Stroke="#FF475569" StrokeThickness="1.5"
                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
                                             </Border>
                                         </ControlTemplate>
@@ -163,7 +163,7 @@
                         <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}"
                                AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
                             <Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
-                                    MaxHeight="260" Background="#FF303030" BorderBrush="#FF707070" BorderThickness="1">
+                                    MaxHeight="260" Background="#FFFFFFFF" BorderBrush="#FF94A3B8" BorderThickness="1">
                                 <ScrollViewer CanContentScroll="True" VerticalScrollBarVisibility="Auto"><StackPanel IsItemsHost="True" /></ScrollViewer>
                             </Border>
                         </Popup>
@@ -173,7 +173,7 @@
                             <Setter TargetName="ContentSite" Property="Visibility" Value="Collapsed" />
                             <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
                         </Trigger>
-                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="OuterBorder" Property="BorderBrush" Value="#FF62B915" /></Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="OuterBorder" Property="BorderBrush" Value="#FF1677C8" /></Trigger>
                         <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45" /></Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -185,7 +185,7 @@
         <Setter Property="Width" Value="24" /><Setter Property="Height" Value="23" />
         <Setter Property="Padding" Value="0" /><Setter Property="MinHeight" Value="0" />
         <Setter Property="FontFamily" Value="Segoe MDL2 Assets" /><Setter Property="FontSize" Value="12" />
-        <Setter Property="Foreground" Value="#FFF2F4F6" /><Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="#FF334155" /><Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
     </Style>
 
@@ -194,10 +194,10 @@
                  IsReadOnly="{Binding IsReadOnly}" ToolTip="{Binding Description}" Padding="4,2" BorderThickness="0">
             <TextBox.Style>
                 <Style TargetType="TextBox">
-                    <Setter Property="Foreground" Value="#FFF4F8FB" />
-                    <Setter Property="Background" Value="#FF3D3D3D" />
-                    <Setter Property="BorderBrush" Value="#FF5B5B5B" />
-                    <Setter Property="CaretBrush" Value="#FFF4F8FB" />
+                    <Setter Property="Foreground" Value="#FF1F2937" />
+                    <Setter Property="Background" Value="#FFEFF4F8" />
+                    <Setter Property="BorderBrush" Value="#FFD5DEE8" />
+                    <Setter Property="CaretBrush" Value="#FF1F2937" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding HasValidationError}" Value="True">
                             <Setter Property="BorderThickness" Value="1" /><Setter Property="BorderBrush" Value="#FFE8893A" />

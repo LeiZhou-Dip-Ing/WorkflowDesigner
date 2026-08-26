@@ -7,7 +7,7 @@
         MinWidth="820"
         MinHeight="560"
         WindowStartupLocation="CenterOwner"
-        Background="#FF17191B">
+        Background="#FFF8FAFC">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="52" />
@@ -46,8 +46,8 @@
         <ScrollViewer Grid.Row="1"
                       HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Auto"
-                      Background="#FF17191B">
-            <Canvas x:Name="DiagramCanvas" Width="1600" Height="1000" Background="#FF17191B" />
+                      Background="#FFF8FAFC">
+            <Canvas x:Name="DiagramCanvas" Width="1600" Height="1000" Background="#FFF8FAFC" />
         </ScrollViewer>
 
         <Border Grid.Row="2" Background="#FF202326" BorderBrush="#FF393D42" BorderThickness="0,1,0,0">

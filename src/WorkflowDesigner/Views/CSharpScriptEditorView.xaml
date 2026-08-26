@@ -4,7 +4,7 @@
              xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
              xmlns:controls="clr-namespace:WorkflowCore.WpfDemo.Controls"
              Background="#FF1E1E1E"
-             Foreground="#FFF2F2F2"
+             Foreground="#FF1E293B"
              Loaded="OnLoaded"
              Unloaded="OnUnloaded">
     <UserControl.Resources>
@@ -12,7 +12,7 @@
             <Setter Property="Width" Value="1" />
             <Setter Property="Height" Value="16" />
             <Setter Property="Margin" Value="5,7" />
-            <Setter Property="Background" Value="#FF454545" />
+            <Setter Property="Background" Value="#FFE2E8F0" />
             <Setter Property="HorizontalAlignment" Value="Center" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Template">
@@ -31,7 +31,7 @@
             <Setter Property="Height" Value="18" />
             <Setter Property="Stretch" Value="Uniform" />
             <Setter Property="Fill" Value="Transparent" />
-            <Setter Property="Stroke" Value="{StaticResource AccentBrush}" />
+            <Setter Property="Stroke" Value="{DynamicResource AccentBrush}" />
             <Setter Property="StrokeThickness" Value="1.45" />
             <Setter Property="StrokeStartLineCap" Value="Round" />
             <Setter Property="StrokeEndLineCap" Value="Round" />
@@ -63,7 +63,7 @@
             <Setter Property="Data" Value="M9,3 H16 V10 M16,3 L8,11 M13,15 H3 V5 H8" />
         </Style>
         <Style x:Key="StatusPill" TargetType="Border">
-            <Setter Property="Background" Value="#FF333333" />
+            <Setter Property="Background" Value="#FFF1F5F9" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="3" />
             <Setter Property="Padding" Value="10,3" />
@@ -83,7 +83,7 @@
             <Setter Property="MinWidth" Value="44" />
             <Setter Property="Height" Value="22" />
             <Setter Property="Padding" Value="7,0" />
-            <Setter Property="Foreground" Value="#FFB8B8B8" />
+            <Setter Property="Foreground" Value="#FF64748B" />
             <Setter Property="FontSize" Value="11" />
         </Style>
         <Style x:Key="DiagnosticGrid" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
@@ -93,8 +93,8 @@
             <Setter Property="SelectionMode" Value="Single" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="GridLinesVisibility" Value="None" />
-            <Setter Property="Background" Value="#FF252525" />
-            <Setter Property="RowBackground" Value="#FF252525" />
+            <Setter Property="Background" Value="#FFF1F5F9" />
+            <Setter Property="RowBackground" Value="#FFF1F5F9" />
             <Setter Property="AlternatingRowBackground" Value="#FF292929" />
             <Setter Property="Foreground" Value="#FFE6E6E6" />
             <Setter Property="Visibility" Value="Visible" />
@@ -106,7 +106,7 @@
             </Style.Triggers>
         </Style>
         <Style x:Key="DiagnosticsTabControlStyle" TargetType="TabControl">
-            <Setter Property="Background" Value="#FF252525" />
+            <Setter Property="Background" Value="#FFF1F5F9" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="Template">
@@ -118,8 +118,8 @@
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <Border Grid.Row="0"
-                                    Background="#FF252525"
-                                    BorderBrush="#FF4B4B4B"
+                                    Background="#FFF1F5F9"
+                                    BorderBrush="#FFE2E8F0"
                                     BorderThickness="0,0,0,1">
                                 <DockPanel LastChildFill="True">
                                     <StackPanel DockPanel.Dock="Right"
@@ -157,7 +157,7 @@
                                               VerticalAlignment="Bottom" />
                                 </DockPanel>
                             </Border>
-                            <Border Grid.Row="1" Background="#FF252525">
+                            <Border Grid.Row="1" Background="#FFF1F5F9">
                                 <ContentPresenter ContentSource="SelectedContent" />
                             </Border>
                         </Grid>
@@ -168,7 +168,7 @@
         <Style x:Key="DiagnosticsTabItemStyle" TargetType="TabItem">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="#FFB8B8B8" />
+            <Setter Property="Foreground" Value="#FF64748B" />
             <Setter Property="Padding" Value="13,0" />
             <Setter Property="Height" Value="38" />
             <Setter Property="Template">
@@ -190,11 +190,11 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Foreground" Value="#FFFFFFFF" />
+                                <Setter Property="Foreground" Value="#FF1677C8" />
                                 <Setter TargetName="SelectedLine" Property="Visibility" Value="Visible" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="TabBackground" Property="Background" Value="#FF303030" />
+                                <Setter TargetName="TabBackground" Property="Background" Value="#FFFFFFFF" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -211,11 +211,11 @@
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Padding" Value="5,1" />
             <Setter Property="Margin" Value="5,0,0,0" />
-            <Setter Property="Background" Value="#FF343434" />
+            <Setter Property="Background" Value="#FFFFFFFF" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
         <Style x:Key="DiagnosticsEmptyTextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FFB8B8B8" />
+            <Setter Property="Foreground" Value="#FF64748B" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="HorizontalAlignment" Value="Center" />
             <Setter Property="VerticalAlignment" Value="Center" />
@@ -244,8 +244,8 @@
         </Grid.ColumnDefinitions>
 
         <Border Grid.Row="0" Grid.ColumnSpan="3"
-                Background="#FF252525"
-                BorderBrush="{StaticResource BorderBrushSoft}"
+                Background="#FFF1F5F9"
+                BorderBrush="{DynamicResource BorderBrushSoft}"
                 BorderThickness="0,0,0,1">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
@@ -338,25 +338,25 @@
                                    HorizontalScrollBarVisibility="Auto"
                                    VerticalScrollBarVisibility="Auto"
                                    controls:AvalonEditTextBinding.BoundText="{Binding Content, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-            <Border Grid.Row="2" Background="#FF252525" BorderBrush="#FF444444" BorderThickness="0,1,0,0">
+            <Border Grid.Row="2" Background="#FFF1F5F9" BorderBrush="#FFF8FAFC" BorderThickness="0,1,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="8,0">
-                    <TextBlock Text="{Binding CaretLine, StringFormat=Ln {0}}" FontSize="11" Foreground="#FFB8B8B8" Margin="8,0" />
-                    <TextBlock Text="{Binding CaretColumn, StringFormat=Col {0}}" FontSize="11" Foreground="#FFB8B8B8" Margin="8,0" />
-                    <TextBlock Text="UTF-8" FontSize="11" Foreground="#FFB8B8B8" Margin="8,0" />
-                    <TextBlock Text="CRLF" FontSize="11" Foreground="#FFB8B8B8" Margin="8,0" />
-                    <TextBlock Text="C#" FontSize="11" Foreground="#FFB8B8B8" Margin="8,0" />
+                    <TextBlock Text="{Binding CaretLine, StringFormat=Ln {0}}" FontSize="11" Foreground="#FF64748B" Margin="8,0" />
+                    <TextBlock Text="{Binding CaretColumn, StringFormat=Col {0}}" FontSize="11" Foreground="#FF64748B" Margin="8,0" />
+                    <TextBlock Text="UTF-8" FontSize="11" Foreground="#FF64748B" Margin="8,0" />
+                    <TextBlock Text="CRLF" FontSize="11" Foreground="#FF64748B" Margin="8,0" />
+                    <TextBlock Text="C#" FontSize="11" Foreground="#FF64748B" Margin="8,0" />
                 </StackPanel>
             </Border>
         </Grid>
 
-        <GridSplitter Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" Background="#FF3F3F3F" />
+        <GridSplitter Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" Background="#FFEFF4F8" />
 
         <Border Grid.Row="1" Grid.Column="2"
                 Background="#FF292929"
-                BorderBrush="#FF4B4B4B"
+                BorderBrush="#FFE2E8F0"
                 BorderThickness="1,0,0,0">
             <DockPanel>
-                <Border DockPanel.Dock="Top" Height="40" Background="#FF303030" BorderBrush="#FF505050" BorderThickness="0,0,0,1">
+                <Border DockPanel.Dock="Top" Height="40" Background="#FFFFFFFF" BorderBrush="#FF505050" BorderThickness="0,0,0,1">
                     <TextBlock Text="Test Script" FontSize="14" FontWeight="SemiBold" Margin="14,0" />
                 </Border>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -374,11 +374,11 @@
                                             <TextBlock Grid.Column="0" Text="{Binding DisplayName}" FontWeight="SemiBold"
                                                        TextTrimming="CharacterEllipsis" />
                                             <TextBlock Grid.Column="1" Text="{Binding TypeName}"
-                                                       Foreground="#FFB3B3B3" FontSize="11"
+                                                       Foreground="#FF64748B" FontSize="11"
                                                        HorizontalAlignment="Right" Margin="12,0,0,0" />
                                         </Grid>
                                         <TextBox Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,0" />
-                                        <TextBlock Text="{Binding Description}" Foreground="#FFB3B3B3" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0" />
+                                        <TextBlock Text="{Binding Description}" Foreground="#FF64748B" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -410,7 +410,7 @@
                                             <TextBlock Grid.Column="0" Text="{Binding DisplayName}" FontWeight="SemiBold"
                                                        TextTrimming="CharacterEllipsis" />
                                             <TextBlock Grid.Column="1" Text="{Binding TypeName}"
-                                                       Foreground="#FFB3B3B3" FontSize="11"
+                                                       Foreground="#FF64748B" FontSize="11"
                                                        HorizontalAlignment="Right" Margin="12,0,0,0" />
                                         </Grid>
                                         <TextBox Text="{Binding ValueText, Mode=OneWay}" IsReadOnly="True" Margin="0,6,0,0" />
@@ -425,8 +425,8 @@
 
         <Border x:Name="DiagnosticsPanel"
                 Grid.Row="2" Grid.ColumnSpan="3"
-                Background="#FF252525"
-                BorderBrush="#FF4B4B4B"
+                Background="#FFF1F5F9"
+                BorderBrush="#FFE2E8F0"
                 BorderThickness="0,1,0,0">
             <TabControl Style="{StaticResource DiagnosticsTabControlStyle}"
                         ItemContainerStyle="{StaticResource DiagnosticsTabItemStyle}">
@@ -435,7 +435,7 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Diagnostics" Style="{StaticResource DiagnosticsHeaderTextStyle}" />
                             <Border Style="{StaticResource DiagnosticsCountBadgeStyle}">
-                                <TextBlock Text="{Binding Diagnostics.Count}" FontSize="11" Foreground="#FFB8B8B8" />
+                                <TextBlock Text="{Binding Diagnostics.Count}" FontSize="11" Foreground="#FF64748B" />
                             </Border>
                         </StackPanel>
                     </TabItem.Header>
@@ -469,7 +469,7 @@
                             <TextBlock Text="Errors" Style="{StaticResource DiagnosticsHeaderTextStyle}" />
                             <Border Style="{StaticResource DiagnosticsCountBadgeStyle}">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding ErrorCount}" FontSize="11" Foreground="#FFB8B8B8" />
+                                    <TextBlock Text="{Binding ErrorCount}" FontSize="11" Foreground="#FF64748B" />
                                     <Ellipse Width="6"
                                              Height="6"
                                              Fill="#FFF14C4C"
@@ -507,7 +507,7 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Warnings" Style="{StaticResource DiagnosticsHeaderTextStyle}" />
                             <Border Style="{StaticResource DiagnosticsCountBadgeStyle}">
-                                <TextBlock Text="{Binding WarningCount}" FontSize="11" Foreground="#FFB8B8B8" />
+                                <TextBlock Text="{Binding WarningCount}" FontSize="11" Foreground="#FF64748B" />
                             </Border>
                         </StackPanel>
                     </TabItem.Header>
@@ -539,7 +539,7 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Messages" Style="{StaticResource DiagnosticsHeaderTextStyle}" />
                             <Border Style="{StaticResource DiagnosticsCountBadgeStyle}">
-                                <TextBlock Text="{Binding MessageCount}" FontSize="11" Foreground="#FFB8B8B8" />
+                                <TextBlock Text="{Binding MessageCount}" FontSize="11" Foreground="#FF64748B" />
                             </Border>
                         </StackPanel>
                     </TabItem.Header>
@@ -571,8 +571,8 @@
 
         <Border Grid.Row="3"
                 Grid.ColumnSpan="3"
-                Background="#FF202020"
-                BorderBrush="#FF444444"
+                Background="#FFF4F7FB"
+                BorderBrush="#FFF8FAFC"
                 BorderThickness="0,1,0,0">
             <DockPanel Margin="8,2" LastChildFill="True">
                 <Button DockPanel.Dock="Right"
@@ -581,7 +581,7 @@
                         ToolTip="Open diagnostics"
                         Click="OpenDiagnosticsPanelOnClick" />
                 <TextBlock Text="{Binding StatusText}"
-                           Foreground="#FFB8B8B8"
+                           Foreground="#FF64748B"
                            FontSize="11"
                            VerticalAlignment="Center"
                            Margin="2,0,8,0"

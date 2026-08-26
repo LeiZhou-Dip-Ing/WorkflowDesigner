@@ -6,23 +6,27 @@
     <prism:PrismApplication.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/StandaloneTheme.xaml" />
+                <ResourceDictionary Source="Resources/WorkflowExtensionTheme.xaml" />
                 <ResourceDictionary Source="Resources/AppAvalonDock.xaml" />
+                <ResourceDictionary Source="Resources/WorkflowEditorResources.xaml" />
+                <ResourceDictionary Source="Resources/ProjectIcons.xaml" />
                 <ResourceDictionary Source="Resources/PropertyEditors.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-        <SolidColorBrush x:Key="ChromeBrush" Color="#FF141414" />
-        <SolidColorBrush x:Key="PanelBrush" Color="#FF242424" />
-        <SolidColorBrush x:Key="SurfaceBrush" Color="#FF303030" />
-        <SolidColorBrush x:Key="SurfaceAltBrush" Color="#FF3D3D3D" />
-        <SolidColorBrush x:Key="BorderBrushSoft" Color="#FF5B5B5B" />
-        <SolidColorBrush x:Key="AccentBrush" Color="#FF62B915" />
-        <SolidColorBrush x:Key="MutedTextBrush" Color="#FFAEB6BE" />
-        <SolidColorBrush x:Key="SelectionBrush" Color="#FF4A4A4A" />
-        <SolidColorBrush x:Key="SelectionBorderBrush" Color="#FF7A7A7A" />
-        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF4A4A4A" />
-        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#FFFFFFFF" />
-        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF3D3D3D" />
-        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#FFFFFFFF" />
+        <SolidColorBrush x:Key="ChromeBrush" Color="#FFF8FAFC" />
+        <SolidColorBrush x:Key="PanelBrush" Color="#FFF8FAFC" />
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFFFF" />
+        <SolidColorBrush x:Key="SurfaceAltBrush" Color="#FFEFF4F8" />
+        <SolidColorBrush x:Key="BorderBrushSoft" Color="#FFD5DEE8" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#FF1677C8" />
+        <SolidColorBrush x:Key="MutedTextBrush" Color="#FF64748B" />
+        <SolidColorBrush x:Key="SelectionBrush" Color="#FFDCECF9" />
+        <SolidColorBrush x:Key="SelectionBorderBrush" Color="#FF9FC5E6" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FFDCECF9" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#FF1F2937" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FFEFF4F8" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#FF1F2937" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <StreamGeometry x:Key="MethodDocumentGeometry">M2,3 H22 V21 H2 Z M2,7 H22 M7,10 L4,13 L7,16 M17,10 L20,13 L17,16 M14,9 L10,17</StreamGeometry>
@@ -65,9 +69,9 @@
         </DataTemplate>
 
         <Style TargetType="Button">
-            <Setter Property="Foreground" Value="#FFF4F8FB" />
-            <Setter Property="Background" Value="#FF2D2D2D" />
-            <Setter Property="BorderBrush" Value="#FF555555" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Margin" Value="4" />
             <Setter Property="Padding" Value="10,6" />
@@ -91,21 +95,21 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonChrome" Property="Background" Value="#FF3A3A3A" />
-                                <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="#FF6A6A6A" />
+                                <Setter TargetName="ButtonChrome" Property="Background" Value="{DynamicResource AppHoverBrush}" />
+                                <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="#FFB7D6F2" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonChrome" Property="Background" Value="#FF4A4A4A" />
-                                <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="#FF7A7A7A" />
+                                <Setter TargetName="ButtonChrome" Property="Background" Value="{DynamicResource AppSelectedBrush}" />
+                                <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="#FF9FC5E6" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="#FF777D82" />
-                                <Setter TargetName="ButtonChrome" Property="Background" Value="#FF1B1B1B" />
-                                <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="#FF353535" />
+                                <Setter Property="Foreground" Value="{DynamicResource AppDisabledTextBrush}" />
+                                <Setter TargetName="ButtonChrome" Property="Background" Value="{DynamicResource AppDataGridHeaderBrush}" />
+                                <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="#FFE2E8F0" />
                                 <Setter TargetName="ButtonContent" Property="Opacity" Value="0.48" />
                             </Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -131,10 +135,17 @@
             <Setter Property="MinHeight" Value="0" />
             <Setter Property="Margin" Value="0" />
             <Setter Property="Padding" Value="0" />
-            <Setter Property="Background" Value="#FF050505" />
+            <Setter Property="Background" Value="{DynamicResource AppSidebarBrush}" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="{DynamicResource AppSidebarBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource AppDisabledTextBrush}" />
+                    <Setter Property="Opacity" Value="0.48" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style x:Key="CompactChromeButtonStyle"
@@ -171,7 +182,7 @@
                     <ControlTemplate TargetType="Thumb">
                         <Border x:Name="ThumbChrome"
                                 Margin="2"
-                                Background="#FF696969"
+                                Background="{DynamicResource AppBorderBrush}"
                                 CornerRadius="4"
                                 SnapsToDevicePixels="True" />
                         <ControlTemplate.Triggers>
@@ -182,7 +193,7 @@
                                 <Setter TargetName="ThumbChrome" Property="Background" Value="#FFA0A0A0" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="ThumbChrome" Property="Background" Value="#FF444444" />
+                                <Setter TargetName="ThumbChrome" Property="Background" Value="{DynamicResource AppSidebarBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -191,7 +202,7 @@
         </Style>
 
         <ControlTemplate x:Key="DarkVerticalScrollBarTemplate" TargetType="ScrollBar">
-            <Grid Width="10" Background="#FF202020">
+            <Grid Width="10" Background="{DynamicResource AppPageBrush}">
                 <Track x:Name="PART_Track"
                        IsDirectionReversed="True"
                        Focusable="False">
@@ -211,7 +222,7 @@
         </ControlTemplate>
 
         <ControlTemplate x:Key="DarkHorizontalScrollBarTemplate" TargetType="ScrollBar">
-            <Grid Height="10" Background="#FF202020">
+            <Grid Height="10" Background="{DynamicResource AppPageBrush}">
                 <Track x:Name="PART_Track"
                        IsDirectionReversed="False"
                        Focusable="False">
@@ -233,7 +244,7 @@
         <Style TargetType="ScrollBar">
             <Setter Property="Width" Value="10" />
             <Setter Property="MinWidth" Value="10" />
-            <Setter Property="Background" Value="#FF202020" />
+            <Setter Property="Background" Value="{DynamicResource AppPageBrush}" />
             <Setter Property="Template" Value="{StaticResource DarkVerticalScrollBarTemplate}" />
             <Style.Triggers>
                 <Trigger Property="Orientation" Value="Horizontal">
@@ -251,72 +262,72 @@
         </Style>
 
         <Style TargetType="TextBox">
-            <Setter Property="Foreground" Value="#FFF4F8FB" />
-            <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}" />
-            <Setter Property="CaretBrush" Value="#FFF4F8FB" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceAltBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource AppTextBrush}" />
             <Setter Property="Padding" Value="8,5" />
         </Style>
 
         <Style TargetType="DataGrid">
-            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
-            <Setter Property="Foreground" Value="#FFF4F8FB" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
             <Setter Property="GridLinesVisibility" Value="Horizontal" />
-            <Setter Property="HorizontalGridLinesBrush" Value="#FF565656" />
-            <Setter Property="VerticalGridLinesBrush" Value="#FF565656" />
-            <Setter Property="RowBackground" Value="#FF343434" />
-            <Setter Property="AlternatingRowBackground" Value="#FF303030" />
+            <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="VerticalGridLinesBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="RowBackground" Value="{DynamicResource AppPanelBrush}" />
+            <Setter Property="AlternatingRowBackground" Value="{DynamicResource AppPanelBrush}" />
             <Setter Property="HeadersVisibility" Value="Column" />
         </Style>
 
         <Style TargetType="DataGridRow">
-            <Setter Property="Background" Value="#FF343434" />
-            <Setter Property="Foreground" Value="#FFF4F8FB" />
+            <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
             <Style.Triggers>
                 <Trigger Property="AlternationIndex" Value="1">
-                    <Setter Property="Background" Value="#FF303030" />
+                    <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" />
                 </Trigger>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF414141" />
+                    <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" />
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="{StaticResource SelectionBrush}" />
-                    <Setter Property="BorderBrush" Value="{StaticResource SelectionBorderBrush}" />
-                    <Setter Property="Foreground" Value="#FFFFFFFF" />
+                    <Setter Property="Background" Value="{DynamicResource SelectionBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource SelectionBorderBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#FF1F1F1F" />
-            <Setter Property="Foreground" Value="#FFFFFFFF" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}" />
+            <Setter Property="Background" Value="{DynamicResource AppDataGridHeaderBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
             <Setter Property="Padding" Value="8,5" />
         </Style>
 
         <Style TargetType="DataGridCell">
-            <Setter Property="BorderBrush" Value="#FF565656" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
             <Setter Property="Padding" Value="6,3" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#FFF4F8FB" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="{StaticResource SelectionBrush}" />
-                    <Setter Property="BorderBrush" Value="{StaticResource SelectionBorderBrush}" />
-                    <Setter Property="Foreground" Value="#FFFFFFFF" />
+                    <Setter Property="Background" Value="{DynamicResource SelectionBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource SelectionBorderBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style TargetType="TreeView">
-            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
-            <Setter Property="Foreground" Value="#FFF4F8FB" />
+            <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
             <Setter Property="BorderBrush" Value="Transparent" />
         </Style>
 
         <Style TargetType="TreeViewItem">
-            <Setter Property="Foreground" Value="#FFF4F8FB" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
             <Setter Property="Margin" Value="0,2" />
         </Style>
 
@@ -348,8 +359,8 @@
                        AllowsTransparency="True"
                        Focusable="False"
                        PopupAnimation="Fade">
-                    <Border Background="{StaticResource PanelBrush}"
-                            BorderBrush="{StaticResource BorderBrushSoft}"
+                    <Border Background="{DynamicResource PanelBrush}"
+                            BorderBrush="{DynamicResource BorderBrushSoft}"
                             BorderThickness="1"
                             Padding="3"
                             SnapsToDevicePixels="True">
@@ -368,12 +379,12 @@
                     <Setter TargetName="TopLevelIcon" Property="Visibility" Value="Collapsed" />
                 </Trigger>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter TargetName="ItemBackground" Property="Background" Value="#FF363636" />
+                    <Setter TargetName="ItemBackground" Property="Background" Value="{DynamicResource AppHoverBrush}" />
                     <Setter TargetName="ItemBackground" Property="BorderBrush" Value="#FF555B60" />
                 </Trigger>
                 <Trigger Property="IsSubmenuOpen" Value="True">
-                    <Setter TargetName="ItemBackground" Property="Background" Value="#FF3C3C3C" />
-                    <Setter TargetName="ItemBackground" Property="BorderBrush" Value="#FF696969" />
+                    <Setter TargetName="ItemBackground" Property="Background" Value="{DynamicResource AppHoverBrush}" />
+                    <Setter TargetName="ItemBackground" Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
                     <Setter Property="Foreground" Value="#FF73787D" />
@@ -447,8 +458,8 @@
                        AllowsTransparency="True"
                        Focusable="False"
                        PopupAnimation="Fade">
-                    <Border Background="{StaticResource PanelBrush}"
-                            BorderBrush="{StaticResource BorderBrushSoft}"
+                    <Border Background="{DynamicResource PanelBrush}"
+                            BorderBrush="{DynamicResource BorderBrushSoft}"
                             BorderThickness="1"
                             Padding="3"
                             SnapsToDevicePixels="True">
@@ -471,12 +482,12 @@
                     <Setter TargetName="Checkmark" Property="Visibility" Value="Visible" />
                 </Trigger>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter TargetName="ItemBackground" Property="Background" Value="#FF3C3C3C" />
+                    <Setter TargetName="ItemBackground" Property="Background" Value="{DynamicResource AppHoverBrush}" />
                     <Setter TargetName="ItemBackground" Property="BorderBrush" Value="#FF555B60" />
                 </Trigger>
                 <Trigger Property="IsSubmenuOpen" Value="True">
-                    <Setter TargetName="ItemBackground" Property="Background" Value="#FF3C3C3C" />
-                    <Setter TargetName="ItemBackground" Property="BorderBrush" Value="#FF696969" />
+                    <Setter TargetName="ItemBackground" Property="Background" Value="{DynamicResource AppHoverBrush}" />
+                    <Setter TargetName="ItemBackground" Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
                     <Setter Property="Foreground" Value="#FF73787D" />
@@ -487,12 +498,12 @@
         </ControlTemplate>
 
         <Style TargetType="Menu">
-            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
-            <Setter Property="Foreground" Value="#FFF4F8FB" />
+            <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
         </Style>
 
         <Style TargetType="MenuItem">
-            <Setter Property="Foreground" Value="#FFF4F8FB" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Padding" Value="8,0" />
             <Setter Property="Height" Value="30" />
@@ -522,7 +533,7 @@
                     <ControlTemplate TargetType="Separator">
                         <Border Height="1"
                                 Margin="32,4,8,4"
-                                Background="#FF565656" />
+                                Background="{DynamicResource AppBorderBrush}" />
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -530,9 +541,9 @@
 
         <Style TargetType="ContextMenu">
             <Setter Property="OverridesDefaultStyle" Value="True" />
-            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
-            <Setter Property="Foreground" Value="#FFF4F8FB" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}" />
+            <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="3" />
             <Setter Property="SnapsToDevicePixels" Value="True" />

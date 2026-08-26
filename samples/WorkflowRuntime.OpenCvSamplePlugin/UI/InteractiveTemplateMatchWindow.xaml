@@ -2,17 +2,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:WorkflowRuntime.OpenCvSamplePlugin.UI"
         Title="模板匹配 - OpenCV SDK" Width="1180" Height="760" MinWidth="980" MinHeight="640"
-        WindowStartupLocation="CenterOwner" Background="#FF202020" Foreground="#FFF2F2F2">
+        WindowStartupLocation="CenterOwner" Background="{DynamicResource WorkflowSdkPageBrush}" Foreground="{DynamicResource WorkflowSdkTextBrush}">
     <Window.Resources>
-        <SolidColorBrush x:Key="Panel" Color="#FF292929"/><SolidColorBrush x:Key="Line" Color="#FF505050"/>
-        <Style TargetType="Button"><Setter Property="Foreground" Value="#FFF2F2F2"/><Setter Property="Background" Value="#FF3B3B3B"/><Setter Property="BorderBrush" Value="#FF626262"/><Setter Property="Padding" Value="10,5"/><Setter Property="MinHeight" Value="30"/><Setter Property="Margin" Value="3"/></Style>
-        <Style TargetType="GroupBox"><Setter Property="Foreground" Value="#FFB9E986"/><Setter Property="BorderBrush" Value="{StaticResource Line}"/><Setter Property="Margin" Value="6"/><Setter Property="Padding" Value="7"/></Style>
-        <Style TargetType="TabControl"><Setter Property="Background" Value="{StaticResource Panel}"/><Setter Property="BorderBrush" Value="{StaticResource Line}"/></Style>
-        <Style TargetType="TabItem"><Setter Property="Foreground" Value="#FFE8E8E8"/><Setter Property="Background" Value="#FF303030"/><Setter Property="Padding" Value="12,10"/><Setter Property="MinWidth" Value="88"/></Style>
+        
+        <Style TargetType="Button"><Setter Property="Foreground" Value="{DynamicResource WorkflowSdkTextBrush}"/><Setter Property="Background" Value="{DynamicResource WorkflowSdkPanelBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource WorkflowSdkBorderBrush}"/><Setter Property="Padding" Value="10,5"/><Setter Property="MinHeight" Value="30"/><Setter Property="Margin" Value="3"/></Style>
+        <Style TargetType="GroupBox"><Setter Property="Foreground" Value="{DynamicResource WorkflowSdkSuccessBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource WorkflowSdkBorderBrush}"/><Setter Property="Margin" Value="6"/><Setter Property="Padding" Value="7"/></Style>
+        <Style TargetType="TabControl"><Setter Property="Background" Value="{DynamicResource WorkflowSdkPanelBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource WorkflowSdkBorderBrush}"/></Style>
+        <Style TargetType="TabItem"><Setter Property="Foreground" Value="{DynamicResource WorkflowSdkTextBrush}"/><Setter Property="Background" Value="{DynamicResource WorkflowSdkPanelBrush}"/><Setter Property="Padding" Value="12,10"/><Setter Property="MinWidth" Value="88"/></Style>
         <DataTemplate x:Key="PropertyRowTemplate">
             <Grid Margin="2,4">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="122"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding DisplayName}" Foreground="#FFD7D7D7" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="{Binding Description}"/>
+                <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource WorkflowSdkTextBrush}" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="{Binding Description}"/>
                 <local:DesignerPropertyEditorHost Grid.Column="1" Property="{Binding}" ActionContext="{Binding DataContext.Context, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/>
             </Grid>
         </DataTemplate>
@@ -20,9 +20,9 @@
 
     <Grid>
         <Grid.RowDefinitions><RowDefinition Height="54"/><RowDefinition Height="*"/><RowDefinition Height="54"/></Grid.RowDefinitions>
-        <Border Background="#FF242424" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="14,7">
-            <Grid><StackPanel><TextBlock Text="模板匹配" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="选择区域 → 学习模型 → 编辑掩膜/去噪 → 保存模型 → 搜索匹配" Foreground="#FF9FA7AD" Margin="0,3,0,0"/></StackPanel>
-                <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#FFB9E986" Text="OpenCV SDK · 单一 Action 插件"/></Grid>
+        <Border Background="{DynamicResource WorkflowSdkPanelBrush}" BorderBrush="{DynamicResource WorkflowSdkBorderBrush}" BorderThickness="0,0,0,1" Padding="14,7">
+            <Grid><StackPanel><TextBlock Text="模板匹配" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="选择区域 → 学习模型 → 编辑掩膜/去噪 → 保存模型 → 搜索匹配" Foreground="{DynamicResource WorkflowSdkMutedTextBrush}" Margin="0,3,0,0"/></StackPanel>
+                <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WorkflowSdkSuccessBrush}" Text="OpenCV SDK · 单一 Action 插件"/></Grid>
         </Border>
 
         <Grid Grid.Row="1">
@@ -89,7 +89,7 @@
                 </TabItem>
                 <TabItem Header="数据结果">
                     <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel>
-                        <TextBlock Text="运行结果绑定" FontWeight="SemiBold" Foreground="#FFB9E986" Margin="8"/>
+                        <TextBlock Text="运行结果绑定" FontWeight="SemiBold" Foreground="{DynamicResource WorkflowSdkSuccessBrush}" Margin="8"/>
                         <ContentControl Content="{Binding OutputImageProperty}" ContentTemplate="{StaticResource PropertyRowTemplate}"/>
                         <ContentControl Content="{Binding TemplateImageProperty}" ContentTemplate="{StaticResource PropertyRowTemplate}"/>
                         <ContentControl Content="{Binding SavedPathProperty}" ContentTemplate="{StaticResource PropertyRowTemplate}"/>
@@ -107,7 +107,7 @@
 
             <Grid Grid.Column="2" Margin="5,7,8,7">
                 <Grid.RowDefinitions><RowDefinition Height="42"/><RowDefinition Height="*"/><RowDefinition Height="42"/></Grid.RowDefinitions>
-                <Border Background="#FF292929" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="4">
+                <Border Background="#FF292929" BorderBrush="{DynamicResource WorkflowSdkBorderBrush}" BorderThickness="1" Padding="4">
                     <StackPanel Orientation="Horizontal">
                         <Button Content="指针" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static local:TemplateEditorTool.Pointer}"/><Button Content="学习框" Command="{Binding SelectToolCommand}" CommandParameter="{x:Static local:TemplateEditorTool.LearnRoi}"/>
                         <Separator Margin="6,2"/>
@@ -119,7 +119,7 @@
                         <Button Content="全选" Command="{Binding ResetMaskAllCommand}"/><Button Content="清空" Command="{Binding ResetMaskEmptyCommand}"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="1" Background="#FF090909" BorderBrush="{StaticResource Line}" BorderThickness="1,0,1,0">
+                <Border Grid.Row="1" Background="#FF090909" BorderBrush="{DynamicResource WorkflowSdkBorderBrush}" BorderThickness="1,0,1,0">
                     <Grid x:Name="PreviewSurface" ClipToBounds="True" Cursor="Cross"
                           local:TemplateMatchCanvasBehavior.IsEnabled="True">
                         <Image x:Name="PreviewImageControl" Source="{Binding DisplayImage}" Stretch="Uniform"/>
@@ -130,14 +130,14 @@
                         <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8" Padding="7,4" Background="#C0000000"><TextBlock Text="黄色：学习区域   蓝色：搜索区域   红色遮罩：已排除区域" Foreground="#FFFFE77A"/></Border>
                     </Grid>
                 </Border>
-                <Border Grid.Row="2" Background="#FF292929" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="8">
-                    <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding PreviewInfo}" Foreground="#FFAAB1B6" Margin="12,0,0,0"/><TextBlock Text="{Binding Status}" Foreground="#FFF0F0F0" TextWrapping="Wrap"/></DockPanel>
+                <Border Grid.Row="2" Background="#FF292929" BorderBrush="{DynamicResource WorkflowSdkBorderBrush}" BorderThickness="1" Padding="8">
+                    <DockPanel><TextBlock DockPanel.Dock="Right" Text="{Binding PreviewInfo}" Foreground="{DynamicResource WorkflowSdkMutedTextBrush}" Margin="12,0,0,0"/><TextBlock Text="{Binding Status}" Foreground="{DynamicResource WorkflowSdkTextBrush}" TextWrapping="Wrap"/></DockPanel>
                 </Border>
             </Grid>
         </Grid>
 
-        <Border Grid.Row="2" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Background="#FF242424">
-            <DockPanel Margin="8"><TextBlock VerticalAlignment="Center" Foreground="#FF9FA7AD" Text="生产运行使用已保存模型（MatchOnly），不会重复学习。"/>
+        <Border Grid.Row="2" BorderBrush="{DynamicResource WorkflowSdkBorderBrush}" BorderThickness="0,1,0,0" Background="{DynamicResource WorkflowSdkPanelBrush}">
+            <DockPanel Margin="8"><TextBlock VerticalAlignment="Center" Foreground="{DynamicResource WorkflowSdkMutedTextBrush}" Text="生产运行使用已保存模型（MatchOnly），不会重复学习。"/>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button Content="执行匹配" Width="105" Command="{Binding ExecuteMatchCommand}"/><Button Content="取消" Width="88" Command="{x:Static local:DesignerCommands.CloseWindow}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/><Button Content="确认" Width="88" Background="#FF6D9F36" BorderBrush="#FF87C548" Command="{x:Static local:DesignerCommands.CloseWindow}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}}"/></StackPanel>
             </DockPanel>
         </Border>

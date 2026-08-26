@@ -114,6 +114,47 @@ public sealed class ApplicationShellViewModelTests
     }
 
     [Fact]
+    public void ProjectHub_TogglesWithoutClosingTheActiveWorkspace()
+    {
+        var context = CreateContext();
+        context.Dialogs.NewProjectPath = @"C:\Projects\Packaging.json";
+        context.ViewModel.NewProjectCommand.Execute(null);
+        var workspace = context.ViewModel.ActiveWorkspace;
+
+        Assert.False(context.ViewModel.IsProjectHubVisible);
+        context.ViewModel.ShowProjectHubCommand.Execute(null);
+
+        Assert.True(context.ViewModel.IsProjectHubVisible);
+        Assert.Same(workspace, context.ViewModel.ActiveWorkspace);
+
+        context.ViewModel.HideProjectHubCommand.Execute(null);
+        Assert.False(context.ViewModel.IsProjectHubVisible);
+        Assert.Same(workspace, context.ViewModel.ActiveWorkspace);
+    }
+
+    [Fact]
+    public void MinimizedRibbon_TabSelectionOpensTemporaryPreview()
+    {
+        var viewModel = CreateContext().ViewModel;
+
+        viewModel.ToggleRibbonMinimizedCommand.Execute(null);
+
+        Assert.True(viewModel.IsRibbonMinimized);
+        Assert.False(viewModel.IsRibbonPreviewOpen);
+
+        viewModel.SelectUserSettingsTabCommand.Execute(null);
+
+        Assert.True(viewModel.IsUserSettingsTabSelected);
+        Assert.True(viewModel.IsRibbonPreviewOpen);
+
+        viewModel.IsRibbonPreviewOpen = false;
+        viewModel.ToggleRibbonMinimizedCommand.Execute(null);
+
+        Assert.False(viewModel.IsRibbonMinimized);
+        Assert.False(viewModel.IsRibbonPreviewOpen);
+    }
+
+    [Fact]
     public void OpenProjectCancellation_CreatesNoRecentOrWorkspace()
     {
         var context = CreateContext();

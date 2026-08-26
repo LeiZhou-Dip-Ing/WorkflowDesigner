@@ -14,8 +14,13 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
     private readonly IProjectWorkspaceFactory _workspaceFactory;
     private readonly IEditorFileDialogs _fileDialogs;
     private readonly TimeProvider _timeProvider;
+    private readonly IWorkflowThemeService _themeService;
     private IProjectWorkspace? _activeWorkspace;
     private string _searchText = string.Empty;
+    private string _selectedRibbonTab = "WorkflowDesign";
+    private bool _isRibbonMinimized;
+    private bool _isRibbonPreviewOpen;
+    private bool _isProjectHubOpen = true;
   
     private string _startPageError = string.Empty;
     private RecentProjectEntry? _missingRecentProject;
@@ -25,13 +30,15 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
         IWorkflowProjectFileService projectFiles,
         IProjectWorkspaceFactory workspaceFactory,
         IEditorFileDialogs fileDialogs,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        IWorkflowThemeService? themeService = null)
     {
         _recentProjects = recentProjects ?? throw new ArgumentNullException(nameof(recentProjects));
         _projectFiles = projectFiles ?? throw new ArgumentNullException(nameof(projectFiles));
         _workspaceFactory = workspaceFactory ?? throw new ArgumentNullException(nameof(workspaceFactory));
         _fileDialogs = fileDialogs ?? throw new ArgumentNullException(nameof(fileDialogs));
         _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+        _themeService = themeService ?? new WorkflowThemeService();
 
         NewProjectCommand = new RelayCommand(CreateProject);
         OpenProjectCommand = new RelayCommand(OpenProject);
@@ -39,6 +46,12 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
         RemoveMissingProjectCommand = new RelayCommand(RemoveMissingProject, () => MissingRecentProject != null);
         KeepMissingProjectCommand = new RelayCommand(() => MissingRecentProject = null);
         CloseProjectCommand = new RelayCommand(CloseProject, () => ActiveWorkspace != null);
+        ShowProjectHubCommand = new RelayCommand(ShowProjectHub);
+        HideProjectHubCommand = new RelayCommand(HideProjectHub, () => ActiveWorkspace != null && IsProjectHubOpen);
+        SelectWorkflowDesignTabCommand = new RelayCommand(() => SelectRibbonTab("WorkflowDesign"));
+        SelectUserSettingsTabCommand = new RelayCommand(() => SelectRibbonTab("UserSettings"));
+        SetThemeCommand = new RelayCommand(parameter => ApplyTheme(parameter as string));
+        ToggleRibbonMinimizedCommand = new RelayCommand(() => IsRibbonMinimized = !IsRibbonMinimized);
         RefreshRecentProjects();
     }
 
@@ -53,14 +66,68 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
             {
                 OnPropertyChanged(nameof(HasActiveProject));
                 OnPropertyChanged(nameof(IsStartPageVisible));
+                OnPropertyChanged(nameof(IsProjectHubVisible));
                 CloseProjectCommand.RaiseCanExecuteChanged();
+                HideProjectHubCommand.RaiseCanExecuteChanged();
             }
         }
     }
 
+    public string SelectedRibbonTab
+    {
+        get => _selectedRibbonTab;
+        private set
+        {
+            if (SetProperty(ref _selectedRibbonTab, value))
+            {
+                OnPropertyChanged(nameof(IsWorkflowDesignTabSelected));
+                OnPropertyChanged(nameof(IsUserSettingsTabSelected));
+            }
+        }
+    }
+
+    public bool IsWorkflowDesignTabSelected => SelectedRibbonTab == "WorkflowDesign";
+    public bool IsUserSettingsTabSelected => SelectedRibbonTab == "UserSettings";
+
+    public bool IsRibbonMinimized
+    {
+        get => _isRibbonMinimized;
+        set
+        {
+            if (SetProperty(ref _isRibbonMinimized, value))
+            {
+                IsRibbonPreviewOpen = false;
+                OnPropertyChanged(nameof(IsRibbonExpanded));
+            }
+        }
+    }
+
+    public bool IsRibbonExpanded => !IsRibbonMinimized;
+
+    public bool IsRibbonPreviewOpen
+    {
+        get => _isRibbonPreviewOpen;
+        set => SetProperty(ref _isRibbonPreviewOpen, value);
+    }
+    public string CurrentTheme => _themeService.CurrentTheme;
     public bool HasActiveProject => ActiveWorkspace != null;
 
     public bool IsStartPageVisible => ActiveWorkspace == null;
+
+    public bool IsProjectHubVisible => IsStartPageVisible || IsProjectHubOpen;
+
+    public bool IsProjectHubOpen
+    {
+        get => _isProjectHubOpen;
+        private set
+        {
+            if (SetProperty(ref _isProjectHubOpen, value))
+            {
+                OnPropertyChanged(nameof(IsProjectHubVisible));
+                HideProjectHubCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
 
     public bool HasRecentProjects => RecentProjectGroups.Any(group => group.Projects.Count > 0);
 
@@ -113,6 +180,12 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
     public RelayCommand RemoveMissingProjectCommand { get; }
     public RelayCommand KeepMissingProjectCommand { get; }
     public RelayCommand CloseProjectCommand { get; }
+    public RelayCommand ShowProjectHubCommand { get; }
+    public RelayCommand HideProjectHubCommand { get; }
+    public RelayCommand SelectWorkflowDesignTabCommand { get; }
+    public RelayCommand SelectUserSettingsTabCommand { get; }
+    public RelayCommand SetThemeCommand { get; }
+    public RelayCommand ToggleRibbonMinimizedCommand { get; }
 
     public bool CanCloseApplication() => ActiveWorkspace?.CanCloseEditor() ?? true;
 
@@ -122,6 +195,26 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
         {
             await ActiveWorkspace.DisposeAsync().ConfigureAwait(false);
             ActiveWorkspace = null;
+        }
+    }
+
+    private void ApplyTheme(string? themeName)
+    {
+        if (string.IsNullOrWhiteSpace(themeName))
+        {
+            return;
+        }
+
+        _themeService.ApplyTheme(themeName);
+        OnPropertyChanged(nameof(CurrentTheme));
+    }
+
+    private void SelectRibbonTab(string tabName)
+    {
+        SelectedRibbonTab = tabName;
+        if (IsRibbonMinimized)
+        {
+            IsRibbonPreviewOpen = true;
         }
     }
 
@@ -184,6 +277,7 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
     {
         ActiveWorkspace?.Dispose();
         ActiveWorkspace = _workspaceFactory.Create(openedProject);
+        IsProjectHubOpen = false;
         _recentProjects.AddOrUpdate(
             openedProject.FullPath,
             openedProject.Project.Name,
@@ -200,7 +294,22 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
 
         ActiveWorkspace.Dispose();
         ActiveWorkspace = null;
+        IsProjectHubOpen = true;
         RefreshRecentProjects();
+    }
+
+    private void ShowProjectHub()
+    {
+        RefreshRecentProjects();
+        IsProjectHubOpen = true;
+    }
+
+    private void HideProjectHub()
+    {
+        if (ActiveWorkspace != null)
+        {
+            IsProjectHubOpen = false;
+        }
     }
 
     private void RemoveMissingProject()

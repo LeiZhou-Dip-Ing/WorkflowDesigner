@@ -1,0 +1,20 @@
+<UserControl x:Class="WorkflowCore.WpfDemo.Views.ComparisonTextView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+             Loaded="OnLoaded" Unloaded="OnUnloaded">
+    <Grid>
+        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="8" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+        <Grid.RowDefinitions><RowDefinition Height="36" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+        <Border Grid.Column="0" Background="{DynamicResource AppHeaderBrush}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1">
+            <TextBlock Text="LOCAL WORKING COPY" FontWeight="SemiBold" Margin="12,0" VerticalAlignment="Center" />
+        </Border>
+        <Border Grid.Column="2" Background="{DynamicResource AppHeaderBrush}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="1">
+            <TextBlock Text="ACTIVE RUNTIME" FontWeight="SemiBold" Margin="12,0" VerticalAlignment="Center" />
+        </Border>
+        <avalonEdit:TextEditor x:Name="LocalEditor" Grid.Row="1" IsReadOnly="True" ShowLineNumbers="False"
+                               FontFamily="Consolas" FontSize="13" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" />
+        <avalonEdit:TextEditor x:Name="RuntimeEditor" Grid.Row="1" Grid.Column="2" IsReadOnly="True" ShowLineNumbers="False"
+                               FontFamily="Consolas" FontSize="13" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" />
+    </Grid>
+</UserControl>

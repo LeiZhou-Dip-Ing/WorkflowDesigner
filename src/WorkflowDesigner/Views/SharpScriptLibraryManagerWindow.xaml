@@ -4,12 +4,12 @@
         Title="Manage Script Libraries"
         Width="1060" Height="720" MinWidth="900" MinHeight="620"
         WindowStartupLocation="CenterOwner"
-        Background="#FF1E1E1E" Foreground="#FFF2F2F2"
+        Background="#FF1E1E1E" Foreground="#FF1E293B"
         Loaded="WindowOnLoaded">
     <Window.Resources>
         <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#FF333333" />
-            <Setter Property="Foreground" Value="#FFF2F2F2" />
+            <Setter Property="Background" Value="#FFF1F5F9" />
+            <Setter Property="Foreground" Value="#FF1E293B" />
             <Setter Property="BorderBrush" Value="#FF606060" />
             <Setter Property="Padding" Value="7,5" />
         </Style>
@@ -17,15 +17,15 @@
             <Setter Property="MinHeight" Value="30" />
             <Setter Property="Padding" Value="12,4" />
             <Setter Property="Margin" Value="4,0" />
-            <Setter Property="Background" Value="#FF333333" />
-            <Setter Property="Foreground" Value="#FFF2F2F2" />
-            <Setter Property="BorderBrush" Value="#FF626262" />
+            <Setter Property="Background" Value="#FFF1F5F9" />
+            <Setter Property="Foreground" Value="#FF1E293B" />
+            <Setter Property="BorderBrush" Value="#FFD5DEE8" />
         </Style>
         <Style TargetType="DataGrid">
-            <Setter Property="Background" Value="#FF242424" />
-            <Setter Property="Foreground" Value="#FFF2F2F2" />
-            <Setter Property="BorderBrush" Value="#FF4B4B4B" />
-            <Setter Property="RowBackground" Value="#FF282828" />
+            <Setter Property="Background" Value="#FFF8FAFC" />
+            <Setter Property="Foreground" Value="#FF1E293B" />
+            <Setter Property="BorderBrush" Value="#FFE2E8F0" />
+            <Setter Property="RowBackground" Value="#FFF8FAFC" />
             <Setter Property="AlternatingRowBackground" Value="#FF2D2D2D" />
             <Setter Property="GridLinesVisibility" Value="Horizontal" />
             <Setter Property="HorizontalGridLinesBrush" Value="#FF404040" />
@@ -52,7 +52,7 @@
             <StackPanel>
                 <TextBlock Text="Installed Libraries" FontSize="18" FontWeight="SemiBold" />
                 <TextBlock Text="Libraries are installed by the Runtime; this Project stores only LibraryId and exact Version."
-                           Foreground="#FFB8B8B8" Margin="0,4,0,0" />
+                           Foreground="#FF64748B" Margin="0,4,0,0" />
             </StackPanel>
         </DockPanel>
 
@@ -86,7 +86,7 @@
                             CommandParameter="{Binding SelectedLibrary}" />
                 </StackPanel>
                 <TextBlock Text="Select a Library to view details below."
-                           Foreground="#FFB8B8B8" VerticalAlignment="Center" />
+                           Foreground="#FF64748B" VerticalAlignment="Center" />
             </DockPanel>
         </Grid>
 
@@ -96,7 +96,7 @@
                 <ColumnDefinition Width="12" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Grid.Column="0" Background="#FF252525" BorderBrush="#FF4B4B4B" BorderThickness="1" Padding="12">
+            <Border Grid.Column="0" Background="#FFF1F5F9" BorderBrush="#FFE2E8F0" BorderThickness="1" Padding="12">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -109,12 +109,12 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                            <TextBlock Text="Namespaces" Foreground="#FFB8B8B8" />
+                            <TextBlock Text="Namespaces" Foreground="#FF64748B" />
                             <TextBox Text="{Binding SelectedLibrary.Namespaces}" IsReadOnly="True"
                                      TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Height="115" />
                         </StackPanel>
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="Compile assemblies and hashes" Foreground="#FFB8B8B8" />
+                            <TextBlock Text="Compile assemblies and hashes" Foreground="#FF64748B" />
                             <TextBox Text="{Binding SelectedLibrary.AssemblyDetails}" IsReadOnly="True"
                                      TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Height="115" />
                         </StackPanel>
@@ -122,7 +122,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Column="2" Background="#FF252525" BorderBrush="#FF4B4B4B" BorderThickness="1" Padding="12">
+            <Border Grid.Column="2" Background="#FFF1F5F9" BorderBrush="#FFE2E8F0" BorderThickness="1" Padding="12">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -151,7 +151,7 @@
 
         <DockPanel Grid.Row="3" Margin="0,14,0,0">
             <Button DockPanel.Dock="Right" Content="Close" IsDefault="True" MinWidth="90" Click="CloseOnClick" />
-            <TextBlock Text="{Binding StatusText}" Foreground="#FFB8B8B8" VerticalAlignment="Center"
+            <TextBlock Text="{Binding StatusText}" Foreground="#FF64748B" VerticalAlignment="Center"
                        TextTrimming="CharacterEllipsis" />
         </DockPanel>
     </Grid>

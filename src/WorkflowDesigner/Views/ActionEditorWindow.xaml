@@ -8,8 +8,8 @@
         MinWidth="760"
         MinHeight="500"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource ChromeBrush}"
-        Foreground="#FFF4F8FB"
+        Background="{DynamicResource ChromeBrush}"
+        Foreground="#FF1F2937"
         ShowInTaskbar="False">
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -19,21 +19,21 @@
         </Grid.RowDefinitions>
 
         <Border Padding="12,9"
-                Background="#FF252525"
-                BorderBrush="{StaticResource BorderBrushSoft}"
+                Background="#FFF1F5F9"
+                BorderBrush="{DynamicResource BorderBrushSoft}"
                 BorderThickness="1">
             <StackPanel>
                 <TextBlock Text="{Binding Title}" FontSize="17" FontWeight="SemiBold" />
                 <TextBlock Margin="0,3,0,0"
                            Text="{Binding Description}"
-                           Foreground="{StaticResource MutedTextBrush}"
+                           Foreground="{DynamicResource MutedTextBrush}"
                            TextWrapping="Wrap" />
             </StackPanel>
         </Border>
 
         <Border Grid.Row="1" Margin="0,10"
-                Background="#FF333333"
-                BorderBrush="{StaticResource BorderBrushSoft}"
+                Background="#FFF1F5F9"
+                BorderBrush="{DynamicResource BorderBrushSoft}"
                 BorderThickness="1">
             <Grid>
                 <Grid.RowDefinitions>

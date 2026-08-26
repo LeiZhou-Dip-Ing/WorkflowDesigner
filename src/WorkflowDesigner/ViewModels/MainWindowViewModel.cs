@@ -41,6 +41,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
     private readonly EditorDocumentWorkspace _documents;
     private readonly LocalDraftAutosave _draftAutosave;
     private readonly ActionRunLog _actionRunLog;
+    private readonly IActionLogWindowService _actionLogWindowService;
     private readonly RuntimeRunSession _runSession;
     private readonly RuntimeWorkspaceSync _runtimeSync;
     private readonly RuntimeDeployment _deployment;
@@ -112,7 +113,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         ISharpScriptTemplateFactory? scriptTemplateFactory = null,
         ISharpScriptLibraryManagerDialog? scriptLibraryManagerDialog = null,
         IWorkflowProjectFileService? projectFileService = null,
-        string? projectFilePath = null, IProtectedWorkflowImportService? protectedWorkflowImporter = null)
+        string? projectFilePath = null,
+        IProtectedWorkflowImportService? protectedWorkflowImporter = null,
+        IActionLogWindowService? actionLogWindowService = null)
     {
         _methodEditorViewModelFactory = methodEditorViewModelFactory
             ?? throw new ArgumentNullException(nameof(methodEditorViewModelFactory));
@@ -152,6 +155,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
             _actionCatalog,
             _actionProperties,
             timerFactory);
+        _actionLogWindowService = actionLogWindowService ?? new ActionLogWindowService();
         _runSession = runSession ?? new RuntimeRunSession(
             _runtimeApi,
             _documentPersistence,
@@ -246,6 +250,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         StepCommand = new RelayCommand(
             () => _ = StepAsync(),
             () => IsRunning && IsStepRun && IsDebugPaused);
+        StepOverCommand = new RelayCommand(
+            () => _ = StepOverAsync(),
+            () => IsRunning && IsStepRun && IsPaused);
         ContinueCommand = new RelayCommand(
             () => _ = ContinueAsync(),
             () => IsRunning && IsStepRun && IsDebugPaused);
@@ -287,6 +294,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         ExportProjectJsonCommand = new RelayCommand(ExportProjectJson, () => !IsRunning);
         ImportProjectJsonCommand = new RelayCommand(() => _ = ImportProjectAsync(), () => !IsRunning);
         ClearLogCommand = new RelayCommand(ClearLog);
+        ClearVariableTraceCommand = new RelayCommand(() => _actionRunLog.ClearTrace());
+        ShowActionLogCommand = new RelayCommand(ShowActionLog);
         ToggleExplorerCommand = new RelayCommand(ToggleExplorer);
         ExpandExplorerCommand = new RelayCommand(() => IsExplorerExpanded = true);
         CollapseExplorerCommand = new RelayCommand(CollapseExplorer);
@@ -440,6 +449,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
     public ObservableCollection<WorkflowDifferenceItem> DeploymentDifferences { get; } = new();
 
     public ObservableCollection<VariableItem> Variables => _actionRunLog.Variables;
+
+    public ObservableCollection<VariableItem> VariableTraceEntries => _actionRunLog.TraceEntries;
 
     public ObservableCollection<MethodVariableOverviewItem> SelectedMethodVariables { get; } = new();
 
@@ -669,6 +680,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
 
     public bool IsRunning => _runSession.IsRunning;
     public bool IsStepRun => _runSession.IsStepRun;
+    public string RunState => _runSession.State;
+    public bool IsPaused => _runSession.IsPaused;
 
     public bool IsDebugPaused
     {
@@ -780,9 +793,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         private set => SetProperty(ref _canRenameVariableAcrossAllMethods, value);
     }
 
-    public GridLength ExplorerWidth => IsExplorerExpanded ? new GridLength(220) : new GridLength(48);
+    public GridLength ExplorerWidth => IsExplorerExpanded ? new GridLength(210) : new GridLength(56);
 
-    public double ExplorerPanelWidth => IsExplorerExpanded ? 220d : 48d;
+    public double ExplorerPanelWidth => IsExplorerExpanded ? 210d : 56d;
 
     public bool IsMethodsSubmenuOpen => SelectedHamburgerMenuItem?.Key == "Methods";
 
@@ -851,6 +864,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
 
     public RelayCommand StepCommand { get; }
 
+    public RelayCommand StepOverCommand { get; }
+
     public RelayCommand ContinueCommand { get; }
 
     public RelayCommand PauseCommand { get; }
@@ -863,9 +878,13 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
 
     public RelayCommand DeployWorkflowCommand { get; }
 
+    public RelayCommand UploadProjectCommand => DeployWorkflowCommand;
+
     public RelayCommand DeploySelectedDocumentCommand { get; }
 
     public RelayCommand DownloadWorkflowCommand { get; }
+
+    public RelayCommand DownloadProjectCommand => DownloadWorkflowCommand;
 
     public RelayCommand CompareWorkflowCommand { get; }
 
@@ -882,6 +901,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
     public RelayCommand ImportProjectJsonCommand { get; }
 
     public RelayCommand ClearLogCommand { get; }
+
+    public RelayCommand ClearVariableTraceCommand { get; }
+
+    public RelayCommand ShowActionLogCommand { get; }
 
     public RelayCommand ToggleExplorerCommand { get; }
 
@@ -2096,6 +2119,20 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         StatusText = "Log cleared.";
     }
 
+    private void ShowActionLog()
+    {
+        try
+        {
+            _actionLogWindowService.Show(_actionRunLog);
+            StatusText = "Action Log opened.";
+        }
+        catch (Exception exception)
+        {
+            _dialogs.ShowError("Action Log", exception.Message);
+            StatusText = "Could not open Action Log.";
+        }
+    }
+
     private void ClearRuntimeEvents()
         => _actionRunLog.Clear();
 
@@ -2908,6 +2945,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         RunCommand.RaiseCanExecuteChanged();
         StepRunCommand.RaiseCanExecuteChanged();
         StepCommand.RaiseCanExecuteChanged();
+        StepOverCommand.RaiseCanExecuteChanged();
         ContinueCommand.RaiseCanExecuteChanged();
         PauseCommand.RaiseCanExecuteChanged();
         CancelCommand.RaiseCanExecuteChanged();

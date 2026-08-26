@@ -577,14 +577,14 @@ public sealed class EditorDocumentWorkspace
     private static WorkflowDocumentEditState CreateSavedState(string savedSnapshot, string currentSnapshot)
     {
         var state = WorkflowDocumentEditState.CreateSaved(savedSnapshot);
-        state.Observe(currentSnapshot);
+        state.Synchronize(currentSnapshot);
         return state;
     }
 
     private void Observe(string contentId, string snapshot, ISet<string> activeContentIds)
     {
         activeContentIds.Add(contentId);
-        if (_editStates.TryGetValue(contentId, out var state)) state.Observe(snapshot);
+        if (_editStates.TryGetValue(contentId, out var state)) state.Synchronize(snapshot);
         else _editStates[contentId] = WorkflowDocumentEditState.CreateUnsaved(snapshot);
     }
 

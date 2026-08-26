@@ -17,11 +17,19 @@
     <PackageReference Include="WorkflowRuntime.ScriptCompiler" Version="$(WorkflowVersion)" />
   </ItemGroup>
   <ItemGroup>
+    <!-- OPC reference modules staged for a later contract-aligned integration. -->
+    <Compile Remove="Models\ActionMoveRequest.cs;Models\ActionRunItem.cs;Models\Comparison\**\*.cs;Services\Comparison\**\*.cs;ViewModels\DeploymentComparisonViewModel.cs;Views\ComparisonTextView.xaml.cs;Views\DeploymentComparisonView.xaml.cs;Views\VariableTraceView.xaml.cs;Views\WorkflowDesignNavigationView.xaml.cs;Views\WorkflowPropertyEditorList.xaml.cs" />
+    <Page Remove="Views\ComparisonTextView.xaml;Views\DeploymentComparisonView.xaml;Views\VariableTraceView.xaml;Views\WorkflowDesignNavigationView.xaml;Views\WorkflowPropertyEditorList.xaml" />
+    <None Include="Views\ComparisonTextView.xaml;Views\DeploymentComparisonView.xaml;Views\VariableTraceView.xaml;Views\WorkflowDesignNavigationView.xaml;Views\WorkflowPropertyEditorList.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
+    <PackageReference Include="DiffPlex" Version="1.9.0" />
     <PackageReference Include="Dirkster.AvalonDock" Version="4.74.1" />
     <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.74.1" />
     <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.27" />
     <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.3.2" />
   </ItemGroup>
 </Project>

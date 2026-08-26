@@ -65,6 +65,32 @@ public sealed class ActionRunLogTests
         Assert.Contains("2 Action executions recorded", summary.Result);
     }
 
+    [Fact]
+    public void VariableChanged_AddsAnOrderedVariableTraceEntry()
+    {
+        using var log = CreateLog();
+        var lineUid = Guid.NewGuid();
+
+        log.Apply(new WorkflowRuntimeEventDto
+        {
+            RunId = Guid.NewGuid(),
+            EventType = "VariableChanged",
+            ActionType = "TextMetrics",
+            MethodName = "Main",
+            LineNumber = 15,
+            LineUid = lineUid,
+            Timestamp = DateTimeOffset.Parse("2026-08-24T10:11:12.345+00:00"),
+            Message = "score = 0.98"
+        });
+
+        var trace = Assert.Single(log.TraceEntries);
+        Assert.Equal(lineUid, trace.LineUid);
+        Assert.Equal("Step 15", trace.Step);
+        Assert.Equal("score", trace.Name);
+        Assert.Equal("0.98", trace.Value);
+        Assert.Equal("double", trace.Type);
+    }
+
     private static ActionRunLog CreateLog()
     {
         var catalog = new EmptyCatalog();

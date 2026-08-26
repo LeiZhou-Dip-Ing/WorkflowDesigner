@@ -30,6 +30,10 @@ public sealed class RuntimeRunSession : IDisposable
 
     public bool IsStepRun { get; private set; }
 
+    public string State { get; private set; } = "Idle";
+
+    public bool IsPaused => string.Equals(State, "Paused", StringComparison.OrdinalIgnoreCase);
+
     /// <summary>Most recently started run. Retained after completion so late SignalR events can still be accepted.</summary>
     public Guid? LastRunId { get; private set; }
 
@@ -107,6 +111,7 @@ public sealed class RuntimeRunSession : IDisposable
 
         _runCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         IsStepRun = stepMode;
+        State = "Running";
         StateChanged?.Invoke(this, EventArgs.Empty);
         try
         {
@@ -124,6 +129,11 @@ public sealed class RuntimeRunSession : IDisposable
                         _session.CurrentRunId.Value,
                         _runCancellation.Token)
                     .ConfigureAwait(false);
+                if (!string.Equals(State, status.State, StringComparison.OrdinalIgnoreCase))
+                {
+                    State = status.State;
+                    StateChanged?.Invoke(this, EventArgs.Empty);
+                }
             }
             while (!status.IsTerminal);
 
@@ -148,13 +158,26 @@ public sealed class RuntimeRunSession : IDisposable
     }
 
     public Task StepAsync(CancellationToken cancellationToken = default)
-        => SendControlAsync(_runtimeApi.StepRunAsync, cancellationToken);
+        => SendControlAndSetStateAsync(_runtimeApi.StepRunAsync, "Running", cancellationToken);
+
+    public Task StepOverAsync(CancellationToken cancellationToken = default)
+        => SendControlAndSetStateAsync(_runtimeApi.StepOverRunAsync, "Running", cancellationToken);
 
     public Task ContinueAsync(CancellationToken cancellationToken = default)
-        => SendControlAsync(_runtimeApi.ContinueRunAsync, cancellationToken);
+        => SendControlAndSetStateAsync(_runtimeApi.ContinueRunAsync, "Running", cancellationToken);
 
     public Task PauseAsync(CancellationToken cancellationToken = default)
-        => SendControlAsync(_runtimeApi.PauseRunAsync, cancellationToken);
+        => SendControlAndSetStateAsync(_runtimeApi.PauseRunAsync, "Pausing", cancellationToken);
+
+    private async Task SendControlAndSetStateAsync(
+        Func<Guid, CancellationToken, Task> control,
+        string state,
+        CancellationToken cancellationToken)
+    {
+        await SendControlAsync(control, cancellationToken).ConfigureAwait(false);
+        State = state;
+        StateChanged?.Invoke(this, EventArgs.Empty);
+    }
 
     private Task SendControlAsync(
         Func<Guid, CancellationToken, Task> control,

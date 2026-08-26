@@ -9,6 +9,7 @@ namespace WorkflowCore.WpfDemo.Services.Runtime;
 /// <summary>Projects backend runtime events into the append-only Action log and variable view.</summary>
 public sealed class ActionRunLog : IDisposable
 {
+    private const int MaxTraceEntries = 5000;
     private readonly IEditorActionCatalog pcatalog;
     private readonly IActionPropertyEditor ppropertyEditorService;
     private readonly IUiTimer pcountdownTimer;
@@ -32,11 +33,12 @@ public sealed class ActionRunLog : IDisposable
 
     public ObservableCollection<RuntimeEventItem> Events { get; } = new();
     public ObservableCollection<VariableItem> Variables { get; } = new();
+    public ObservableCollection<VariableItem> TraceEntries { get; } = new();
 
     public void Apply(WorkflowRuntimeEventDto runtimeEvent)
     {
         ArgumentNullException.ThrowIfNull(runtimeEvent);
-        UpdateVariable(runtimeEvent.Message);
+        UpdateVariable(runtimeEvent);
 
         if (string.Equals(runtimeEvent.EventType, "ActionStarted", StringComparison.Ordinal))
         {
@@ -65,11 +67,14 @@ public sealed class ActionRunLog : IDisposable
     {
         pcountdownTimer.Stop();
         Events.Clear();
+        TraceEntries.Clear();
         prunningActions.Clear();
         pactionExecutionCount = 0;
         pcurrentRunHasActionFailure = false;
         prunCompletionAdded = false;
     }
+
+    public void ClearTrace() => TraceEntries.Clear();
 
     public void ResetRunningActions()
     {
@@ -223,8 +228,9 @@ public sealed class ActionRunLog : IDisposable
                 || string.Equals(item.ActionTemplate?.ActionType, runtimeEvent.ActionType, StringComparison.OrdinalIgnoreCase)));
     }
 
-    private void UpdateVariable(string message)
+    private void UpdateVariable(WorkflowRuntimeEventDto runtimeEvent)
     {
+        var message = runtimeEvent.Message;
         var index = message.IndexOf(" = ", StringComparison.Ordinal);
         if (index <= 0)
         {
@@ -243,13 +249,53 @@ public sealed class ActionRunLog : IDisposable
         if (existing == null)
         {
             Variables.Add(new VariableItem { Name = name, Value = value, Scope = "Runtime" });
-            return;
+        }
+        else
+        {
+            existing.Value = value;
+            var existingIndex = Variables.IndexOf(existing);
+            Variables.RemoveAt(existingIndex);
+            Variables.Insert(existingIndex, existing);
         }
 
-        existing.Value = value;
-        var existingIndex = Variables.IndexOf(existing);
-        Variables.RemoveAt(existingIndex);
-        Variables.Insert(existingIndex, existing);
+        var descriptor = ppropertyEditorService.FindDescriptor(runtimeEvent.ActionType ?? string.Empty);
+        TraceEntries.Add(new VariableItem
+        {
+            RunId = runtimeEvent.RunId,
+            LineUid = runtimeEvent.LineUid,
+            Timestamp = runtimeEvent.Timestamp,
+            LineNumber = runtimeEvent.LineNumber,
+            ActionName = descriptor?.DisplayName ?? runtimeEvent.ActionType ?? "Action",
+            ActionTemplate = descriptor == null
+                ? null
+                : new ActionTemplateItem
+                {
+                    ActionId = descriptor.ActionId,
+                    ActionType = runtimeEvent.ActionType,
+                    DisplayName = descriptor.DisplayName,
+                    Description = descriptor.Description,
+                    IconImage = pcatalog.GetCachedIconImage(descriptor.Icon)
+                },
+            Name = name,
+            Value = value,
+            Scope = message[..index].Contains(" -> ", StringComparison.Ordinal) ? "Output" : "Method Variable",
+            Type = InferType(value),
+            Status = "Changed"
+        });
+
+        while (TraceEntries.Count > MaxTraceEntries)
+        {
+            TraceEntries.RemoveAt(0);
+        }
+    }
+
+    private static string InferType(string value)
+    {
+        if (bool.TryParse(value, out _)) return "bool";
+        if (long.TryParse(value, out _)) return "int";
+        if (double.TryParse(value, out _)) return "double";
+        if (string.Equals(value, "null", StringComparison.OrdinalIgnoreCase)) return "object";
+        return "string";
     }
 
     private void CountdownTimerOnTick(object? sender, EventArgs e)

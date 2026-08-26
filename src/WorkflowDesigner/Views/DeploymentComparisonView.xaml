@@ -1,0 +1,377 @@
+<UserControl x:Class="WorkflowCore.WpfDemo.Views.DeploymentComparisonView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:workflow="clr-namespace:WorkflowCore.WpfDemo"
+             xmlns:views="clr-namespace:WorkflowCore.WpfDemo.Views">
+    <UserControl.Resources>
+      <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary Source="../Resources/WorkflowEditorResources.xaml" />
+        </ResourceDictionary.MergedDictionaries>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style x:Key="ComparisonCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" /><Setter Property="CornerRadius" Value="3" /><Setter Property="Padding" Value="12" /><Setter Property="Margin" Value="0,0,10,0" />
+        </Style>
+        <Style x:Key="ComparisonGrid" TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False" /><Setter Property="IsReadOnly" Value="True" /><Setter Property="CanUserAddRows" Value="False" />
+            <Setter Property="CanUserDeleteRows" Value="False" /><Setter Property="HeadersVisibility" Value="Column" /><Setter Property="GridLinesVisibility" Value="Horizontal" />
+            <Setter Property="Background" Value="{DynamicResource AppPageBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" /><Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="EnableRowVirtualization" Value="True" /><Setter Property="VirtualizingPanel.IsVirtualizing" Value="True" /><Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling" />
+            <Setter Property="CellStyle" Value="{DynamicResource ComparisonCellStyle}" />
+        </Style>
+        <Style x:Key="ComparisonCellStyle" TargetType="DataGridCell">
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Padding" Value="6,4" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppGridLineBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style x:Key="ChangeRowStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" />
+            <Setter Property="MinHeight" Value="58" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Change}" Value="Added"><Setter Property="Background" Value="{DynamicResource AppSuccessBackgroundBrush}" /></DataTrigger>
+                <DataTrigger Binding="{Binding Change}" Value="Removed"><Setter Property="Background" Value="{DynamicResource AppDangerBackgroundBrush}" /></DataTrigger>
+                <DataTrigger Binding="{Binding Change}" Value="Modified"><Setter Property="Background" Value="{DynamicResource AppWarningBackgroundBrush}" /></DataTrigger>
+                <DataTrigger Binding="{Binding Change}" Value="Moved"><Setter Property="Background" Value="{DynamicResource AppSelectedBrush}" /></DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ComparisonTabItem" TargetType="TabItem">
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Padding" Value="16,9" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Chrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Background" Value="{DynamicResource AppHoverBrush}" /></Trigger>
+                            <Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" /><Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AppAccentBrush}" /><Setter TargetName="Chrome" Property="Background" Value="{DynamicResource AppSelectedBrush}" /></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ComparisonListBox" TargetType="ListBox">
+            <Setter Property="Background" Value="{DynamicResource AppPageBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="Padding" Value="4" />
+        </Style>
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{DynamicResource AppHoverBrush}" /></Trigger>
+                <Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="{DynamicResource AppSelectedBrush}" /><Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" /></Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ComparisonComboBoxItem" TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemChrome"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemChrome" Property="Background" Value="{DynamicResource AppHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemChrome" Property="Background" Value="{DynamicResource AppSelectedBrush}" />
+                                <Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <DataTemplate x:Key="ComparisonScriptSelectorItemTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="18" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="&#xE943;"
+                           FontFamily="Segoe MDL2 Assets"
+                           Foreground="{DynamicResource AppWarningBrush}"
+                           FontSize="14" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Name}"
+                           Margin="6,0,16,0"
+                           TextTrimming="CharacterEllipsis" />
+                <Border Grid.Column="2"
+                        Background="{DynamicResource AppSelectedBrush}"
+                        CornerRadius="9"
+                        Padding="7,2">
+                    <TextBlock Text="{Binding DifferenceLabel}"
+                               FontSize="11"
+                               Foreground="{DynamicResource AppMutedTextBrush}" />
+                </Border>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="ComparisonMethodSelectorItemTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="18" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Path Data="{StaticResource WorkflowMethodsIconGeometry}"
+                      Stroke="{DynamicResource AppAccentBrush}"
+                      StrokeThickness="1.5"
+                      Fill="Transparent"
+                      Width="15"
+                      Height="15"
+                      Stretch="Uniform" />
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Name}"
+                           Margin="6,0,16,0"
+                           TextTrimming="CharacterEllipsis" />
+                <Border Grid.Column="2"
+                        Background="{DynamicResource AppSelectedBrush}"
+                        CornerRadius="9"
+                        Padding="7,2">
+                    <TextBlock Text="{Binding DifferenceLabel}"
+                               FontSize="11"
+                               Foreground="{DynamicResource AppMutedTextBrush}" />
+                </Border>
+            </Grid>
+        </DataTemplate>
+        <Style x:Key="ComparisonComboBox" TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AppInputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="ItemContainerStyle" Value="{StaticResource ComparisonComboBoxItem}" />
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="DropDownToggle"
+                                          Background="{TemplateBinding Background}"
+                                          BorderBrush="{TemplateBinding BorderBrush}"
+                                          BorderThickness="{TemplateBinding BorderThickness}"
+                                          Focusable="False"
+                                          ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="SelectorChrome"
+                                                Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="3"
+                                                SnapsToDevicePixels="True">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="34" />
+                                                </Grid.ColumnDefinitions>
+                                                <ContentPresenter Margin="{Binding Padding, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                                  VerticalAlignment="Center"
+                                                                  Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                                  ContentTemplate="{Binding SelectionBoxItemTemplate, RelativeSource={RelativeSource AncestorType=ComboBox}}" />
+                                                <Border Grid.Column="1" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,0,0,0">
+                                                    <Path Data="M 0 0 L 4 4 L 8 0"
+                                                          Stroke="{DynamicResource AppMutedTextBrush}"
+                                                          StrokeThickness="1.5"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center" />
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="SelectorChrome" Property="BorderBrush" Value="{DynamicResource AppFocusBorderBrush}" />
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="SelectorChrome" Property="BorderBrush" Value="{DynamicResource AppAccentBrush}" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup x:Name="PART_Popup"
+                                   Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Fade">
+                                <Border Margin="0,3,0,0"
+                                        MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                        MaxHeight="320"
+                                        Background="{DynamicResource AppPanelBrush}"
+                                        BorderBrush="{DynamicResource AppBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="3"
+                                        SnapsToDevicePixels="True">
+                                    <ScrollViewer CanContentScroll="True">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+      </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Command="{Binding DataContext.ActiveWorkspace.CloseDeploymentComparisonCommand, RelativeSource={RelativeSource AncestorType={x:Type workflow:WorkflowDesignView}}}" Content="&#xE711;" FontFamily="Segoe MDL2 Assets" Width="34" Height="30" Style="{StaticResource IconButtonStyle}" />
+            </StackPanel>
+            <StackPanel><TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold" /><TextBlock Margin="0,6,0,0" Foreground="{DynamicResource AppMutedTextBrush}" TextWrapping="Wrap"><Run Text="{Binding Summary, Mode=OneWay}" /><Run Text="  &#x00B7;  Runtime revision " /><Run Text="{Binding RuntimeRevision, Mode=OneWay}" /></TextBlock></StackPanel>
+        </DockPanel>
+
+        <Grid Grid.Row="1" Margin="0,14,0,10" Visibility="{Binding IsTextComparisonActive, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal" Visibility="{Binding IsTextComparisonActive, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <CheckBox Content="Ignore whitespace" IsChecked="{Binding IgnoreWhitespace}" Margin="0,0,18,0" /><CheckBox Content="Ignore line endings" IsChecked="{Binding IgnoreLineEndings}" />
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Style="{StaticResource ComparisonCard}"><StackPanel><TextBlock Text="Differences" Foreground="{DynamicResource AppMutedTextBrush}" /><TextBlock Text="{Binding DifferenceCount}" FontSize="20" /></StackPanel></Border>
+            <Border Grid.Column="1" Style="{StaticResource ComparisonCard}"><StackPanel><TextBlock Text="Added" Foreground="{DynamicResource AppSuccessBrush}" /><TextBlock Text="{Binding AddedCount}" FontSize="20" /></StackPanel></Border>
+            <Border Grid.Column="2" Style="{StaticResource ComparisonCard}"><StackPanel><TextBlock Text="Removed" Foreground="{DynamicResource AppDangerBrush}" /><TextBlock Text="{Binding RemovedCount}" FontSize="20" /></StackPanel></Border>
+            <Border Grid.Column="3" Style="{StaticResource ComparisonCard}" Margin="0"><StackPanel><TextBlock Text="Modified / moved" Foreground="{DynamicResource AppWarningBrush}" /><TextBlock Text="{Binding ModifiedCount}" FontSize="20" /></StackPanel></Border>
+        </Grid>
+
+        <TabControl Grid.Row="3" SelectedIndex="{Binding SelectedTabIndex}" Background="{DynamicResource AppPageBrush}" BorderBrush="{DynamicResource AppBorderBrush}">
+            <TabItem Header="Summary" Style="{StaticResource ComparisonTabItem}" Visibility="{Binding IsProjectComparison, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid Margin="10"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="12" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                    <GroupBox Header="Methods"><ListBox Style="{StaticResource ComparisonListBox}" ItemsSource="{Binding Methods}" SelectedItem="{Binding SelectedMethod}" DisplayMemberPath="DisplayName" /></GroupBox>
+                    <GroupBox Grid.Column="2" Header="Scripts"><ListBox Style="{StaticResource ComparisonListBox}" ItemsSource="{Binding Scripts}" SelectedItem="{Binding SelectedScript}" DisplayMemberPath="DisplayName" /></GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Method Lines" Style="{StaticResource ComparisonTabItem}" Visibility="{Binding HasMethods, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid Margin="8">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                    <StackPanel Width="420" HorizontalAlignment="Left" Margin="0,0,0,10">
+                        <TextBlock Text="Changed method" Foreground="{DynamicResource AppMutedTextBrush}" Margin="2,0,0,5" />
+                        <ComboBox ItemsSource="{Binding Methods}"
+                                  SelectedItem="{Binding SelectedMethod}"
+                                  ItemTemplate="{StaticResource ComparisonMethodSelectorItemTemplate}"
+                                  Style="{StaticResource ComparisonComboBox}" />
+                    </StackPanel>
+                    <DataGrid Grid.Row="1" Style="{StaticResource ComparisonGrid}" RowStyle="{StaticResource ChangeRowStyle}" ItemsSource="{Binding ActionRowsView}" SelectedItem="{Binding SelectedAction}">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Change" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border x:Name="ChangeBadge" HorizontalAlignment="Left" CornerRadius="9" Padding="8,2" Background="{DynamicResource AppSelectedBrush}">
+                                            <TextBlock x:Name="ChangeText" Text="{Binding Change}" FontSize="11" Foreground="{DynamicResource AppAccentBrush}" />
+                                        </Border>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Change}" Value="Added"><Setter TargetName="ChangeBadge" Property="Background" Value="{DynamicResource AppSuccessBackgroundBrush}" /><Setter TargetName="ChangeText" Property="Foreground" Value="{DynamicResource AppSuccessBrush}" /></DataTrigger>
+                                            <DataTrigger Binding="{Binding Change}" Value="Removed"><Setter TargetName="ChangeBadge" Property="Background" Value="{DynamicResource AppDangerBackgroundBrush}" /><Setter TargetName="ChangeText" Property="Foreground" Value="{DynamicResource AppDangerBrush}" /></DataTrigger>
+                                            <DataTrigger Binding="{Binding Change}" Value="Modified"><Setter TargetName="ChangeBadge" Property="Background" Value="{DynamicResource AppWarningBackgroundBrush}" /><Setter TargetName="ChangeText" Property="Foreground" Value="{DynamicResource AppWarningBrush}" /></DataTrigger>
+                                            <DataTrigger Binding="{Binding Change}" Value="Moved"><Setter TargetName="ChangeBadge" Property="Background" Value="{DynamicResource AppSelectedBrush}" /><Setter TargetName="ChangeText" Property="Foreground" Value="{DynamicResource AppAccentBrush}" /></DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Local line" Binding="{Binding LocalSequenceText}" Width="80" />
+                            <DataGridTemplateColumn Header="LOCAL WORKING COPY" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="5" ToolTip="{Binding LocalMetadataSummary}">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="28" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                            <Grid x:Name="LocalContent" Grid.ColumnSpan="2">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="28" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                                <Grid Width="22" Height="22">
+                                                <Path x:Name="LocalFallbackIcon" Data="M9,1 L3,10 H7 L5,17 L14,7 H10 Z" Fill="{DynamicResource AppAccentBrush}" Width="11" Height="15" Stretch="Uniform" />
+                                                <Image x:Name="LocalIcon" Source="{Binding LocalIconImage}" Width="20" Height="20" Stretch="Uniform" Visibility="Collapsed" />
+                                                </Grid>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding LocalName}" FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding LocalDescription}" Foreground="{DynamicResource AppMutedTextBrush}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Grid>
+                                            <TextBlock x:Name="LocalMissing" Grid.ColumnSpan="2" Text="Not in local working copy" Foreground="{DynamicResource AppMutedTextBrush}" FontStyle="Italic" HorizontalAlignment="Center" Visibility="Collapsed" />
+                                        </Grid>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding HasLocalIcon}" Value="True"><Setter TargetName="LocalIcon" Property="Visibility" Value="Visible" /><Setter TargetName="LocalFallbackIcon" Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                            <DataTrigger Binding="{Binding LocalName}" Value=""><Setter TargetName="LocalContent" Property="Visibility" Value="Collapsed" /><Setter TargetName="LocalMissing" Property="Visibility" Value="Visible" /></DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Runtime line" Binding="{Binding RuntimeSequenceText}" Width="90" />
+                            <DataGridTemplateColumn Header="ACTIVE RUNTIME" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="5" ToolTip="{Binding RuntimeMetadataSummary}">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="28" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                            <Grid x:Name="RuntimeContent" Grid.ColumnSpan="2">
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="28" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                                                <Grid Width="22" Height="22">
+                                                    <Path x:Name="RuntimeFallbackIcon" Data="M9,1 L3,10 H7 L5,17 L14,7 H10 Z" Fill="{DynamicResource AppAccentBrush}" Width="11" Height="15" Stretch="Uniform" />
+                                                    <Image x:Name="RuntimeIcon" Source="{Binding RuntimeIconImage}" Width="20" Height="20" Stretch="Uniform" Visibility="Collapsed" />
+                                                </Grid>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding RuntimeName}" FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding RuntimeDescription}" Foreground="{DynamicResource AppMutedTextBrush}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </Grid>
+                                            <TextBlock x:Name="RuntimeMissing" Grid.ColumnSpan="2" Text="Not in active runtime" Foreground="{DynamicResource AppMutedTextBrush}" FontStyle="Italic" HorizontalAlignment="Center" Visibility="Collapsed" />
+                                        </Grid>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding HasRuntimeIcon}" Value="True"><Setter TargetName="RuntimeIcon" Property="Visibility" Value="Visible" /><Setter TargetName="RuntimeFallbackIcon" Property="Visibility" Value="Collapsed" /></DataTrigger>
+                                            <DataTrigger Binding="{Binding RuntimeName}" Value=""><Setter TargetName="RuntimeContent" Property="Visibility" Value="Collapsed" /><Setter TargetName="RuntimeMissing" Property="Visibility" Value="Visible" /></DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                        <DataGrid.RowDetailsTemplate><DataTemplate><ItemsControl ItemsSource="{Binding PropertyChanges}" Margin="105,4,12,8"><ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,2"><Grid.ColumnDefinitions><ColumnDefinition Width="180" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><TextBlock Text="{Binding Label}" FontWeight="SemiBold" /><TextBlock Grid.Column="1" Text="{Binding LocalValue}" Foreground="{DynamicResource AppWarningBrush}" TextWrapping="Wrap" /><TextBlock Grid.Column="2" Text="{Binding RuntimeValue}" Foreground="{DynamicResource AppWarningBrush}" TextWrapping="Wrap" /></Grid></DataTemplate></ItemsControl.ItemTemplate></ItemsControl></DataTemplate></DataGrid.RowDetailsTemplate>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Scripts" Style="{StaticResource ComparisonTabItem}" Visibility="{Binding HasScripts, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid Margin="8">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                    <StackPanel Width="420" HorizontalAlignment="Left" Margin="0,0,0,10">
+                        <TextBlock Text="Changed script" Foreground="{DynamicResource AppMutedTextBrush}" Margin="2,0,0,5" />
+                        <ComboBox ItemsSource="{Binding Scripts}"
+                                  SelectedItem="{Binding SelectedScript}"
+                                  ItemTemplate="{StaticResource ComparisonScriptSelectorItemTemplate}"
+                                  Style="{StaticResource ComparisonComboBox}" />
+                    </StackPanel>
+                    <views:ComparisonTextView Grid.Row="1" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Variables" Style="{StaticResource ComparisonTabItem}" Visibility="{Binding HasMethods, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <DataGrid Margin="8" Style="{StaticResource ComparisonGrid}" RowStyle="{StaticResource ChangeRowStyle}" ItemsSource="{Binding VariableRowsView}" SelectedItem="{Binding SelectedValue}"><DataGrid.Columns><DataGridTextColumn Header="Status" Binding="{Binding Change}" Width="90" /><DataGridTextColumn Header="Variable" Binding="{Binding Name}" Width="*" /><DataGridTextColumn Header="Local type" Binding="{Binding LocalType}" Width="140" /><DataGridTextColumn Header="Local value" Binding="{Binding LocalValue}" Width="*" /><DataGridTextColumn Header="Runtime type" Binding="{Binding RuntimeType}" Width="140" /><DataGridTextColumn Header="Runtime value" Binding="{Binding RuntimeValue}" Width="*" /></DataGrid.Columns></DataGrid>
+            </TabItem>
+            <TabItem Header="Inputs / Outputs" Style="{StaticResource ComparisonTabItem}" Visibility="{Binding HasMethods, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <DataGrid Margin="8" Style="{StaticResource ComparisonGrid}" RowStyle="{StaticResource ChangeRowStyle}" ItemsSource="{Binding InputOutputRowsView}" SelectedItem="{Binding SelectedValue}"><DataGrid.Columns><DataGridTextColumn Header="Status" Binding="{Binding Change}" Width="90" /><DataGridTextColumn Header="Parameter" Binding="{Binding Name}" Width="*" /><DataGridTextColumn Header="Local type" Binding="{Binding LocalType}" Width="140" /><DataGridTextColumn Header="Local default" Binding="{Binding LocalValue}" Width="*" /><DataGridTextColumn Header="Runtime type" Binding="{Binding RuntimeType}" Width="140" /><DataGridTextColumn Header="Runtime default" Binding="{Binding RuntimeValue}" Width="*" /></DataGrid.Columns></DataGrid>
+            </TabItem>
+        </TabControl>
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+            <Button Command="{Binding DataContext.ActiveWorkspace.DeployWorkflowCommand, RelativeSource={RelativeSource AncestorType={x:Type workflow:WorkflowDesignView}}}" Content="Deploy saved local Project" MinWidth="190" Margin="0,0,8,0" />
+            <Button Command="{Binding DataContext.ActiveWorkspace.DownloadWorkflowCommand, RelativeSource={RelativeSource AncestorType={x:Type workflow:WorkflowDesignView}}}" Content="Download Runtime Project" MinWidth="190" Margin="0,0,8,0" />
+            <Button Command="{Binding DataContext.ActiveWorkspace.CloseDeploymentComparisonCommand, RelativeSource={RelativeSource AncestorType={x:Type workflow:WorkflowDesignView}}}" Content="Close" MinWidth="90" />
+        </StackPanel>
+    </Grid>
+</UserControl>

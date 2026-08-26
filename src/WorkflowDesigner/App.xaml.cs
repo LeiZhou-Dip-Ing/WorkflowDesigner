@@ -66,6 +66,8 @@ public partial class App : PrismApplication
         containerRegistry.RegisterInstance(TimeProvider.System);
         containerRegistry.RegisterSingleton<IUiDispatcher, UiThreadDispatcher>();
         containerRegistry.RegisterSingleton<IUiTimerFactory, UiThreadTimerFactory>();
+        containerRegistry.RegisterSingleton<IActionLogWindowService, ActionLogWindowService>();
+        containerRegistry.RegisterSingleton<IWorkflowThemeService, WorkflowThemeService>();
         containerRegistry.RegisterSingleton<IMethodLineEditor, MethodLineEditor>();
         containerRegistry.RegisterSingleton<IVariableEditor, VariableEditor>();
         containerRegistry.RegisterSingleton<IActionPropertyEditor, ActionPropertyEditor>();

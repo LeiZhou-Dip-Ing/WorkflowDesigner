@@ -44,4 +44,29 @@ public partial class MainWindow : Window
             workspace.CloseSubmenuCommand.Execute(null);
         }
     }
+
+    private void MinimizeWindowOnClick(object sender, RoutedEventArgs e)
+        => SystemCommands.MinimizeWindow(this);
+
+    private void MaximizeRestoreWindowOnClick(object sender, RoutedEventArgs e)
+    {
+        if (WindowState == WindowState.Maximized)
+        {
+            SystemCommands.RestoreWindow(this);
+            return;
+        }
+
+        SystemCommands.MaximizeWindow(this);
+    }
+
+    private void CloseWindowOnClick(object sender, RoutedEventArgs e)
+        => SystemCommands.CloseWindow(this);
+
+    private void MainWindowOnStateChanged(object? sender, EventArgs e)
+    {
+        if (MaximizeRestoreGlyph != null)
+        {
+            MaximizeRestoreGlyph.Text = WindowState == WindowState.Maximized ? "\uE923" : "\uE922";
+        }
+    }
 }

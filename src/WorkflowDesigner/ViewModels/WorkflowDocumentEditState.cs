@@ -45,6 +45,15 @@ internal sealed class WorkflowDocumentEditState
         return true;
     }
 
+    /// <summary>
+    /// Updates the serialized representation without manufacturing an Undo step.
+    /// Preview rendering, autosave, and dirty-state observation are not user edits.
+    /// </summary>
+    public void Synchronize(string snapshot)
+    {
+        CurrentSnapshot = snapshot;
+    }
+
     public string? Undo()
     {
         if (_undoSnapshots.Count == 0)
@@ -62,11 +71,10 @@ internal sealed class WorkflowDocumentEditState
     {
         if (_editBaseline != null && _editUndoStartIndex.HasValue)
         {
-            Observe(baselineSnapshot);
             return;
         }
 
-        Observe(baselineSnapshot);
+        Synchronize(baselineSnapshot);
         _editBaseline = baselineSnapshot;
         _editUndoStartIndex = _undoSnapshots.Count;
     }

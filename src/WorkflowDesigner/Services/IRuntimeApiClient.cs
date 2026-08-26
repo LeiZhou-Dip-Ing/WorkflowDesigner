@@ -168,6 +168,9 @@ public interface IRuntimeApiClient : IDisposable, IAsyncDisposable
 
     Task StepRunAsync(Guid runId, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
+    Task StepOverRunAsync(Guid runId, CancellationToken cancellationToken = default)
+        => StepRunAsync(runId, cancellationToken);
+
     Task ContinueRunAsync(Guid runId, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
     Task PauseRunAsync(Guid runId, CancellationToken cancellationToken = default) => Task.CompletedTask;

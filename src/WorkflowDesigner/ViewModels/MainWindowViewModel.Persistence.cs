@@ -126,6 +126,7 @@ public sealed partial class MainWindowViewModel
         _jsonPreviewRefreshTimer.Tick -= JsonPreviewRefreshTimerOnTick;
         _jsonPreviewRefreshTimer.Dispose();
         _draftAutosave.Dispose();
+        _actionLogWindowService.Close(_actionRunLog);
         _actionRunLog.Dispose();
         _runSession.Dispose();
         _runtimeSync.Dispose();

@@ -3,12 +3,12 @@ using AvalonDock.Themes;
 
 namespace WorkflowCore.WpfDemo.Docking;
 
-public sealed class Vs2013DarkDockTheme : DictionaryTheme
+public sealed class AutomationProDockTheme : DictionaryTheme
 {
-    public Vs2013DarkDockTheme()
+    public AutomationProDockTheme()
         : base(new ResourceDictionary
         {
-            Source = new Uri("/AvalonDock.Themes.VS2013;component/darktheme.xaml", UriKind.Relative)
+            Source = new Uri("/AvalonDock.Themes.VS2013;component/lighttheme.xaml", UriKind.Relative)
         })
     {
     }

@@ -2,14 +2,14 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:vs2013="clr-namespace:AvalonDock.Themes.VS2013.Themes;assembly=AvalonDock.Themes.VS2013">
 
-    <SolidColorBrush x:Key="AppDockBackgroundBrush" Color="#FF202020" />
-    <SolidColorBrush x:Key="AppDockPanelBrush" Color="#FF242424" />
-    <SolidColorBrush x:Key="AppDockHoverBrush" Color="#FF333333" />
-    <SolidColorBrush x:Key="AppDockActiveBrush" Color="#FF3A3A3A" />
-    <SolidColorBrush x:Key="AppDockBorderBrush" Color="#FF5B5B5B" />
-    <SolidColorBrush x:Key="AppDockTextBrush" Color="#FFF4F8FB" />
-    <SolidColorBrush x:Key="AppDockMutedTextBrush" Color="#FFAEB6BE" />
-    <SolidColorBrush x:Key="AppDockAccentBrush" Color="#FF62B915" />
+    <SolidColorBrush x:Key="AppDockBackgroundBrush" Color="#FFF4F7FB" />
+    <SolidColorBrush x:Key="AppDockPanelBrush" Color="#FFF8FAFC" />
+    <SolidColorBrush x:Key="AppDockHoverBrush" Color="#FFEAF3FC" />
+    <SolidColorBrush x:Key="AppDockActiveBrush" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="AppDockBorderBrush" Color="#FFD5DEE8" />
+    <SolidColorBrush x:Key="AppDockTextBrush" Color="#FF1F2937" />
+    <SolidColorBrush x:Key="AppDockMutedTextBrush" Color="#FF64748B" />
+    <SolidColorBrush x:Key="AppDockAccentBrush" Color="#FF1677C8" />
 
     <SolidColorBrush x:Key="{x:Static vs2013:ResourceKeys.DocumentWellTabSelectedActiveBackground}"
                      Color="{Binding Color, Source={StaticResource AppDockActiveBrush}}" />

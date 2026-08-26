@@ -12,10 +12,13 @@ public sealed class DesignerThemeContractTests
 
         Assert.Contains("x:Key=\"SidebarActionButtonStyle\"", appXaml, StringComparison.Ordinal);
         Assert.Contains("<Trigger Property=\"IsEnabled\" Value=\"False\">", appXaml, StringComparison.Ordinal);
-        Assert.Contains("Property=\"Background\" Value=\"#FF1B1B1B\"", appXaml, StringComparison.Ordinal);
+        Assert.Contains("Property=\"Background\" Value=\"{DynamicResource AppSidebarBrush}\"", appXaml, StringComparison.Ordinal);
+        Assert.Contains("Property=\"Foreground\" Value=\"{DynamicResource AppDisabledTextBrush}\"", appXaml, StringComparison.Ordinal);
         Assert.Equal(
-            4,
+            2,
             CountOccurrences(mainWindowXaml, "Style=\"{StaticResource SidebarActionButtonStyle}\""));
+        Assert.DoesNotContain("ToolTip=\"Deploy workflow\"", mainWindowXaml, StringComparison.Ordinal);
+        Assert.DoesNotContain("ToolTip=\"Download workflow\"", mainWindowXaml, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -52,6 +55,29 @@ public sealed class DesignerThemeContractTests
         Assert.Contains("x:Key=\"DiagnosticsChromeButtonStyle\"", scriptXaml, StringComparison.Ordinal);
         Assert.DoesNotContain("Content=\"⌃\"", scriptXaml, StringComparison.Ordinal);
         Assert.DoesNotContain("Content=\"×\"", scriptXaml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CustomWindowChrome_KeepsShellOverlaysInTheContentRow()
+    {
+        var mainWindowXaml = ReadRepositoryFile("src", "WorkflowDesigner", "MainWindow.xaml");
+
+        Assert.Contains("WindowStyle=\"None\"", mainWindowXaml, StringComparison.Ordinal);
+        Assert.Contains("<shell:WindowChrome", mainWindowXaml, StringComparison.Ordinal);
+        var projectHubStart = mainWindowXaml.IndexOf(
+            "<Grid x:Name=\"ProjectHubOverlay\"",
+            StringComparison.Ordinal);
+        Assert.True(projectHubStart >= 0);
+        var projectHubTagEnd = mainWindowXaml.IndexOf('>', projectHubStart);
+        Assert.True(projectHubTagEnd > projectHubStart);
+        Assert.Contains(
+            "Grid.Row=\"1\"",
+            mainWindowXaml[projectHubStart..projectHubTagEnd],
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "<Grid Grid.Row=\"1\" Panel.ZIndex=\"300\" Background=\"#A8000000\">",
+            mainWindowXaml,
+            StringComparison.Ordinal);
     }
 
     private static string ReadRepositoryFile(params string[] pathSegments)

@@ -626,6 +626,9 @@ public sealed class RuntimeApiClient : IRuntimeApiClient
     public Task StepRunAsync(Guid runId, CancellationToken cancellationToken = default)
         => SendRunControlAsync(runId, "step", cancellationToken);
 
+    public Task StepOverRunAsync(Guid runId, CancellationToken cancellationToken = default)
+        => SendRunControlAsync(runId, "step-over", cancellationToken);
+
     public Task ContinueRunAsync(Guid runId, CancellationToken cancellationToken = default)
         => SendRunControlAsync(runId, "continue", cancellationToken);
 

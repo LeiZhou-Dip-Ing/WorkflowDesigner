@@ -86,7 +86,7 @@ public sealed partial class MainWindowViewModel
     {
         if (string.Equals(runtimeEvent.EventType, "DebugPaused", StringComparison.OrdinalIgnoreCase))
         {
-            SetDebugLocation(runtimeEvent.MethodName, runtimeEvent.LineNumber);
+            SetDebugLocation(runtimeEvent.MethodName, runtimeEvent.LineNumber, runtimeEvent.LineUid);
             IsDebugPaused = true;
             StatusText = $"Paused after step {runtimeEvent.LineNumber}: {runtimeEvent.ActionType}.";
             RefreshSelectedResourcePreview();
@@ -104,6 +104,8 @@ public sealed partial class MainWindowViewModel
             RefreshSelectedResourcePreview();
             OnPropertyChanged(nameof(IsRunning));
             OnPropertyChanged(nameof(IsStepRun));
+            OnPropertyChanged(nameof(RunState));
+            OnPropertyChanged(nameof(IsPaused));
             RaiseCommandStates();
         });
 }

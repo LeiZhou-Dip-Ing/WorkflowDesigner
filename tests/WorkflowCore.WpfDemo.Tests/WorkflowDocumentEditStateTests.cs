@@ -37,6 +37,17 @@ public sealed class WorkflowDocumentEditStateTests
     }
 
     [Fact]
+    public void Synchronize_UpdatesObservedStateWithoutManufacturingUndoHistory()
+    {
+        var state = WorkflowDocumentEditState.CreateSaved("saved");
+
+        state.Synchronize("background-preview");
+        Assert.True(state.IsDirty);
+        Assert.False(state.CanUndo);
+        Assert.Null(state.Undo());
+    }
+
+    [Fact]
     public void NewlyCreatedDocument_CanUndoItsCreationWithoutAnEarlierSnapshot()
     {
         var state = WorkflowDocumentEditState.CreateUnsaved("new document");

@@ -74,31 +74,37 @@ public sealed class WorkflowDesignerRegistryTests
     [Fact]
     public void OpenCvDesigner_RegistersOneNewInteractiveEditorWithoutReplacingOriginalTemplateEditor()
     {
-        var registry = new WorkflowDesignerRegistry();
-        new OpenCvSampleDesignerExtension().Register(registry);
+        RunInSta(() =>
+        {
+            var registry = new WorkflowDesignerRegistry();
+            new OpenCvSampleDesignerExtension().Register(registry);
 
-        Assert.Contains(OpenCvDesignerKeys.TemplateMatchActionEditor, registry.ActionEditorKeys);
-        Assert.Contains(OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor, registry.ActionEditorKeys);
-        Assert.NotEqual(OpenCvDesignerKeys.TemplateMatchActionEditor, OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor);
+            Assert.Contains(OpenCvDesignerKeys.TemplateMatchActionEditor, registry.ActionEditorKeys);
+            Assert.Contains(OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor, registry.ActionEditorKeys);
+            Assert.NotEqual(OpenCvDesignerKeys.TemplateMatchActionEditor, OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor);
+        });
     }
 
     [Fact]
     public void DesignerLoader_LoadsUiEntryPointFromTheSingleOpenCvAssembly()
     {
-        var assemblyPath = typeof(OpenCvSampleDesignerExtension).Assembly.Location;
-        var registry = new WorkflowDesignerRegistry();
-        var loader = new DesignerPluginLoader(registry);
+        RunInSta(() =>
+        {
+            var assemblyPath = typeof(OpenCvSampleDesignerExtension).Assembly.Location;
+            var registry = new WorkflowDesignerRegistry();
+            var loader = new DesignerPluginLoader(registry);
 
-        var result = Assert.Single(
-            loader.LoadDirectory(Path.GetDirectoryName(assemblyPath)!),
-            item => string.Equals(
-                Path.GetFullPath(item.AssemblyPath),
-                Path.GetFullPath(assemblyPath),
-                StringComparison.OrdinalIgnoreCase));
+            var result = Assert.Single(
+                loader.LoadDirectory(Path.GetDirectoryName(assemblyPath)!),
+                item => string.Equals(
+                    Path.GetFullPath(item.AssemblyPath),
+                    Path.GetFullPath(assemblyPath),
+                    StringComparison.OrdinalIgnoreCase));
 
-        Assert.True(result.Loaded, result.Error);
-        Assert.Equal(OpenCvPluginIdentity.Id, result.PluginId);
-        Assert.Contains(OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor, registry.ActionEditorKeys);
+            Assert.True(result.Loaded, result.Error);
+            Assert.Equal(OpenCvPluginIdentity.Id, result.PluginId);
+            Assert.Contains(OpenCvDesignerKeys.InteractiveTemplateMatchActionEditor, registry.ActionEditorKeys);
+        });
     }
 
     [Fact]
@@ -113,5 +119,25 @@ public sealed class WorkflowDesignerRegistryTests
         Assert.Equal(actions.PluginId, designer.PluginId);
         Assert.Equal(actions.PluginVersion, resources.PluginVersion);
         Assert.Equal(actions.PluginVersion, designer.PluginVersion);
+    }
+
+    private static void RunInSta(Action action)
+    {
+        Exception? failure = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception exception)
+            {
+                failure = exception;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        if (failure != null) throw failure;
     }
 }

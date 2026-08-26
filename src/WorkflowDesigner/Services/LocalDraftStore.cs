@@ -184,8 +184,8 @@ public sealed class LocalDraftStore : ILocalDraftStore
 
         return Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Gbo",
-            "WorkflowCore",
+            "AutomationPro",
+            "Workspace",
             "Drafts");
     }
 }

@@ -13,7 +13,7 @@
             <TextBlock Grid.Column="1"
                        Margin="6,0,0,0"
                        VerticalAlignment="Center"
-                       Foreground="#FF8BCB68"
+                       Foreground="{DynamicResource WorkflowSdkSuccessBrush}"
                        Text="odd px" />
         </Grid>
     </DataTemplate>

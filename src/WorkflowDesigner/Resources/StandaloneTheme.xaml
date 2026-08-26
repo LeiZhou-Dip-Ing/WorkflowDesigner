@@ -1,0 +1,40 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="AppPrimaryBrush" Color="#0F6CBD" />
+    <SolidColorBrush x:Key="AppPrimaryHoverBrush" Color="#0B5CAB" />
+    <SolidColorBrush x:Key="AppPrimaryPressedBrush" Color="#084E91" />
+    <SolidColorBrush x:Key="AppOnPrimaryBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="AppAccentBrush" Color="#0F6CBD" />
+    <SolidColorBrush x:Key="AppPageBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="AppPanelBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="AppCardBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="AppCardBorderBrush" Color="#D6E0EA" />
+    <SolidColorBrush x:Key="AppBorderBrush" Color="#D6E0EA" />
+    <SolidColorBrush x:Key="AppGridLineBrush" Color="#DFE7F0" />
+    <SolidColorBrush x:Key="AppHeaderBorderBrush" Color="#D6E0EA" />
+    <SolidColorBrush x:Key="AppInputBorderBrush" Color="#B9C9DA" />
+    <SolidColorBrush x:Key="AppInputBackgroundBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="AppDataGridHeaderBrush" Color="#F5F8FC" />
+    <SolidColorBrush x:Key="AppDataGridRowBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="AppDataGridAlternateRowBrush" Color="#FBFCFE" />
+    <SolidColorBrush x:Key="AppDataGridSelectedRowBrush" Color="#EAF3FF" />
+    <SolidColorBrush x:Key="AppTextBrush" Color="#172033" />
+    <SolidColorBrush x:Key="AppMutedTextBrush" Color="#5B6B80" />
+    <SolidColorBrush x:Key="AppSubtleTextBrush" Color="#7A8798" />
+    <SolidColorBrush x:Key="AppSuccessBrush" Color="#16A34A" />
+    <SolidColorBrush x:Key="AppWarningBrush" Color="#F59E0B" />
+    <SolidColorBrush x:Key="AppDangerBrush" Color="#DC2626" />
+    <SolidColorBrush x:Key="AppInfoBrush" Color="#2563EB" />
+    <SolidColorBrush x:Key="AppSelectedBrush" Color="#EAF3FF" />
+    <SolidColorBrush x:Key="AppHoverBrush" Color="#F2F7FD" />
+    <SolidColorBrush x:Key="AppButtonHoverBrush" Color="#F2F7FD" />
+    <SolidColorBrush x:Key="AppButtonPressedBrush" Color="#EAF3FF" />
+    <SolidColorBrush x:Key="AppFocusBorderBrush" Color="#0F6CBD" />
+    <SolidColorBrush x:Key="AppSidebarBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="AppHeaderBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="AppStatusBarBrush" Color="#F8FAFC" />
+    <SolidColorBrush x:Key="AppDisabledBrush" Color="#F2F5F8" />
+    <SolidColorBrush x:Key="AppDisabledTextBrush" Color="#94A3B5" />
+    <SolidColorBrush x:Key="AppWarningBackgroundBrush" Color="#FFF6E6" />
+    <SolidColorBrush x:Key="AppDangerBackgroundBrush" Color="#FDECEE" />
+</ResourceDictionary>

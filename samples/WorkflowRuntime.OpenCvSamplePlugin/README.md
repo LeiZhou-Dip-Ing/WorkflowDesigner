@@ -45,6 +45,31 @@ property panel, so dirty state and undo/redo stay integrated. Preview is optiona
 `IWorkflowDesignerResourcePreviewCapability` with `GetCapability<T>()`, then decode its content
 inside the extension. The host does not expose an image type.
 
+## Use the host UI theme
+
+Extension views and double-click editors must use the public `WorkflowSdk*` dynamic resources.
+This keeps extension UI aligned with Automation Pro and updates it immediately when the user
+changes the application theme:
+
+```xml
+<UserControl Background="{DynamicResource WorkflowSdkPanelBrush}"
+             Foreground="{DynamicResource WorkflowSdkTextBrush}">
+    <Grid>
+        <TextBox Style="{DynamicResource WorkflowSdkTextBoxStyle}" />
+        <Button Style="{DynamicResource WorkflowSdkButtonStyle}" />
+    </Grid>
+</UserControl>
+```
+
+Available brushes cover page, surface, panel, border, text, muted text, accent, success, warning,
+danger, and selection colors. Shared styles are provided for buttons, text boxes, group boxes,
+tab controls, and tab items. The stable key names are also exposed by
+`WorkflowDesignerThemeKeys` in `WorkflowDesigner.WpfSdk`.
+
+Do not hard-code window chrome, panel, text, or border colors. A media viewport may deliberately
+stay neutral black when that is required to inspect the actual image. Keep commands and mutable
+state in the ViewModel; the theme contract does not change the MVVM extension model.
+
 ## Add a command
 
 Configuration such as score, velocity, or position remains in Action properties. Operations such

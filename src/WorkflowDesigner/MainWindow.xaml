@@ -10,12 +10,39 @@
         xmlns:models="clr-namespace:WorkflowCore.WpfDemo.Models"
         xmlns:viewModels="clr-namespace:WorkflowCore.WpfDemo.ViewModels"
         xmlns:views="clr-namespace:WorkflowCore.WpfDemo.Views"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
-        Title="Workflow Core Designer" Height="850" Width="1480"
+        Title="Automation Pro" Height="900" Width="1580"
         MinHeight="760" MinWidth="1180"
-        Background="#FF1F1F1F"
-        Foreground="#FFF0F4F8"
+        Background="{DynamicResource AppPageBrush}"
+        Foreground="{DynamicResource AppTextBrush}"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        StateChanged="MainWindowOnStateChanged"
         WindowStartupLocation="CenterScreen">
+    <Window.Icon>
+        <DrawingImage>
+            <DrawingImage.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="#FF1677C8" Geometry="M0,0 H32 V32 H0 Z" />
+                    <GeometryDrawing Brush="Transparent"
+                                     Geometry="M7,16 H11 M21,16 H25 M16,7 V11 M16,21 V25 M11,11 H21 V21 H11 Z">
+                        <GeometryDrawing.Pen>
+                            <Pen Brush="White" Thickness="2" LineJoin="Round" StartLineCap="Round" EndLineCap="Round" />
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
+    </Window.Icon>
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="34"
+                            ResizeBorderThickness="6"
+                            CornerRadius="0"
+                            GlassFrameThickness="0"
+                            UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
     <Window.Resources>
         <DataTemplate DataType="{x:Type viewModels:MethodEditorViewModel}">
             <views:MethodEditorView />
@@ -26,7 +53,7 @@
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type models:DockPaneItem}">
-            <Border Background="{StaticResource SurfaceBrush}">
+            <Border Background="{DynamicResource SurfaceBrush}">
                 <ContentControl Content="{Binding Content}"
                                 HorizontalContentAlignment="Stretch"
                                 VerticalContentAlignment="Stretch" />
@@ -36,8 +63,8 @@
         <Style x:Key="HamburgerRailItemStyle" TargetType="ListBoxItem">
             <Setter Property="Height" Value="50" />
             <Setter Property="Padding" Value="0" />
-            <Setter Property="Foreground" Value="#FFFFFFFF" />
-            <Setter Property="Background" Value="#FF050505" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AppSidebarBrush}" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -50,10 +77,10 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#FF777777" />
+                    <Setter Property="Background" Value="{DynamicResource AppDisabledTextBrush}" />
                 </Trigger>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF3A3A3A" />
+                    <Setter Property="Background" Value="{DynamicResource AppHoverBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -61,8 +88,8 @@
         <Style x:Key="SubmenuMethodItemStyle" TargetType="ListBoxItem">
             <Setter Property="MinHeight" Value="36" />
             <Setter Property="Padding" Value="0" />
-            <Setter Property="Foreground" Value="#FFFFFFFF" />
-            <Setter Property="Background" Value="#FF2B2B2B" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AppSidebarBrush}" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -77,50 +104,50 @@
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#FF464646" />
+                    <Setter Property="Background" Value="{DynamicResource AppSelectedBrush}" />
                 </Trigger>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF383838" />
+                    <Setter Property="Background" Value="{DynamicResource AppBorderBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style TargetType="{x:Type avalonControls:LayoutDocumentPaneControl}">
-            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Padding" Value="0" />
         </Style>
 
         <Style TargetType="{x:Type avalonControls:LayoutDocumentControl}">
-            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
         </Style>
 
         <Style TargetType="{x:Type avalonControls:LayoutDocumentTabItem}">
-            <Setter Property="Background" Value="#FF252525" />
-            <Setter Property="Foreground" Value="#FFE9EEF2" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}" />
+            <Setter Property="Background" Value="{DynamicResource AppDataGridHeaderBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
             <Setter Property="Padding" Value="10,4" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Model.IsSelected, RelativeSource={RelativeSource Self}}" Value="True">
                     <Setter Property="Background" Value="#FF007ACC" />
-                    <Setter Property="Foreground" Value="#FFFFFFFF" />
+                    <Setter Property="Foreground" Value="{DynamicResource AppPanelBrush}" />
                     <Setter Property="BorderBrush" Value="#FF007ACC" />
                 </DataTrigger>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF333333" />
+                    <Setter Property="Background" Value="{DynamicResource AppDataGridHeaderBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style TargetType="{x:Type avalonControls:TabControlEx}">
-            <Setter Property="Background" Value="#FF202020" />
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}" />
+            <Setter Property="Background" Value="{DynamicResource AppPageBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
         </Style>
 
         <Style x:Key="DialogCheckBoxStyle" TargetType="CheckBox">
-            <Setter Property="Background" Value="#FF343434" />
-            <Setter Property="BorderBrush" Value="#FF777777" />
+            <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppDisabledTextBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -133,7 +160,7 @@
                                 BorderThickness="{TemplateBinding BorderThickness}">
                             <Path x:Name="CheckMark"
                                   Data="M2,7 L5.5,10.5 L13,2.5"
-                                  Stroke="{StaticResource AccentBrush}"
+                                  Stroke="{DynamicResource AccentBrush}"
                                   StrokeThickness="2"
                                   StrokeStartLineCap="Round"
                                   StrokeEndLineCap="Round"
@@ -142,7 +169,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="CheckMark" Property="Visibility" Value="Visible" />
-                                <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                                 <Setter TargetName="Box" Property="Background" Value="#FF2E3B27" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -155,24 +182,24 @@
         </Style>
 
         <Style x:Key="InputVariableComboBoxItemStyle" TargetType="ComboBoxItem">
-            <Setter Property="Foreground" Value="#FFF3F5F7" />
-            <Setter Property="Background" Value="#FF333333" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AppDataGridHeaderBrush}" />
             <Setter Property="Padding" Value="7,4" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Style.Triggers>
                 <Trigger Property="IsHighlighted" Value="True">
-                    <Setter Property="Background" Value="#FF4A4A4A" />
+                    <Setter Property="Background" Value="{DynamicResource AppSelectedBrush}" />
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#FF355A28" />
+                    <Setter Property="Background" Value="{DynamicResource AppSelectedBrush}" />
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="InputVariableComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Foreground" Value="#FFF3F5F7" />
-            <Setter Property="Background" Value="#FF3A3A3A" />
-            <Setter Property="BorderBrush" Value="#FF676767" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource AppHoverBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="MinHeight" Value="25" />
             <Setter Property="ItemContainerStyle" Value="{StaticResource InputVariableComboBoxItemStyle}" />
@@ -205,7 +232,7 @@
                                                           Width="10"
                                                           Height="7"
                                                           Stretch="Fill"
-                                                          Stroke="#FFD5D9DC"
+                                                          Stroke="{DynamicResource AppMutedTextBrush}"
                                                           StrokeThickness="1.5"
                                                           HorizontalAlignment="Center"
                                                           VerticalAlignment="Center" />
@@ -222,8 +249,8 @@
                                    Focusable="False">
                                 <Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
                                         MaxHeight="260"
-                                        Background="#FF303030"
-                                        BorderBrush="#FF707070"
+                                        Background="{DynamicResource AppPanelBrush}"
+                                        BorderBrush="{DynamicResource AppDisabledTextBrush}"
                                         BorderThickness="1">
                                     <ScrollViewer CanContentScroll="True" VerticalScrollBarVisibility="Auto">
                                         <StackPanel IsItemsHost="True" />
@@ -233,7 +260,7 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -282,8 +309,8 @@
             <Setter Property="Margin" Value="0,0,0,14" />
             <Setter Property="Padding" Value="20" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="Background" Value="#FF292C30" />
-            <Setter Property="BorderBrush" Value="#FF484C51" />
+            <Setter Property="Background" Value="{DynamicResource AppPanelBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -299,12 +326,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Card" Property="Background" Value="#FF31353A" />
-                                <Setter TargetName="Card" Property="BorderBrush" Value="#FF6C737B" />
+                                <Setter TargetName="Card" Property="Background" Value="{DynamicResource AppCardBrush}" />
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AppBorderBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Card" Property="Background" Value="#FF25282C" />
-                                <Setter TargetName="Card" Property="BorderBrush" Value="#FF3994FF" />
+                                <Setter TargetName="Card" Property="Background" Value="{DynamicResource AppPanelBrush}" />
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AppPrimaryBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -313,11 +340,11 @@
         </Style>
 
         <Style x:Key="RecentProjectButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="72" />
+            <Setter Property="MinHeight" Value="86" />
             <Setter Property="Margin" Value="0" />
-            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Padding" Value="12,10" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="#FF3C4045" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppCardBrush}" />
             <Setter Property="BorderThickness" Value="0,0,0,1" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="Template">
@@ -332,110 +359,573 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Row" Property="Background" Value="#FF2D3136" />
+                                <Setter TargetName="Row" Property="Background" Value="{DynamicResource AppHoverBrush}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Row" Property="Background" Value="#FF252A30" />
-                                <Setter TargetName="Row" Property="BorderBrush" Value="#FF3994FF" />
+                                <Setter TargetName="Row" Property="Background" Value="{DynamicResource AppPanelBrush}" />
+                                <Setter TargetName="Row" Property="BorderBrush" Value="{DynamicResource AppPrimaryBrush}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="AutomationTopTabStyle" TargetType="Button">
+            <Setter Property="Height" Value="31" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Padding" Value="14,0" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0,0,0,2" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource AppDataGridHeaderBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AutomationRibbonButtonStyle" TargetType="Button">
+            <Setter Property="MinWidth" Value="124" />
+            <Setter Property="Width" Value="124" />
+            <Setter Property="Height" Value="100" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="Margin" Value="2,3" />
+            <Setter Property="Padding" Value="4,6" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource AppHoverBrush}" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#FFB7D6F2" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource AppSelectedBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.38" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AutomationRibbonIconStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+            <Setter Property="FontSize" Value="27" />
+            <Setter Property="Foreground" Value="#FF1677C8" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,2,0,5" />
+        </Style>
+
+        <Style x:Key="AutomationRibbonPackIconStyle" TargetType="materialDesign:PackIcon">
+            <Setter Property="Width" Value="32" />
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Foreground" Value="{DynamicResource AppPrimaryBrush}" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+        </Style>
+
+        <Style x:Key="AutomationRibbonLabelStyle" TargetType="TextBlock">
+            <Setter Property="Width" Value="116" />
+            <Setter Property="Height" Value="32" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="NoWrap" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+
+        <Style x:Key="AutomationRibbonGroupLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,0,3" />
+        </Style>
+
+        <Style x:Key="AutomationWindowControlButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="46" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource AppHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource AppSelectedBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AutomationWindowCloseButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource AutomationWindowControlButtonStyle}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFE81123" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#FFC50F1F" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
-    <Grid>
-    <Grid x:Name="ShellGrid"
-          DataContext="{Binding ActiveWorkspace}">
-        <Grid.Style>
-            <Style TargetType="Grid">
-                <Setter Property="Visibility" Value="Collapsed" />
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding DataContext.HasActiveProject, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                        <Setter Property="Visibility" Value="Visible" />
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
-        </Grid.Style>
+    <Grid x:Name="ShellHost" Background="{DynamicResource AppPageBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="42" />
+            <RowDefinition Height="34" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0"
-                Background="#FF181818"
-                BorderBrush="#FF383838"
+                Background="{DynamicResource AppHeaderBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
                 BorderThickness="0,0,0,1">
-            <DockPanel Margin="12,0" LastChildFill="False">
+            <Grid Margin="8,0,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Image Width="20"
+                           Height="20"
+                           Margin="0,0,8,0"
+                           Source="{Binding Icon, RelativeSource={RelativeSource AncestorType=Window}}"
+                           Stretch="Uniform" />
+                    <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
+                               Foreground="{DynamicResource AppTextBrush}"
+                               FontSize="12"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Style="{StaticResource AutomationWindowControlButtonStyle}"
+                            Click="MinimizeWindowOnClick"
+                            ToolTip="Minimize"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                        <TextBlock Text="&#xE921;" FontFamily="Segoe MDL2 Assets" FontSize="10" />
+                    </Button>
+                    <Button Style="{StaticResource AutomationWindowControlButtonStyle}"
+                            Click="MaximizeRestoreWindowOnClick"
+                            ToolTip="Maximize or restore"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                        <TextBlock x:Name="MaximizeRestoreGlyph" Text="&#xE922;" FontFamily="Segoe MDL2 Assets" FontSize="10" />
+                    </Button>
+                    <Button Style="{StaticResource AutomationWindowCloseButtonStyle}"
+                            Click="CloseWindowOnClick"
+                            ToolTip="Close"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                        <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="10" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+    <Grid x:Name="ShellGrid"
+          Grid.Row="1"
+          DataContext="{Binding ActiveWorkspace}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0" />
+            <RowDefinition Height="32" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Visibility="Collapsed" Background="{DynamicResource AppPanelBrush}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,0,0,1">
+            <DockPanel Margin="10,0" LastChildFill="False">
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="PROJECT"
-                               FontSize="10"
-                               FontWeight="SemiBold"
-                               Foreground="#FF8D8D8D"
-                               VerticalAlignment="Center"
-                               Margin="0,1,8,0" />
-                    <TextBlock Text="{Binding Project.Name, FallbackValue=Untitled Project}"
-                               FontSize="13"
-                               FontWeight="SemiBold"
-                               Foreground="#FFF2F2F2"
-                               VerticalAlignment="Center"
-                               MaxWidth="220"
-                               TextTrimming="CharacterEllipsis" />
-                    <Border Width="1"
-                            Height="20"
-                            Background="#FF484848"
-                            Margin="14,0,10,0" />
-                    <Button Style="{StaticResource ShellHeaderCommandButtonStyle}"
-                            Command="{Binding SaveAllWorkflowCommand}"
-                            AutomationProperties.Name="Save project"
-                            ToolTip="Save all methods, scripts, and Project structure changes">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE105;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="15"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,7,0" />
-                            <TextBlock Text="Save project" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Border Width="1"
-                            Height="20"
-                            Background="#FF484848"
-                            Margin="10,0" />
-                    <Button Style="{StaticResource ShellHeaderCommandButtonStyle}"
-                            Command="{Binding ImportProjectJsonCommand}"
-                            AutomationProperties.Name="Import project"
-                            ToolTip="Replace the current Project from a Workflow Project JSON file">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE8B5;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="15"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,7,0" />
-                            <TextBlock Text="Import project" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource ShellHeaderCommandButtonStyle}"
-                            Command="{Binding DataContext.CloseProjectCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                            AutomationProperties.Name="Close project"
-                            ToolTip="Close the current Project and return to the Start Page">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE8BB;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="14"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,7,0" />
-                            <TextBlock Text="Close project" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
+                    <Grid Width="28" Height="28" Margin="0,0,9,0">
+                        <Border Background="#FF1677C8" CornerRadius="4" />
+                        <Path Data="M6,14 H10 M18,14 H22 M14,6 V10 M14,18 V22 M10,10 H18 V18 H10 Z"
+                              Stroke="{DynamicResource AppPanelBrush}" StrokeThickness="1.7" StrokeLineJoin="Round" />
+                    </Grid>
+                    <TextBlock Text="Automation Pro" FontSize="17" FontWeight="SemiBold"
+                               Foreground="{DynamicResource AppTextBrush}" VerticalAlignment="Center" />
                 </StackPanel>
             </DockPanel>
         </Border>
 
-        <Grid Grid.Row="1"
+        <Border x:Name="RibbonTabStrip" Grid.Row="1" Background="{DynamicResource AppHeaderBrush}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
+                <Button Content="Workflow Design"
+                        Command="{Binding DataContext.SelectWorkflowDesignTabCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource AutomationTopTabStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DataContext.IsWorkflowDesignTabSelected, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource AppPrimaryBrush}" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Content="User Settings"
+                        Command="{Binding DataContext.SelectUserSettingsTabCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource AutomationTopTabStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DataContext.IsUserSettingsTabSelected, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource AppPrimaryBrush}" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <Popup IsOpen="{Binding DataContext.IsRibbonPreviewOpen, ElementName=ShellHost, Mode=TwoWay}"
+               DataContext="{Binding DataContext, ElementName=ShellHost}"
+               PlacementTarget="{Binding ElementName=RibbonTabStrip}"
+               Placement="Bottom"
+               StaysOpen="False"
+               AllowsTransparency="True"
+               PopupAnimation="Fade">
+            <Border Width="{Binding ActualWidth, ElementName=ShellGrid}"
+                    Height="132"
+                    Background="{DynamicResource AppPageBrush}"
+                    BorderBrush="{DynamicResource AppBorderBrush}"
+                    BorderThickness="0,0,0,1">
+                <Grid>
+                    <Grid x:Name="WorkflowDesignRibbonPreview">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsWorkflowDesignTabSelected}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250" />
+                            <ColumnDefinition Width="1" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="1" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0" Height="68" Margin="12,0" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions><RowDefinition Height="36" /><RowDefinition Height="32" /></Grid.RowDefinitions>
+                            <ContentControl ContentTemplate="{StaticResource ProjectFolderIcon}" Width="42" Height="36"
+                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="1" Text="Current Project" FontSize="10.5" TextAlignment="Center"
+                                       Foreground="{DynamicResource AppMutedTextBrush}" Margin="0,5,0,0" />
+                            <TextBlock Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" Margin="8,0,0,0"
+                                       FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource AppTextBrush}"
+                                       TextTrimming="CharacterEllipsis" MaxWidth="170">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{Binding ActiveWorkspace.Project.Name}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasActiveProject}" Value="False">
+                                                <Setter Property="Text" Value="No Project Open" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+
+                        <Border Grid.Column="1" Background="{DynamicResource AppBorderBrush}" Margin="0,8" />
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="8,0">
+                            <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding ShowProjectHubCommand}" ToolTip="Project Hub">
+                                <StackPanel><materialDesign:PackIcon Kind="ViewGridOutline" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Project Hub" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding ActiveWorkspace.SaveAllWorkflowCommand}" IsEnabled="{Binding HasActiveProject}" ToolTip="Save all project changes">
+                                <StackPanel><materialDesign:PackIcon Kind="ContentSave" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Save Project" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding ActiveWorkspace.ImportProjectJsonCommand}" IsEnabled="{Binding HasActiveProject}" ToolTip="Import Workflow Project JSON">
+                                <StackPanel><materialDesign:PackIcon Kind="FileImportOutline" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Import Project" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding ActiveWorkspace.ExportProjectJsonCommand}" IsEnabled="{Binding HasActiveProject}" ToolTip="Export the complete Workflow Project">
+                                <StackPanel><materialDesign:PackIcon Kind="FileExportOutline" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Export Project" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding CloseProjectCommand}" IsEnabled="{Binding HasActiveProject}" ToolTip="Close the current project">
+                                <StackPanel><materialDesign:PackIcon Kind="Close" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Close Project" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <Border Grid.Column="3" Background="{DynamicResource AppBorderBrush}" Margin="0,8" />
+
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="8,0">
+                            <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding ActiveWorkspace.UploadProjectCommand}" IsEnabled="{Binding HasActiveProject}" ToolTip="Upload Project">
+                                <StackPanel><materialDesign:PackIcon Kind="CloudUploadOutline" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Upload Project" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding ActiveWorkspace.DownloadProjectCommand}" IsEnabled="{Binding HasActiveProject}" ToolTip="Download Project">
+                                <StackPanel><materialDesign:PackIcon Kind="CloudDownloadOutline" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Download Project" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <TextBlock Grid.Column="2" Text="Project" Style="{StaticResource AutomationRibbonGroupLabelStyle}" VerticalAlignment="Bottom" IsHitTestVisible="False" />
+                        <TextBlock Grid.Column="4" Text="Project Transfer" Style="{StaticResource AutomationRibbonGroupLabelStyle}" VerticalAlignment="Bottom" IsHitTestVisible="False" />
+                    </Grid>
+
+                    <Grid x:Name="UserSettingsRibbonPreview">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsUserSettingsTabSelected}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="1" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="1" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="12,0">
+                            <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding SetThemeCommand}" CommandParameter="OutlookLight">
+                                <StackPanel><materialDesign:PackIcon Kind="WhiteBalanceSunny" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Outlook Light" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding SetThemeCommand}" CommandParameter="CompactLine">
+                                <StackPanel><materialDesign:PackIcon Kind="FormatLineSpacing" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Compact Line" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding SetThemeCommand}" CommandParameter="Dark">
+                                <StackPanel><materialDesign:PackIcon Kind="WeatherNight" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Dark" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <Border Grid.Column="1" Background="{DynamicResource AppBorderBrush}" Margin="0,8" />
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="8,0">
+                            <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding ToggleRibbonMinimizedCommand}">
+                                <StackPanel><materialDesign:PackIcon Kind="ChevronDown" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Expand Ribbon" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <Border Grid.Column="3" Background="{DynamicResource AppBorderBrush}" Margin="0,8" />
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="8,0">
+                            <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding ActiveWorkspace.ToggleVariableTraceCommand}" IsEnabled="{Binding HasActiveProject}" ToolTip="Enable or disable runtime variable trace collection">
+                                <StackPanel><materialDesign:PackIcon Kind="EyeOutline" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Variable Trace" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <TextBlock Grid.Column="0" Text="Theme" Style="{StaticResource AutomationRibbonGroupLabelStyle}" VerticalAlignment="Bottom" IsHitTestVisible="False" />
+                        <TextBlock Grid.Column="2" Text="Layout" Style="{StaticResource AutomationRibbonGroupLabelStyle}" VerticalAlignment="Bottom" IsHitTestVisible="False" />
+                        <TextBlock Grid.Column="4" Text="Workflow Runtime" Style="{StaticResource AutomationRibbonGroupLabelStyle}" VerticalAlignment="Bottom" IsHitTestVisible="False" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </Popup>
+
+        <Border Grid.Row="2" Height="132" Background="{DynamicResource AppPageBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,0,0,1">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding DataContext.IsWorkflowDesignTabSelected, RelativeSource={RelativeSource AncestorType=Window}}" Value="True" />
+                                <Condition Binding="{Binding DataContext.IsRibbonExpanded, RelativeSource={RelativeSource AncestorType=Window}}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible" />
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250" />
+                    <ColumnDefinition Width="1" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" Height="68" Margin="12,0" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="70" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions><RowDefinition Height="36" /><RowDefinition Height="32" /></Grid.RowDefinitions>
+                    <ContentControl ContentTemplate="{StaticResource ProjectFolderIcon}" Width="42" Height="36"
+                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="1" Text="Current Project" FontSize="10.5" TextAlignment="Center"
+                               Foreground="{DynamicResource AppMutedTextBrush}" Margin="0,5,0,0" />
+                    <TextBlock Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" Margin="8,0,0,0"
+                               FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource AppTextBrush}"
+                               TextTrimming="CharacterEllipsis" MaxWidth="170">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="{Binding Project.Name}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding DataContext.HasActiveProject, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
+                                        <Setter Property="Text" Value="No Project Open" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+
+                <Border Grid.Column="1" Background="{DynamicResource AppBorderBrush}" Margin="0,8" />
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="8,0">
+                    <Button Style="{StaticResource AutomationRibbonButtonStyle}"
+                            Command="{Binding DataContext.ShowProjectHubCommand, RelativeSource={RelativeSource AncestorType=Window}}" ToolTip="Project Hub">
+                        <StackPanel><materialDesign:PackIcon Kind="ViewGridOutline" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Project Hub" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding SaveAllWorkflowCommand}"
+                            IsEnabled="{Binding DataContext.HasActiveProject, RelativeSource={RelativeSource AncestorType=Window}}" ToolTip="Save all project changes">
+                        <StackPanel><materialDesign:PackIcon Kind="ContentSave" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Save Project" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding ImportProjectJsonCommand}"
+                            IsEnabled="{Binding DataContext.HasActiveProject, RelativeSource={RelativeSource AncestorType=Window}}" ToolTip="Import Workflow Project JSON">
+                        <StackPanel><materialDesign:PackIcon Kind="FileImportOutline" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Import Project" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding ExportProjectJsonCommand}"
+                            IsEnabled="{Binding DataContext.HasActiveProject, RelativeSource={RelativeSource AncestorType=Window}}" ToolTip="Export the complete Workflow Project">
+                        <StackPanel><materialDesign:PackIcon Kind="FileExportOutline" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Export Project" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding DataContext.CloseProjectCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            IsEnabled="{Binding DataContext.HasActiveProject, RelativeSource={RelativeSource AncestorType=Window}}" ToolTip="Close the current project">
+                        <StackPanel><materialDesign:PackIcon Kind="Close" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Close Project" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <Border Grid.Column="3" Background="{DynamicResource AppBorderBrush}" Margin="0,8" />
+
+                <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="8,0">
+                    <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding UploadProjectCommand}"
+                            IsEnabled="{Binding DataContext.HasActiveProject, RelativeSource={RelativeSource AncestorType=Window}}" ToolTip="Upload Project">
+                        <StackPanel><materialDesign:PackIcon Kind="CloudUploadOutline" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Upload Project" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding DownloadProjectCommand}"
+                            IsEnabled="{Binding DataContext.HasActiveProject, RelativeSource={RelativeSource AncestorType=Window}}" ToolTip="Download Project">
+                        <StackPanel><materialDesign:PackIcon Kind="CloudDownloadOutline" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Download Project" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <TextBlock Grid.Column="2" Text="Project" Style="{StaticResource AutomationRibbonGroupLabelStyle}" VerticalAlignment="Bottom" IsHitTestVisible="False" />
+                <TextBlock Grid.Column="4" Text="Project Transfer" Style="{StaticResource AutomationRibbonGroupLabelStyle}" VerticalAlignment="Bottom" IsHitTestVisible="False" />
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Height="132" Background="{DynamicResource AppPageBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,0,0,1">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding DataContext.IsUserSettingsTabSelected, RelativeSource={RelativeSource AncestorType=Window}}" Value="True" />
+                                <Condition Binding="{Binding DataContext.IsRibbonExpanded, RelativeSource={RelativeSource AncestorType=Window}}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible" />
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="1" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="12,0">
+                    <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding DataContext.SetThemeCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="OutlookLight">
+                        <StackPanel><materialDesign:PackIcon Kind="WhiteBalanceSunny" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Outlook Light" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding DataContext.SetThemeCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="CompactLine">
+                        <StackPanel><materialDesign:PackIcon Kind="FormatLineSpacing" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Compact Line" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding DataContext.SetThemeCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="Dark">
+                        <StackPanel><materialDesign:PackIcon Kind="WeatherNight" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Dark" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                    </Button>
+                </StackPanel>
+                <Border Grid.Column="1" Background="{DynamicResource AppBorderBrush}" Margin="0,8" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="8,0">
+                    <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding DataContext.ToggleRibbonMinimizedCommand, RelativeSource={RelativeSource AncestorType=Window}}">
+                        <StackPanel><materialDesign:PackIcon Kind="ChevronUp" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Minimize Ribbon" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                    </Button>
+                </StackPanel>
+                <Border Grid.Column="3" Background="{DynamicResource AppBorderBrush}" Margin="0,8" />
+                <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="8,0">
+                    <Button Style="{StaticResource AutomationRibbonButtonStyle}" Command="{Binding ToggleVariableTraceCommand}" ToolTip="Enable or disable runtime variable trace collection">
+                        <StackPanel><materialDesign:PackIcon Kind="EyeOutline" Style="{StaticResource AutomationRibbonPackIconStyle}" /><TextBlock Text="Variable Trace" Style="{StaticResource AutomationRibbonLabelStyle}" /></StackPanel>
+                    </Button>
+                </StackPanel>
+                <TextBlock Grid.Column="0" Text="Theme" Style="{StaticResource AutomationRibbonGroupLabelStyle}" VerticalAlignment="Bottom" IsHitTestVisible="False" />
+                <TextBlock Grid.Column="2" Text="Layout" Style="{StaticResource AutomationRibbonGroupLabelStyle}" VerticalAlignment="Bottom" IsHitTestVisible="False" />
+                <TextBlock Grid.Column="4" Text="Workflow Runtime" Style="{StaticResource AutomationRibbonGroupLabelStyle}" VerticalAlignment="Bottom" IsHitTestVisible="False" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="3"
               x:Name="RootGrid"
               PreviewMouseDown="RootGridOnPreviewMouseDown">
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <Setter Property="Visibility" Value="Visible" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding DataContext.IsProjectHubVisible, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Style>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="{Binding ExplorerWidth}" />
             <ColumnDefinition Width="*" />
@@ -443,8 +933,8 @@
 
         <Border x:Name="ExplorerRail"
                 Grid.Column="0"
-                Background="#FF050505"
-                BorderBrush="#FF303030"
+                Background="{DynamicResource AppSidebarBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
                 BorderThickness="0,0,1,0">
             <DockPanel>
                 <Button DockPanel.Dock="Top"
@@ -470,63 +960,13 @@
                         <TextBlock Text="&#xE710;"
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="24"
-                                   Foreground="#FFE8EEF2"
+                                   Foreground="{DynamicResource AppMutedTextBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center" />
                         <TextBlock Grid.Column="1"
                                    Text="Create . . ."
                                    FontSize="16"
-                                   Foreground="#FFFFFFFF"
-                                   VerticalAlignment="Center"
-                                   Margin="4,0,0,0"
-                                   TextTrimming="CharacterEllipsis" />
-                    </Grid>
-                </Button>
-
-                <Button DockPanel.Dock="Bottom"
-                        Command="{Binding DeployWorkflowCommand}"
-                        Style="{StaticResource SidebarActionButtonStyle}"
-                        ToolTip="Deploy the complete saved local Project">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="48" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="&#xE898;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="22"
-                                   Foreground="#FFE8EEF2"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="1"
-                                   Text="Deploy Project"
-                                   FontSize="14"
-                                   Foreground="#FFFFFFFF"
-                                   VerticalAlignment="Center"
-                                   Margin="4,0,0,0"
-                                   TextTrimming="CharacterEllipsis" />
-                    </Grid>
-                </Button>
-
-                <Button DockPanel.Dock="Bottom"
-                        Command="{Binding DownloadWorkflowCommand}"
-                        Style="{StaticResource SidebarActionButtonStyle}"
-                        ToolTip="Download Runtime Project">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="48" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="&#xE896;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="22"
-                                   Foreground="#FFE8EEF2"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="1"
-                                   Text="Download Project"
-                                   FontSize="14"
-                                   Foreground="#FFFFFFFF"
+                                   Foreground="{DynamicResource AppTextBrush}"
                                    VerticalAlignment="Center"
                                    Margin="4,0,0,0"
                                    TextTrimming="CharacterEllipsis" />
@@ -536,7 +976,7 @@
                 <ListBox ItemsSource="{Binding HamburgerMenuItems}"
                          SelectedItem="{Binding SelectedHamburgerMenuItem}"
                          ItemContainerStyle="{StaticResource HamburgerRailItemStyle}"
-                         Background="#FF050505"
+                         Background="{DynamicResource AppSidebarBrush}"
                          BorderThickness="0"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          ScrollViewer.VerticalScrollBarVisibility="Disabled">
@@ -553,7 +993,7 @@
                                     </Grid.ColumnDefinitions>
                                     <ContentControl Content="{Binding IconKey}"
                                           ContentTemplate="{StaticResource DocumentIconTemplate}"
-                                          Foreground="#FFE8EEF2"
+                                          Foreground="{DynamicResource AppMutedTextBrush}"
                                           Width="28"
                                           Height="26"
                                           HorizontalAlignment="Center"
@@ -561,7 +1001,7 @@
                                     <TextBlock Grid.Column="1"
                                                Text="{Binding Title}"
                                                FontSize="16"
-                                               Foreground="#FFFFFFFF"
+                                               Foreground="{DynamicResource AppTextBrush}"
                                                VerticalAlignment="Center"
                                                Margin="4,0,0,0"
                                                TextTrimming="CharacterEllipsis" />
@@ -583,8 +1023,8 @@
                PopupAnimation="Fade">
             <Border Width="300"
                     Height="{Binding ActualHeight, ElementName=RootGrid}"
-                    Background="#FF2B2B2B"
-                    BorderBrush="#FF111111"
+                    Background="{DynamicResource AppSidebarBrush}"
+                    BorderBrush="{DynamicResource AppBorderBrush}"
                     BorderThickness="0,0,1,0">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -597,7 +1037,7 @@
                     <TextBlock Text="Create"
                                Margin="24,0,12,0"
                                FontSize="18"
-                               Foreground="#FFFFFFFF"
+                               Foreground="{DynamicResource AppTextBrush}"
                                VerticalAlignment="Center" />
 
                     <Button Grid.Row="1"
@@ -613,10 +1053,10 @@
                                 <Setter Property="BorderThickness" Value="0" />
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#FF424242" />
+                                        <Setter Property="Background" Value="{DynamicResource AppHoverBrush}" />
                                     </Trigger>
                                     <Trigger Property="IsPressed" Value="True">
-                                        <Setter Property="Background" Value="#FF575757" />
+                                        <Setter Property="Background" Value="{DynamicResource AppBorderBrush}" />
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -628,7 +1068,7 @@
                             </Grid.ColumnDefinitions>
                             <ContentControl Content="{x:Static models:DocumentIconKeys.Method}"
                                             ContentTemplate="{StaticResource DocumentIconTemplate}"
-                                            Foreground="{StaticResource AccentBrush}"
+                                            Foreground="{DynamicResource AccentBrush}"
                                             Width="22"
                                             Height="24"
                                             VerticalAlignment="Center"
@@ -636,7 +1076,7 @@
                             <TextBlock Grid.Column="1"
                                        Text="New Method"
                                        FontSize="14"
-                                       Foreground="#FFFFFFFF"
+                                       Foreground="{DynamicResource AppTextBrush}"
                                        VerticalAlignment="Center" />
                         </Grid>
                     </Button>
@@ -654,10 +1094,10 @@
                                 <Setter Property="BorderThickness" Value="0" />
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#FF424242" />
+                                        <Setter Property="Background" Value="{DynamicResource AppHoverBrush}" />
                                     </Trigger>
                                     <Trigger Property="IsPressed" Value="True">
-                                        <Setter Property="Background" Value="#FF575757" />
+                                        <Setter Property="Background" Value="{DynamicResource AppBorderBrush}" />
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -669,7 +1109,7 @@
                             </Grid.ColumnDefinitions>
                             <ContentControl Content="{x:Static models:DocumentIconKeys.CSharpScript}"
                                             ContentTemplate="{StaticResource DocumentIconTemplate}"
-                                            Foreground="{StaticResource AccentBrush}"
+                                            Foreground="{DynamicResource AccentBrush}"
                                             Width="22"
                                             Height="24"
                                             VerticalAlignment="Center"
@@ -677,7 +1117,7 @@
                             <TextBlock Grid.Column="1"
                                        Text="CSharp Script"
                                        FontSize="14"
-                                       Foreground="#FFFFFFFF"
+                                       Foreground="{DynamicResource AppTextBrush}"
                                        VerticalAlignment="Center" />
                         </Grid>
                     </Button>
@@ -691,8 +1131,8 @@
                 Panel.ZIndex="20"
                 Width="220"
                 HorizontalAlignment="Left"
-                Background="#FF2B2B2B"
-                BorderBrush="#FF111111"
+                Background="{DynamicResource AppSidebarBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
                 BorderThickness="0,0,1,0"
                 Visibility="{Binding IsMethodsSubmenuOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid>
@@ -704,11 +1144,11 @@
                 <DockPanel Grid.Row="0" Margin="12,0,4,0">
                     <TextBlock Text="Methods"
                                FontSize="16"
-                               Foreground="#FFFFFFFF"
+                               Foreground="{DynamicResource AppTextBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,6,0" />
                     <TextBlock Text="(&#x23FB;: Init, &#x25B7;: Startable)"
-                               Foreground="#FFD0D0D0"
+                               Foreground="{DynamicResource AppMutedTextBrush}"
                                FontSize="10"
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis" />
@@ -718,7 +1158,7 @@
                     <ListBox ItemsSource="{Binding Methods}"
                                  SelectedItem="{Binding SelectedMethod}"
                                  ItemContainerStyle="{StaticResource SubmenuMethodItemStyle}"
-                                 Background="#FF2B2B2B"
+                                 Background="{DynamicResource AppSidebarBrush}"
                                  BorderThickness="0"
                                  ScrollViewer.VerticalScrollBarVisibility="Disabled">
                             <ListBox.ItemTemplate>
@@ -745,13 +1185,13 @@
                                             </Grid.ColumnDefinitions>
                                             <ContentControl Content="{x:Static models:DocumentIconKeys.Method}"
                                                             ContentTemplate="{StaticResource DocumentIconTemplate}"
-                                                            Foreground="{StaticResource AccentBrush}"
+                                                            Foreground="{DynamicResource AccentBrush}"
                                                             Width="17"
                                                             Height="19"
                                                             HorizontalAlignment="Left" />
-                                            <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12" Foreground="#FFFFFFFF"
+                                            <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12" Foreground="{DynamicResource AppTextBrush}"
                                                        TextTrimming="CharacterEllipsis" />
-                                            <TextBlock Grid.Column="2" Text="&#x25B7;" Foreground="#FFFFFFFF" FontSize="12" />
+                                            <TextBlock Grid.Column="2" Text="&#x25B7;" Foreground="{DynamicResource AppTextBrush}" FontSize="12" />
                                         </Grid>
                                     </Button>
                                 </DataTemplate>
@@ -766,8 +1206,8 @@
                 Panel.ZIndex="20"
                 Width="220"
                 HorizontalAlignment="Left"
-                Background="#FF2B2B2B"
-                BorderBrush="#FF111111"
+                Background="{DynamicResource AppSidebarBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
                 BorderThickness="0,0,1,0"
                 Visibility="{Binding IsScriptsSubmenuOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid>
@@ -779,14 +1219,14 @@
                 <TextBlock Grid.Row="0"
                            Text="CSharp Scripts"
                            FontSize="16"
-                           Foreground="#FFFFFFFF"
+                           Foreground="{DynamicResource AppTextBrush}"
                            VerticalAlignment="Center"
                            Margin="12,0,4,0" />
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <ListBox ItemsSource="{Binding Scripts}"
                                  ItemContainerStyle="{StaticResource SubmenuMethodItemStyle}"
-                                 Background="#FF2B2B2B"
+                                 Background="{DynamicResource AppSidebarBrush}"
                                  BorderThickness="0"
                                  ScrollViewer.VerticalScrollBarVisibility="Disabled">
                             <ListBox.ItemTemplate>
@@ -812,12 +1252,12 @@
                                             </Grid.ColumnDefinitions>
                                             <ContentControl Content="{x:Static models:DocumentIconKeys.CSharpScript}"
                                                             ContentTemplate="{StaticResource DocumentIconTemplate}"
-                                                            Foreground="{StaticResource AccentBrush}"
+                                                            Foreground="{DynamicResource AccentBrush}"
                                                             Width="17"
                                                             Height="20"
                                                             HorizontalAlignment="Left" />
                                             <TextBlock Grid.Column="1" Text="{Binding DisplayFileName}" FontSize="12"
-                                                       Foreground="#FFFFFFFF" TextTrimming="CharacterEllipsis" />
+                                                       Foreground="{DynamicResource AppTextBrush}" TextTrimming="CharacterEllipsis" />
                                         </Grid>
                                     </Button>
                                 </DataTemplate>
@@ -827,22 +1267,22 @@
             </Grid>
         </Border>
 
-        <DockPanel Grid.Column="1" Background="#FF202020">
+        <DockPanel Grid.Column="1" Background="{DynamicResource AppPageBrush}">
             <avalonDock:DockingManager x:Name="EditorDockingManager"
-                                       Background="#FF202020"
-                                       BorderBrush="{StaticResource BorderBrushSoft}"
+                                       Background="{DynamicResource AppPageBrush}"
+                                       BorderBrush="{DynamicResource BorderBrushSoft}"
                                        BorderThickness="0"
                                        DocumentsSource="{Binding OpenedEditors}"
                                        ActiveContent="{Binding SelectedDockPane, Mode=TwoWay}"
                                        docking:DockingBehavior.SelectedEditor="{Binding SelectedDockPane, Mode=TwoWay}">
                 <avalonDock:DockingManager.Theme>
-                    <docking:Vs2013DarkDockTheme />
+                    <docking:AutomationProDockTheme />
                 </avalonDock:DockingManager.Theme>
                 <avalonDock:DockingManager.DocumentHeaderTemplate>
                     <DataTemplate>
                         <DockPanel>
                             <ContentControl ContentTemplate="{StaticResource DocumentIconTemplate}"
-                                            Foreground="{StaticResource AccentBrush}"
+                                            Foreground="{DynamicResource AccentBrush}"
                                             Width="17"
                                             Height="18"
                                             Margin="0,0,6,0">
@@ -880,8 +1320,8 @@
               Background="#99000000"
               Visibility="{Binding IsCreateMethodDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Border Width="420"
-                    Background="#FF2B2B2B"
-                    BorderBrush="#FF696969"
+                    Background="{DynamicResource AppSidebarBrush}"
+                    BorderBrush="{DynamicResource AppBorderBrush}"
                     BorderThickness="1"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
@@ -897,11 +1337,11 @@
 
                     <TextBlock Text="{Binding CreateDialogTitle}"
                                FontSize="24"
-                               Foreground="#FFFFFFFF"
+                               Foreground="{DynamicResource AppTextBrush}"
                                Margin="0,0,0,18" />
                     <TextBlock Grid.Row="1"
                                Text="{Binding CreateNameLabel}"
-                               Foreground="#FFE9EEF2"
+                               Foreground="{DynamicResource AppMutedTextBrush}"
                                FontSize="14"
                                Margin="0,0,0,6" />
                     <TextBox Grid.Row="2"
@@ -911,7 +1351,7 @@
                              Margin="0,0,0,8" />
                     <TextBlock Grid.Row="3"
                                Text="{Binding CreateMethodError}"
-                               Foreground="#FFFF8A80"
+                               Foreground="{DynamicResource AppDangerBrush}"
                                FontSize="13"
                                MinHeight="22"
                                Margin="0,0,0,14" />
@@ -937,8 +1377,8 @@
               Background="#99000000"
               Visibility="{Binding IsRenameVariableDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Border Width="430"
-                    Background="#FF2B2B2B"
-                    BorderBrush="#FF696969"
+                    Background="{DynamicResource AppSidebarBrush}"
+                    BorderBrush="{DynamicResource AppBorderBrush}"
                     BorderThickness="1"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
@@ -955,11 +1395,11 @@
 
                     <TextBlock Text="Rename variable"
                                FontSize="24"
-                               Foreground="#FFFFFFFF"
+                               Foreground="{DynamicResource AppTextBrush}"
                                Margin="0,0,0,18" />
                     <TextBlock Grid.Row="1"
                                Text="New variable name"
-                               Foreground="#FFE9EEF2"
+                               Foreground="{DynamicResource AppMutedTextBrush}"
                                FontSize="14"
                                Margin="0,0,0,6" />
                     <TextBox Grid.Row="2"
@@ -971,11 +1411,11 @@
                               Content="Rename this global variable across all methods"
                               IsChecked="{Binding RenameVariableAcrossAllMethods}"
                               Visibility="{Binding CanRenameVariableAcrossAllMethods, Converter={StaticResource BooleanToVisibilityConverter}}"
-                              Foreground="#FFE9EEF2"
+                              Foreground="{DynamicResource AppMutedTextBrush}"
                               Margin="0,4,0,8" />
                     <TextBlock Grid.Row="4"
                                Text="{Binding RenameVariableError}"
-                               Foreground="#FFFF8A80"
+                               Foreground="{DynamicResource AppDangerBrush}"
                                FontSize="13"
                                TextWrapping="Wrap"
                                MinHeight="22"
@@ -1003,8 +1443,8 @@
               Background="#B3000000"
               Visibility="{Binding IsDeploymentComparisonOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Border Margin="48"
-                    Background="#FF252525"
-                    BorderBrush="#FF696969"
+                    Background="{DynamicResource AppDataGridHeaderBrush}"
+                    BorderBrush="{DynamicResource AppBorderBrush}"
                     BorderThickness="1"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
@@ -1028,7 +1468,7 @@
                         <TextBlock Text="Local / Runtime comparison"
                                    FontSize="22"
                                    FontWeight="SemiBold"
-                                   Foreground="#FFFFFFFF"
+                                   Foreground="{DynamicResource AppTextBrush}"
                                    VerticalAlignment="Center" />
                     </DockPanel>
 
@@ -1047,8 +1487,8 @@
                               CanUserDeleteRows="False"
                               HeadersVisibility="Column"
                               GridLinesVisibility="Horizontal"
-                              Background="#FF202020"
-                              BorderBrush="#FF4A4A4A"
+                              Background="{DynamicResource AppPageBrush}"
+                              BorderBrush="{DynamicResource AppSelectedBrush}"
                               Foreground="#FFF1F4F7">
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow">
@@ -1129,8 +1569,8 @@
               Background="#B3000000"
               Visibility="{Binding IsSynchronizingRuntime, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Border Width="430"
-                    Background="#FF2B2B2B"
-                    BorderBrush="#FF696969"
+                    Background="{DynamicResource AppSidebarBrush}"
+                    BorderBrush="{DynamicResource AppBorderBrush}"
                     BorderThickness="1"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
@@ -1138,7 +1578,7 @@
                 <StackPanel>
                     <TextBlock Text="Synchronizing Workflow Runtime"
                                FontSize="22"
-                               Foreground="#FFFFFFFF"
+                               Foreground="{DynamicResource AppTextBrush}"
                                HorizontalAlignment="Center"
                                Margin="0,0,0,18" />
                     <ProgressBar Height="8"
@@ -1155,12 +1595,15 @@
         </Grid>
     </Grid>
 
-    <Grid Background="#FF202328">
+    <Grid x:Name="ProjectHubOverlay"
+          Grid.Row="1"
+          Background="{DynamicResource AppPageBrush}"
+          Margin="0,164,0,0">
         <Grid.Style>
             <Style TargetType="Grid">
                 <Setter Property="Visibility" Value="Visible" />
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsStartPageVisible}" Value="False">
+                    <DataTrigger Binding="{Binding IsProjectHubVisible}" Value="False">
                         <Setter Property="Visibility" Value="Collapsed" />
                     </DataTrigger>
                 </Style.Triggers>
@@ -1169,41 +1612,53 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="64" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="52" />
+            <RowDefinition Height="24" />
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="#FF191C20" BorderBrush="#FF3A3E43" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" Margin="24,0" VerticalAlignment="Center">
-                <Border Width="34" Height="34" BorderBrush="#FF3994FF" BorderThickness="2" CornerRadius="5">
-                    <TextBlock Text="&#xE943;" FontFamily="Segoe MDL2 Assets" FontSize="19"
-                               Foreground="#FF55A4FF" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <TextBlock Text="Workflow Core Designer" FontSize="22" Foreground="#FFF4F6F8" Margin="12,0,0,0" />
-            </StackPanel>
+        <Border Grid.Row="0" Background="{DynamicResource AppPageBrush}" BorderBrush="{DynamicResource AppCardBrush}" BorderThickness="0,0,0,1">
+            <DockPanel Margin="24,0">
+                <Button DockPanel.Dock="Right"
+                        Command="{Binding HideProjectHubCommand}"
+                        Content="&#xE711;"
+                        FontFamily="Segoe MDL2 Assets"
+                        FontSize="15"
+                        Width="36"
+                        Height="36"
+                        Margin="0"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
+                        ToolTip="Close Project Hub" />
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <ContentControl ContentTemplate="{StaticResource ProjectHubIcon}" Width="34" Height="34" />
+                    <TextBlock Text="Project Hub" FontSize="22" FontWeight="SemiBold"
+                               Foreground="{DynamicResource AppTextBrush}" Margin="15,0,0,0" />
+                </StackPanel>
+            </DockPanel>
         </Border>
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="7*" MinWidth="620" />
-                <ColumnDefinition Width="3*" MinWidth="330" />
+                <ColumnDefinition Width="*" MinWidth="620" />
+                <ColumnDefinition Width="1" />
+                <ColumnDefinition Width="380" MinWidth="360" />
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="0" Margin="40,30,36,24">
+            <Grid Grid.Column="0" Margin="30,28,30,24">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <TextBlock Text="Recent Projects" FontSize="23" FontWeight="SemiBold" Foreground="#FFF4F6F8" />
+                <TextBlock Text="Recent Projects" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource AppTextBrush}" />
                 <Grid Grid.Row="1" Width="540" Height="38" Margin="0,18,0,18" HorizontalAlignment="Left">
                         <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
          Padding="37,0,10,0"
          FontSize="14"
          VerticalContentAlignment="Center" />
                         <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                               Foreground="#FFB5BDC6" Margin="12,0,0,0" HorizontalAlignment="Left" />
+                               Foreground="{DynamicResource AppMutedTextBrush}" Margin="12,0,0,0" HorizontalAlignment="Left" />
                     <TextBlock Text="Search project name or path"
-           Foreground="#FF8E969F"
+           Foreground="{DynamicResource AppMutedTextBrush}"
            Margin="38,0,0,0"
            VerticalAlignment="Center"
            IsHitTestVisible="False">
@@ -1225,8 +1680,8 @@
                         <ItemsControl ItemsSource="{Binding RecentProjectGroups}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel Margin="0,0,0,12">
-                                        <TextBlock Text="{Binding Name}" FontSize="15" Foreground="#FFE3E7EB"
+                                    <StackPanel Margin="0,0,0,16">
+                                        <TextBlock Text="{Binding Name}" FontSize="15" Foreground="{DynamicResource AppTextBrush}"
                                                    FontWeight="SemiBold" Margin="4,0,0,5" />
                                         <ItemsControl ItemsSource="{Binding Projects}">
                                             <ItemsControl.ItemTemplate>
@@ -1236,21 +1691,27 @@
                                                             CommandParameter="{Binding}">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="52" />
+                                                                <ColumnDefinition Width="58" />
                                                                 <ColumnDefinition Width="*" />
                                                                 <ColumnDefinition Width="150" />
                                                             </Grid.ColumnDefinitions>
-                                                            <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="27"
-                                                                       Foreground="#FFD9DEE3" HorizontalAlignment="Center" />
+                                                            <ContentControl ContentTemplate="{StaticResource ProjectFolderIcon}"
+                                                                            Width="44" Height="40"
+                                                                            HorizontalAlignment="Center"
+                                                                            VerticalAlignment="Center" />
                                                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0,18,0">
-                                                                <TextBlock Text="{Binding DisplayName}" FontSize="16" Foreground="#FFF1F3F5"
+                                                                <TextBlock Text="{Binding DisplayName}" FontSize="16" FontWeight="SemiBold"
+                                                                           Foreground="{DynamicResource AppTextBrush}"
                                                                            TextTrimming="CharacterEllipsis" />
-                                                                <TextBlock Text="{Binding FullPath}" FontSize="13" Foreground="#FFAAB2BB"
+                                                                <TextBlock Text="{Binding FullPath}" FontSize="13" Foreground="{DynamicResource AppMutedTextBrush}"
                                                                            Margin="0,4,0,0" TextTrimming="CharacterEllipsis"
                                                                            ToolTip="{Binding FullPath}" />
                                                             </StackPanel>
                                                             <TextBlock Grid.Column="2" Text="{Binding LastOpenedAt, StringFormat={}{0:yyyy/MM/dd HH:mm}}"
-                                                                       Foreground="#FFBEC5CC" HorizontalAlignment="Right" />
+                                                                       FontSize="13" Margin="0,0,16,0"
+                                                                       Foreground="{DynamicResource AppMutedTextBrush}"
+                                                                       HorizontalAlignment="Right"
+                                                                       VerticalAlignment="Center" />
                                                         </Grid>
                                                     </Button>
                                                 </DataTemplate>
@@ -1261,7 +1722,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
-                    <TextBlock Text="No recent projects" FontSize="16" Foreground="#FF9FA7AF"
+                    <TextBlock Text="No recent projects" FontSize="16" Foreground="{DynamicResource AppMutedTextBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
@@ -1277,44 +1738,48 @@
                 </Grid>
             </Grid>
 
-            <Border Grid.Column="1" BorderBrush="#FF3A3E43" BorderThickness="1,0,0,0" Padding="36,30">
+            <Border Grid.Column="1" Background="{DynamicResource AppBorderBrush}" />
+            <Border Grid.Column="2" Padding="24,28">
                 <StackPanel>
-                    <TextBlock Text="Get Started" FontSize="23" FontWeight="SemiBold" Foreground="#FFF4F6F8" Margin="0,0,0,28" />
+                    <TextBlock Text="Get Started" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource AppTextBrush}" Margin="0,0,0,28" />
                     <Button Style="{StaticResource StartActionCardStyle}" Command="{Binding NewProjectCommand}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="66" />
+                                <ColumnDefinition Width="58" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="24" />
+                                <ColumnDefinition Width="20" />
                             </Grid.ColumnDefinitions>
-                            <Border Width="44" Height="44" BorderBrush="#FF3994FF" BorderThickness="2" CornerRadius="7">
-                                <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="#FF55A4FF"
+                            <Border Width="44" Height="44" BorderBrush="{DynamicResource AppPrimaryBrush}" BorderThickness="2" CornerRadius="7">
+                                <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="22" Foreground="{DynamicResource AppPrimaryBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="New Project" FontSize="18" Foreground="#FFF4F6F8" />
-                                <TextBlock Text="Create a new project file" FontSize="13" Foreground="#FFADB5BE" Margin="0,6,0,0" />
+                                <TextBlock Text="New Project" FontSize="18" Foreground="{DynamicResource AppTextBrush}" />
+                                <TextBlock Text="Create a new project file" FontSize="13" Foreground="{DynamicResource AppMutedTextBrush}" Margin="0,6,0,0" />
                             </StackPanel>
-                            <TextBlock Grid.Column="2" Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#FFD6DBE0" />
+                            <TextBlock Grid.Column="2" Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource AppTextBrush}" />
                         </Grid>
                     </Button>
                     <Button Style="{StaticResource StartActionCardStyle}" Command="{Binding OpenProjectCommand}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="66" />
+                                <ColumnDefinition Width="58" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="24" />
+                                <ColumnDefinition Width="20" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="&#xED25;" FontFamily="Segoe MDL2 Assets" FontSize="34" Foreground="#FF55A4FF"
-                                       HorizontalAlignment="Center" />
+                            <ContentControl ContentTemplate="{StaticResource ProjectFolderIcon}"
+                                            Width="46" Height="42"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center" />
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Open Project" FontSize="18" Foreground="#FFF4F6F8" />
-                                <TextBlock Text="Load a project from a local file" FontSize="13" Foreground="#FFADB5BE" Margin="0,6,0,0" />
+                                <TextBlock Text="Open Project" FontSize="18" Foreground="{DynamicResource AppTextBrush}" />
+                                <TextBlock Text="Load a project from a local file" FontSize="13" Foreground="{DynamicResource AppMutedTextBrush}"
+                                           Margin="0,7,0,0" TextWrapping="NoWrap" />
                             </StackPanel>
-                            <TextBlock Grid.Column="2" Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#FFD6DBE0" />
+                            <TextBlock Grid.Column="2" Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource AppTextBrush}" />
                         </Grid>
                     </Button>
-                    <TextBlock Text="{Binding StartPageError}" Foreground="#FFFF9292" TextWrapping="Wrap" Margin="4,8,4,0">
+                    <TextBlock Text="{Binding StartPageError}" Foreground="{DynamicResource AppDangerBrush}" TextWrapping="Wrap" Margin="4,8,4,0">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Visibility" Value="Collapsed" />
@@ -1330,12 +1795,12 @@
             </Border>
         </Grid>
 
-        <Border Grid.Row="2" Background="#FF191C20" BorderBrush="#FF3A3E43" BorderThickness="0,1,0,0">
+        <Border Grid.Row="2" Background="{DynamicResource AppPanelBrush}" BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,1,0,0">
           
         </Border>
     </Grid>
 
-    <Grid Panel.ZIndex="300" Background="#A8000000">
+    <Grid Grid.Row="1" Panel.ZIndex="300" Background="#A8000000">
         <Grid.Style>
             <Style TargetType="Grid">
                 <Setter Property="Visibility" Value="Collapsed" />
@@ -1346,13 +1811,13 @@
                 </Style.Triggers>
             </Style>
         </Grid.Style>
-        <Border Width="500" Background="#FF292D32" BorderBrush="#FF626970" BorderThickness="1"
+        <Border Width="500" Background="{DynamicResource AppPanelBrush}" BorderBrush="#FF626970" BorderThickness="1"
                 CornerRadius="5" Padding="24" HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel>
-                <TextBlock Text="Project file not found" FontSize="20" FontWeight="SemiBold" Foreground="#FFF4F6F8" />
+                <TextBlock Text="Project file not found" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource AppTextBrush}" />
                 <TextBlock Text="This recent project no longer exists at the saved location. Remove it from Recent Projects?"
-                           Foreground="#FFD1D7DD" TextWrapping="Wrap" Margin="0,14,0,8" />
-                <TextBlock Text="{Binding MissingRecentProject.FullPath}" Foreground="#FF9FA8B1" TextWrapping="Wrap" />
+                           Foreground="{DynamicResource AppMutedTextBrush}" TextWrapping="Wrap" Margin="0,14,0,8" />
+                <TextBlock Text="{Binding MissingRecentProject.FullPath}" Foreground="{DynamicResource AppMutedTextBrush}" TextWrapping="Wrap" />
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
                     <Button Content="Keep" Command="{Binding KeepMissingProjectCommand}" MinWidth="88" />
                     <Button Content="Remove" Command="{Binding RemoveMissingProjectCommand}" MinWidth="88"

@@ -17,6 +17,21 @@ public sealed partial class MainWindowViewModel
         }
     }
 
+    private async Task StepOverAsync()
+    {
+        try
+        {
+            IsDebugPaused = false;
+            StatusText = "Running current action without entering child methods...";
+            await _runSession.StepOverAsync();
+        }
+        catch (Exception exception)
+        {
+            IsDebugPaused = true;
+            StatusText = $"Step over failed: {exception.Message}";
+        }
+    }
+
     private async Task ContinueAsync()
     {
         try
@@ -45,12 +60,24 @@ public sealed partial class MainWindowViewModel
         }
     }
 
-    private void SetDebugLocation(string? methodName, int? lineNumber)
+    private void SetDebugLocation(string? methodName, int? lineNumber, Guid? lineUid)
     {
+        if (!string.IsNullOrWhiteSpace(methodName))
+        {
+            var method = Project.Methods.FirstOrDefault(candidate =>
+                string.Equals(candidate.Name, methodName, StringComparison.OrdinalIgnoreCase));
+            if (method != null)
+            {
+                OpenMethod(method);
+            }
+        }
+
         foreach (var item in _allMethodLineItems)
         {
-            item.IsDebugCurrent = string.Equals(SelectedMethod?.Name, methodName, StringComparison.Ordinal)
-                                  && item.DisplayIndex == lineNumber;
+            item.IsDebugCurrent = lineUid.HasValue
+                ? item.Line.Uid == lineUid.Value
+                : string.Equals(SelectedMethod?.Name, methodName, StringComparison.Ordinal)
+                  && item.DisplayIndex == lineNumber;
         }
 
         var current = _allMethodLineItems.FirstOrDefault(item => item.IsDebugCurrent);
