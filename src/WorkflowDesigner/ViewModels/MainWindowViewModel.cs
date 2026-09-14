@@ -311,9 +311,13 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         OpenSelectedMethodCommand = new RelayCommand(() => OpenMethod(SelectedMethod), () => SelectedMethod != null);
         OpenMethodCommand = new RelayCommand(parameter => OpenMethod(parameter as WorkflowMethod));
         OpenScriptCommand = new RelayCommand(parameter => OpenScript(parameter as WorkflowScript));
+        OpenRunDisplayCommand = new RelayCommand(parameter => OpenRunDisplay(parameter as WorkflowRunDisplay));
         DeleteScriptCommand = new RelayCommand(
             DeleteScript,
             parameter => !IsRunning && parameter is WorkflowScript);
+        DeleteRunDisplayCommand = new RelayCommand(
+            DeleteRunDisplay,
+            parameter => !IsRunning && parameter is WorkflowRunDisplay);
         ManageScriptLibrariesCommand = new RelayCommand(ManageScriptLibraries, () => !IsRunning);
         SelectHamburgerMenuCommand = new RelayCommand(SelectHamburgerMenuItem);
         CloseSubmenuCommand = new RelayCommand(CloseSubmenu);
@@ -431,8 +435,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
     }
 
     public ObservableCollection<WorkflowMethod> Methods { get; } = new();
-
     public ObservableCollection<WorkflowScript> Scripts { get; } = new();
+    public ObservableCollection<WorkflowRunDisplay> RunDisplays { get; } = new();
 
     public ResettableObservableCollection<MethodLine> SelectedMethodLines { get; } = new();
 
@@ -474,6 +478,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
                 IsCreateMenuOpen = false;
                 OnPropertyChanged(nameof(IsMethodsSubmenuOpen));
                 OnPropertyChanged(nameof(IsScriptsSubmenuOpen));
+                OnPropertyChanged(nameof(IsRunDisplaysSubmenuOpen));
                 OnPropertyChanged(nameof(IsSubmenuOpen));
             }
         }
@@ -736,14 +741,20 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
     }
 
     public string CreateDialogTitle
-        => _createDocumentKind == CreateDocumentKind.Method
-            ? "Create method"
-            : "Create CSharp Script";
+        => _createDocumentKind switch
+        {
+            CreateDocumentKind.Method => "Create method",
+            CreateDocumentKind.CSharpScript => "Create CSharp Script",
+            _ => "Create Run Display"
+        };
 
     public string CreateNameLabel
-        => _createDocumentKind == CreateDocumentKind.Method
-            ? "Method name"
-            : "Script name";
+        => _createDocumentKind switch
+        {
+            CreateDocumentKind.Method => "Method name",
+            CreateDocumentKind.CSharpScript => "Script name",
+            _ => "Display name"
+        };
 
     public bool IsRenameVariableDialogOpen
     {
@@ -801,7 +812,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
 
     public bool IsScriptsSubmenuOpen => SelectedHamburgerMenuItem?.Key == "CSharpScripts";
 
-    public bool IsSubmenuOpen => IsMethodsSubmenuOpen || IsScriptsSubmenuOpen;
+    public bool IsRunDisplaysSubmenuOpen => SelectedHamburgerMenuItem?.Key == "RunDisplays";
+
+    public bool IsSubmenuOpen => IsMethodsSubmenuOpen || IsScriptsSubmenuOpen || IsRunDisplaysSubmenuOpen;
 
     public DockPaneItem? SelectedDockPane
     {
@@ -927,8 +940,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
     public RelayCommand OpenMethodCommand { get; }
 
     public RelayCommand OpenScriptCommand { get; }
+    public RelayCommand OpenRunDisplayCommand { get; }
 
     public RelayCommand DeleteScriptCommand { get; }
+    public RelayCommand DeleteRunDisplayCommand { get; }
 
     public RelayCommand ManageScriptLibrariesCommand { get; }
 
@@ -1055,27 +1070,6 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         }
     }
 
-    private static ObservableCollection<HamburgerMenuItem> CreateHamburgerMenuItems()
-    {
-        return new ObservableCollection<HamburgerMenuItem>
-        {
-            new()
-            {
-                Key = "Methods",
-                Title = "Methods",
-                IconKey = DocumentIconKeys.Method,
-                HasSubmenu = true
-            },
-            new()
-            {
-                Key = "CSharpScripts",
-                Title = "CSharp Scripts",
-                IconKey = DocumentIconKeys.CSharpScript,
-                HasSubmenu = true
-            }
-        };
-    }
-
     private bool OpensChildScope(MethodLine line)
     {
         var role = line.Action == null ? null : FindActionDescriptor(line.Action)?.BlockRole;
@@ -1118,6 +1112,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         else if (string.Equals(itemKind, "CSharpScript", StringComparison.OrdinalIgnoreCase))
         {
             ShowCreateScriptDialog();
+        }
+        else if (string.Equals(itemKind, "RunDisplay", StringComparison.OrdinalIgnoreCase))
+        {
+            ShowCreateRunDisplayDialog();
         }
     }
 
@@ -1223,6 +1221,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
 
     private void CreateMethodFromDialog()
     {
+        if (_createDocumentKind == CreateDocumentKind.RunDisplay)
+        {
+            CreateRunDisplayFromDialog();
+            return;
+        }
+
         if (_createDocumentKind == CreateDocumentKind.CSharpScript)
         {
             CreateScriptFromDialog();
@@ -2154,16 +2158,6 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         IsCreateMenuOpen = false;
     }
 
-    private void SelectHamburgerMenuItem(object? parameter)
-    {
-        if (parameter is not HamburgerMenuItem item)
-        {
-            return;
-        }
-
-        SelectedHamburgerMenuItem = item;
-    }
-
     private void SetSelectedMethodType(object? parameter)
     {
         if (SelectedMethod == null || parameter is not string typeName)
@@ -2439,6 +2433,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         foreach (var script in Project.Scripts)
         {
             Scripts.Add(script);
+        }
+
+        RunDisplays.Clear();
+        foreach (var runDisplay in Project.RunDisplays)
+        {
+            RunDisplays.Add(runDisplay);
         }
 
         _projectActionCatalog.BindProject(Project, IsCurrentProjectActive);
@@ -2992,7 +2992,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
     private enum CreateDocumentKind
     {
         Method,
-        CSharpScript
+        CSharpScript,
+        RunDisplay
     }
 
 }

@@ -52,6 +52,10 @@
             <views:CSharpScriptEditorView />
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type viewModels:RunDisplayEditorViewModel}">
+            <views:RunDisplayDesignerView />
+        </DataTemplate>
+
         <DataTemplate DataType="{x:Type models:DockPaneItem}">
             <Border Background="{DynamicResource SurfaceBrush}">
                 <ContentControl Content="{Binding Content}"
@@ -1031,6 +1035,7 @@
                         <RowDefinition Height="64" />
                         <RowDefinition Height="54" />
                         <RowDefinition Height="54" />
+                        <RowDefinition Height="54" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
@@ -1119,6 +1124,28 @@
                                        FontSize="14"
                                        Foreground="{DynamicResource AppTextBrush}"
                                        VerticalAlignment="Center" />
+                        </Grid>
+                    </Button>
+
+                    <Button Grid.Row="3"
+                            Command="{Binding SelectCreateItemCommand}"
+                            CommandParameter="RunDisplay"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="22,0"
+                            HorizontalContentAlignment="Stretch">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ContentControl Content="{x:Static models:DocumentIconKeys.RunDisplay}"
+                                            ContentTemplate="{StaticResource DocumentIconTemplate}"
+                                            Foreground="{DynamicResource AccentBrush}"
+                                            Width="22" Height="24"
+                                            VerticalAlignment="Center" HorizontalAlignment="Left" />
+                            <TextBlock Grid.Column="1" Text="Run Display" FontSize="14"
+                                       Foreground="{DynamicResource AppTextBrush}" VerticalAlignment="Center" />
                         </Grid>
                     </Button>
 
@@ -1264,6 +1291,61 @@
                             </ListBox.ItemTemplate>
                     </ListBox>
                 </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <Border x:Name="RunDisplaysSubmenu"
+                Grid.Column="1"
+                Panel.ZIndex="20"
+                Width="220"
+                HorizontalAlignment="Left"
+                Background="{DynamicResource AppSidebarBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
+                BorderThickness="0,0,1,0"
+                Visibility="{Binding IsRunDisplaysSubmenuOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="Run Displays" FontSize="16" Foreground="{DynamicResource AppTextBrush}"
+                           VerticalAlignment="Center" Margin="12,0,4,0" />
+                <ListBox Grid.Row="1" ItemsSource="{Binding RunDisplays}"
+                         ItemContainerStyle="{StaticResource SubmenuMethodItemStyle}"
+                         Background="{DynamicResource AppSidebarBrush}" BorderThickness="0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Button Command="{Binding DataContext.OpenRunDisplayCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                    CommandParameter="{Binding}"
+                                    Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                    Background="Transparent" BorderThickness="0" Padding="12,0,14,0"
+                                    HorizontalContentAlignment="Stretch">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Delete Run Display"
+                                                  Command="{Binding PlacementTarget.Tag.DeleteRunDisplayCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="26" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <ContentControl Content="{x:Static models:DocumentIconKeys.RunDisplay}"
+                                                    ContentTemplate="{StaticResource DocumentIconTemplate}"
+                                                    Foreground="{DynamicResource AccentBrush}" Width="17" Height="20" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12"
+                                               Foreground="{DynamicResource AppTextBrush}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2" Text="Default" FontSize="10"
+                                               Foreground="{DynamicResource AppMutedTextBrush}"
+                                               Visibility="{Binding IsDefault, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Grid>
         </Border>
 

@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AvalonEdit" Version="6.3.0.90" />
+    <PackageReference Include="ICSharpCode.WpfDesigner" Version="8.1.56" />
     <PackageReference Include="DiffPlex" Version="1.9.0" />
     <PackageReference Include="Dirkster.AvalonDock" Version="4.74.1" />
     <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.74.1" />

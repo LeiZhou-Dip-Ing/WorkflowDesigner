@@ -34,7 +34,7 @@ public partial class MainWindow : Window
 
     private void RootGridOnPreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (ExplorerRail.IsMouseOver || MethodsSubmenu.IsMouseOver || ScriptsSubmenu.IsMouseOver)
+        if (ExplorerRail.IsMouseOver || MethodsSubmenu.IsMouseOver || ScriptsSubmenu.IsMouseOver || RunDisplaysSubmenu.IsMouseOver)
         {
             return;
         }

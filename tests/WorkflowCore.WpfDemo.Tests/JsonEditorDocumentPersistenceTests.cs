@@ -15,6 +15,26 @@ namespace WorkflowCore.WpfDemo.Tests;
 public sealed class JsonEditorDocumentPersistenceTests
 {
     [Fact]
+    public void SerializeAndDeserialize_PreserveRunDisplays()
+    {
+        var service = CreateService();
+        var project = EditorTestProjectFactory.Create();
+        project.RunDisplays.Add(new WorkflowRunDisplay
+        {
+            Name = "Operator panel",
+            Xaml = "<Canvas xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" />",
+            IsDefault = true
+        });
+
+        var restored = service.Deserialize(service.Serialize(project));
+
+        var runDisplay = Assert.Single(restored.RunDisplays);
+        Assert.Equal("Operator panel", runDisplay.Name);
+        Assert.True(runDisplay.IsDefault);
+        Assert.Contains("Canvas", runDisplay.Xaml);
+    }
+
+    [Fact]
     public void SerializeAndDeserialize_PreserveEditorDocumentStructure()
     {
         var service = CreateService();

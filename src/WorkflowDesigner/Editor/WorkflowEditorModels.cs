@@ -22,6 +22,8 @@ public sealed class WorkflowProject
 
     public List<WorkflowScript> Scripts { get; set; } = new();
 
+    public List<WorkflowRunDisplay> RunDisplays { get; set; } = new();
+
     public List<SharpScriptLibraryReferenceDto> ScriptLibraries { get; set; } = new();
 
     internal JsonObject ExtensionData { get; set; } = new();
@@ -42,7 +44,8 @@ public sealed class WorkflowProject
 public enum WorkflowEditorDocumentKind
 {
     Method,
-    CSharpScript
+    CSharpScript,
+    RunDisplay
 }
 
 public sealed class WorkflowEditorDocument
@@ -50,11 +53,13 @@ public sealed class WorkflowEditorDocument
     private WorkflowEditorDocument(
         WorkflowEditorDocumentKind kind,
         WorkflowMethod? method,
-        WorkflowScript? script)
+        WorkflowScript? script,
+        WorkflowRunDisplay? runDisplay)
     {
         Kind = kind;
         Method = method;
         Script = script;
+        RunDisplay = runDisplay;
     }
 
     public WorkflowEditorDocumentKind Kind { get; }
@@ -63,13 +68,63 @@ public sealed class WorkflowEditorDocument
 
     public WorkflowScript? Script { get; }
 
-    public string Name => Method?.Name ?? Script?.Name ?? string.Empty;
+    public WorkflowRunDisplay? RunDisplay { get; }
+
+    public string Name => Method?.Name ?? Script?.Name ?? RunDisplay?.Name ?? string.Empty;
 
     public static WorkflowEditorDocument FromMethod(WorkflowMethod method)
-        => new(WorkflowEditorDocumentKind.Method, method ?? throw new ArgumentNullException(nameof(method)), null);
+        => new(WorkflowEditorDocumentKind.Method, method ?? throw new ArgumentNullException(nameof(method)), null, null);
 
     public static WorkflowEditorDocument FromScript(WorkflowScript script)
-        => new(WorkflowEditorDocumentKind.CSharpScript, null, script ?? throw new ArgumentNullException(nameof(script)));
+        => new(WorkflowEditorDocumentKind.CSharpScript, null, script ?? throw new ArgumentNullException(nameof(script)), null);
+
+    public static WorkflowEditorDocument FromRunDisplay(WorkflowRunDisplay runDisplay)
+        => new(WorkflowEditorDocumentKind.RunDisplay, null, null, runDisplay ?? throw new ArgumentNullException(nameof(runDisplay)));
+}
+
+public sealed class WorkflowRunDisplay : EditorObservableObject
+{
+    private Guid _uid = Guid.NewGuid();
+    private string _name = string.Empty;
+    private string _xaml = RunDisplayDefaults.InitialXaml;
+    private bool _isDefault;
+
+    public Guid Uid { get => _uid; set => SetProperty(ref _uid, value); }
+
+    public string Name { get => _name; set => SetProperty(ref _name, value); }
+
+    public string Xaml { get => _xaml; set => SetProperty(ref _xaml, value); }
+
+    public bool IsDefault { get => _isDefault; set => SetProperty(ref _isDefault, value); }
+
+    internal JsonObject ExtensionData { get; set; } = new();
+}
+
+public static class RunDisplayDefaults
+{
+    public const string InitialXaml = """
+        <Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                x:Name="RunDisplayRoot"
+                Width="1050" Height="680" Background="#FFF7F9FB">
+            <TextBlock Canvas.Left="28" Canvas.Top="24" Text="Production Run"
+                       FontSize="24" FontWeight="SemiBold" Foreground="#FF202326" />
+            <TextBlock Canvas.Left="29" Canvas.Top="60" Text="No method selected"
+                       FontSize="14" Foreground="#FF66707A" />
+            <Border Canvas.Left="28" Canvas.Top="104" Width="994" Height="150"
+                    Background="White" BorderBrush="#FFD5DAE0" BorderThickness="1" CornerRadius="4">
+                <Grid Margin="22">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <StackPanel><TextBlock Text="Current status" Foreground="#FF66707A" /><TextBlock Text="Ready" FontSize="28" FontWeight="SemiBold" Margin="0,8,0,0" /></StackPanel>
+                    <TextBlock Grid.Column="1" Text="00:00:00" FontSize="34" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+            <ProgressBar Canvas.Left="28" Canvas.Top="280" Width="994" Height="22" Value="36" />
+            <Button Canvas.Left="28" Canvas.Top="332" Width="130" Height="40" Content="Start" />
+            <Button Canvas.Left="174" Canvas.Top="332" Width="130" Height="40" Content="Pause" />
+            <Button Canvas.Left="320" Canvas.Top="332" Width="130" Height="40" Content="Cancel" />
+        </Canvas>
+        """;
 }
 
 public sealed class WorkflowScript : EditorObservableObject

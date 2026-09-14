@@ -30,6 +30,12 @@ public sealed class WorkflowEditorJsonSerializer
                 ["documentType"] = "csharpScript",
                 ["script"] = SerializeScript(document.Script)
             },
+            WorkflowEditorDocumentKind.RunDisplay when document.RunDisplay != null => new JsonObject
+            {
+                ["editorSchemaVersion"] = CurrentEditorSchemaVersion,
+                ["documentType"] = "runDisplay",
+                ["runDisplay"] = SerializeRunDisplay(document.RunDisplay)
+            },
             _ => throw new InvalidOperationException("The workflow editor document has no exportable content.")
         };
 
@@ -46,6 +52,7 @@ public sealed class WorkflowEditorJsonSerializer
         root["version"] = project.Version;
         root["methods"] = new JsonArray(project.Methods.Select(SerializeMethod).ToArray<JsonNode?>());
         root["scripts"] = new JsonArray(project.Scripts.Select(SerializeScript).ToArray<JsonNode?>());
+        root["runDisplays"] = new JsonArray(project.RunDisplays.Select(SerializeRunDisplay).ToArray<JsonNode?>());
         root["scriptLibraries"] = new JsonArray(project.ScriptLibraries.Select(reference => new JsonObject
         {
             ["libraryId"] = reference.LibraryId,
@@ -85,7 +92,13 @@ public sealed class WorkflowEditorJsonSerializer
             return WorkflowEditorDocument.FromScript(DeserializeScript(script));
         }
 
-        throw new JsonException("The selected file must contain exactly one current workflow method or C# script document.");
+        if (string.Equals(documentType, "runDisplay", StringComparison.OrdinalIgnoreCase)
+            && root["runDisplay"] is JsonObject runDisplay)
+        {
+            return WorkflowEditorDocument.FromRunDisplay(DeserializeRunDisplay(runDisplay));
+        }
+
+        throw new JsonException("The selected file must contain exactly one current workflow method, C# script, or Run Display document.");
     }
 
     public WorkflowProject Deserialize(JsonObject root)
@@ -102,7 +115,7 @@ public sealed class WorkflowEditorJsonSerializer
             ProjectIdWasGenerated = !projectId.HasValue,
             Name = GetString(root, "name") ?? "Workflow Project",
             Version = GetString(root, "version") ?? "1.0",
-            ExtensionData = CaptureExtension(root, "editorSchemaVersion", "projectId", "name", "version", "methods", "scripts", "scriptLibraries")
+            ExtensionData = CaptureExtension(root, "editorSchemaVersion", "projectId", "name", "version", "methods", "scripts", "runDisplays", "scriptLibraries")
         };
         if (root["methods"] is JsonArray methods)
         {
@@ -112,6 +125,11 @@ public sealed class WorkflowEditorJsonSerializer
         if (root["scripts"] is JsonArray scripts)
         {
             project.Scripts.AddRange(scripts.OfType<JsonObject>().Select(DeserializeScript));
+        }
+
+        if (root["runDisplays"] is JsonArray runDisplays)
+        {
+            project.RunDisplays.AddRange(runDisplays.OfType<JsonObject>().Select(DeserializeRunDisplay));
         }
 
         if (root["scriptLibraries"] is JsonArray scriptLibraries)
@@ -136,6 +154,16 @@ public sealed class WorkflowEditorJsonSerializer
             Language = GetString(document, "language") ?? "CSharp",
             Content = GetString(document, "content") ?? string.Empty,
             ExtensionData = CaptureExtension(document, "uid", "name", "language", "content")
+        };
+
+    private static WorkflowRunDisplay DeserializeRunDisplay(JsonObject document)
+        => new()
+        {
+            Uid = GetGuid(document, "uid") ?? Guid.NewGuid(),
+            Name = GetString(document, "name") ?? string.Empty,
+            Xaml = GetString(document, "xaml") ?? RunDisplayDefaults.InitialXaml,
+            IsDefault = GetBool(document, "isDefault") ?? false,
+            ExtensionData = CaptureExtension(document, "uid", "name", "xaml", "isDefault")
         };
 
     private static WorkflowMethod DeserializeMethod(JsonObject document)
@@ -301,6 +329,16 @@ public sealed class WorkflowEditorJsonSerializer
         result["name"] = script.Name;
         result["language"] = script.Language;
         result["content"] = script.Content;
+        return result;
+    }
+
+    private static JsonObject SerializeRunDisplay(WorkflowRunDisplay runDisplay)
+    {
+        var result = Clone(runDisplay.ExtensionData);
+        result["uid"] = runDisplay.Uid.ToString();
+        result["name"] = runDisplay.Name;
+        result["xaml"] = runDisplay.Xaml;
+        result["isDefault"] = runDisplay.IsDefault;
         return result;
     }
 
