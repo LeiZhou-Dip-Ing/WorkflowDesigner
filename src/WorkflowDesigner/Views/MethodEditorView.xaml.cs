@@ -16,6 +16,8 @@ public partial class MethodEditorView : UserControl
     public MethodEditorView()
     {
         InitializeComponent();
+        MethodDescriptionEditor.DescriptionChanged += MethodDescriptionEditor_OnDescriptionChanged;
+        MethodDescriptionEditor.CloseRequested += MethodDescriptionEditor_OnCloseRequested;
         DataContextChanged += MethodEditorView_OnDataContextChanged;
         Loaded += MethodEditorView_OnLoaded;
         Unloaded += MethodEditorView_OnUnloaded;
@@ -28,7 +30,10 @@ public partial class MethodEditorView : UserControl
         => AttachViewModel(DataContext as MethodEditorViewModel);
 
     private void MethodEditorView_OnUnloaded(object sender, RoutedEventArgs e)
-        => AttachViewModel(null);
+    {
+        MethodDescriptionEditor.CommitPendingChanges();
+        AttachViewModel(null);
+    }
 
     private void AttachViewModel(MethodEditorViewModel? viewModel)
     {
@@ -39,14 +44,44 @@ public partial class MethodEditorView : UserControl
 
         if (_subscribedViewModel != null)
         {
+            MethodDescriptionEditor.CommitPendingChanges();
             _subscribedViewModel.ActionEditorRequested -= ViewModel_OnActionEditorRequested;
+            _subscribedViewModel.MethodDescriptionEditorRequested -= ViewModel_OnMethodDescriptionEditorRequested;
         }
 
         _subscribedViewModel = viewModel;
         if (_subscribedViewModel != null)
         {
             _subscribedViewModel.ActionEditorRequested += ViewModel_OnActionEditorRequested;
+            _subscribedViewModel.MethodDescriptionEditorRequested += ViewModel_OnMethodDescriptionEditorRequested;
         }
+    }
+
+    private void ViewModel_OnMethodDescriptionEditorRequested(object? sender, EventArgs e)
+    {
+        if (_subscribedViewModel == null)
+        {
+            return;
+        }
+
+        MethodDescriptionEditor.Open(
+            _subscribedViewModel.Method.Name,
+            _subscribedViewModel.Method.DescriptionDocument);
+    }
+
+    private void MethodDescriptionEditor_OnDescriptionChanged(object? sender, MethodDescriptionChangedEventArgs e)
+    {
+        _subscribedViewModel?.UpdateDescriptionDocument(e.DescriptionDocument);
+    }
+
+    private void MethodDescriptionEditor_OnCloseRequested(object? sender, EventArgs e)
+    {
+        if (_subscribedViewModel != null)
+        {
+            _subscribedViewModel.CloseMethodDescriptionEditor();
+        }
+
+        MethodDescriptionEditor.ReleaseDocument();
     }
 
     private void ViewModel_OnActionEditorRequested(object? sender, ActionEditorRequestEventArgs e)

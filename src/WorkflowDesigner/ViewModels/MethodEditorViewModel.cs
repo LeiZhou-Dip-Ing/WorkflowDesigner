@@ -11,8 +11,10 @@ public sealed class MethodEditorViewModel : ObservableObject, IEditableDockDocum
     private bool _isActionsToolboxPopupOpen;
     private bool _insertPopupActionAfterSelection;
     private bool _isDirty;
+    private bool _isMethodDescriptionEditorOpen;
 
     public event EventHandler<ActionEditorRequestEventArgs>? ActionEditorRequested;
+    public event EventHandler? MethodDescriptionEditorRequested;
 
     public MethodEditorViewModel(WorkflowMethod method, MainWindowViewModel owner)
     {
@@ -38,6 +40,7 @@ public sealed class MethodEditorViewModel : ObservableObject, IEditableDockDocum
         OpenSelectedActionEditorCommand = new RelayCommand(
             parameter => OpenSelectedActionEditor(parameter as MethodLineViewItem),
             parameter => CanOpenSelectedActionEditor(parameter as MethodLineViewItem));
+        EditMethodDescriptionCommand = new RelayCommand(OpenMethodDescriptionEditor);
         CommitEditorChangesCommand = new RelayCommand(Owner.MarkProjectChanged);
         ActivateCommand = new RelayCommand(Activate);
         Method.PropertyChanged += Method_OnPropertyChanged;
@@ -107,6 +110,8 @@ public sealed class MethodEditorViewModel : ObservableObject, IEditableDockDocum
 
     public RelayCommand OpenSelectedActionEditorCommand { get; }
 
+    public RelayCommand EditMethodDescriptionCommand { get; }
+
     public RelayCommand CommitEditorChangesCommand { get; }
 
     public RelayCommand ActivateCommand { get; }
@@ -115,6 +120,26 @@ public sealed class MethodEditorViewModel : ObservableObject, IEditableDockDocum
     {
         Owner.SelectedMethod = Method;
     }
+
+    public bool IsMethodDescriptionEditorOpen
+    {
+        get => _isMethodDescriptionEditorOpen;
+        private set => SetProperty(ref _isMethodDescriptionEditorOpen, value);
+    }
+
+    public void UpdateDescriptionDocument(string? descriptionDocument)
+    {
+        var normalized = string.IsNullOrWhiteSpace(descriptionDocument) ? null : descriptionDocument;
+        if (string.Equals(Method.DescriptionDocument, normalized, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        Method.DescriptionDocument = normalized;
+    }
+
+    public void CloseMethodDescriptionEditor()
+        => IsMethodDescriptionEditorOpen = false;
 
     public void Dispose()
     {
@@ -157,6 +182,13 @@ public sealed class MethodEditorViewModel : ObservableObject, IEditableDockDocum
         Activate();
         _insertPopupActionAfterSelection = false;
         IsActionsToolboxPopupOpen = true;
+    }
+
+    private void OpenMethodDescriptionEditor()
+    {
+        Activate();
+        IsMethodDescriptionEditorOpen = true;
+        MethodDescriptionEditorRequested?.Invoke(this, EventArgs.Empty);
     }
 
     private void OpenActionInsertionPopup()

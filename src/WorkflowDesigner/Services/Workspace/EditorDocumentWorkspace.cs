@@ -826,6 +826,7 @@ public sealed class EditorDocumentWorkspace
     private static void RestoreMethod(WorkflowMethod target, WorkflowMethod source)
     {
         target.Name = source.Name;
+        target.DescriptionDocument = source.DescriptionDocument;
         target.MethodType = source.MethodType;
         target.InitAtStart = source.InitAtStart;
         target.InitMethodName = source.InitMethodName;

@@ -165,6 +165,7 @@ public sealed class WorkflowMethod : EditorObservableObject
 {
     private Guid _uid = Guid.NewGuid();
     private string _name = string.Empty;
+    private string? _descriptionDocument;
     private WorkflowMethodType _methodType;
     private bool _initAtStart;
     private string? _initMethodName;
@@ -173,6 +174,12 @@ public sealed class WorkflowMethod : EditorObservableObject
     public Guid Uid { get => _uid; set => SetProperty(ref _uid, value); }
 
     public string Name { get => _name; set => SetProperty(ref _name, value); }
+
+    public string? DescriptionDocument
+    {
+        get => _descriptionDocument;
+        set => SetProperty(ref _descriptionDocument, value);
+    }
 
     public WorkflowMethodType MethodType { get => _methodType; set => SetProperty(ref _methodType, value); }
 

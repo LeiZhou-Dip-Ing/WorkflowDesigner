@@ -9,6 +9,7 @@
              xmlns:converters="clr-namespace:WorkflowCore.WpfDemo.Converters"
              xmlns:canvas="clr-namespace:WorkflowCore.WpfDemo.Controls.WorkflowCanvas"
              xmlns:controls="clr-namespace:WorkflowCore.WpfDemo.Controls"
+             xmlns:views="clr-namespace:WorkflowCore.WpfDemo.Views"
              mc:Ignorable="d"
              d:DesignHeight="700"
              d:DesignWidth="1100"
@@ -1511,6 +1512,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Method name"
                                FontSize="13"
@@ -1521,6 +1523,16 @@
                              MinWidth="180"
                              Text="{Binding Method.Name, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="Method name" />
+                    <Button Grid.Column="2"
+                            Width="34"
+                            Height="30"
+                            Margin="6,0,0,0"
+                            Padding="0"
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="16"
+                            Content="&#xE70F;"
+                            Command="{Binding EditMethodDescriptionCommand}"
+                            ToolTip="Edit method description" />
                 </Grid>
             </Border>
 
@@ -2222,5 +2234,10 @@
                 </Border>
             </Grid>
         </Grid>
+
+        <views:MethodDescriptionEditorView x:Name="MethodDescriptionEditor"
+                                           Grid.RowSpan="3"
+                                           Panel.ZIndex="200"
+                                           Visibility="{Binding IsMethodDescriptionEditorOpen, Converter={StaticResource BooleanToVisibilityConverter}}" />
     </Grid>
 </UserControl>

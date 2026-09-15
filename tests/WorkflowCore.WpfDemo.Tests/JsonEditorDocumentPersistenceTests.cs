@@ -15,6 +15,19 @@ namespace WorkflowCore.WpfDemo.Tests;
 public sealed class JsonEditorDocumentPersistenceTests
 {
     [Fact]
+    public void SerializeAndDeserialize_PreserveMethodDescriptionDocument()
+    {
+        var service = CreateService();
+        var project = EditorTestProjectFactory.Create();
+        var method = project.Methods.Single(item => item.Name == "Main");
+        method.DescriptionDocument = Convert.ToBase64String([1, 2, 3, 4]);
+
+        var restored = service.Deserialize(service.Serialize(project));
+
+        Assert.Equal(method.DescriptionDocument, restored.Methods.Single(item => item.Uid == method.Uid).DescriptionDocument);
+    }
+
+    [Fact]
     public void SerializeAndDeserialize_PreserveRunDisplays()
     {
         var service = CreateService();

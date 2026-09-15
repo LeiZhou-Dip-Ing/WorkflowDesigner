@@ -178,11 +178,12 @@ public sealed class WorkflowEditorJsonSerializer
         {
             Uid = GetGuid(document, "uid") ?? Guid.NewGuid(),
             Name = GetString(document, "name") ?? string.Empty,
+            DescriptionDocument = GetString(document, "descriptionDocument"),
             MethodType = (WorkflowMethodType)(GetInt(document, "methodType") ?? 0),
             InitAtStart = GetBool(document, "initAtStart") ?? false,
             InitMethodName = GetString(document, "initMethodName"),
             LastExecution = GetDateTime(document, "lastExecution"),
-            ExtensionData = CaptureExtension(document, "uid", "name", "methodType", "initAtStart", "initMethodName", "lastExecution", "methodLines", "methodVariables", "inputs", "outputs")
+            ExtensionData = CaptureExtension(document, "uid", "name", "descriptionDocument", "methodType", "initAtStart", "initMethodName", "lastExecution", "methodLines", "methodVariables", "inputs", "outputs")
         };
 
         if (document["methodLines"] is JsonArray lines)
@@ -281,6 +282,9 @@ public sealed class WorkflowEditorJsonSerializer
         var result = Clone(method.ExtensionData);
         result["uid"] = method.Uid.ToString();
         result["name"] = method.Name;
+        result["descriptionDocument"] = string.IsNullOrWhiteSpace(method.DescriptionDocument)
+            ? null
+            : method.DescriptionDocument;
         result["methodType"] = (int)method.MethodType;
         result["initAtStart"] = method.InitAtStart;
         result["initMethodName"] = method.InitMethodName;
