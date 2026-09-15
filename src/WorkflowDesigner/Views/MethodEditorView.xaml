@@ -1248,7 +1248,7 @@
                                         <Setter TargetName="ActionIconHost" Property="Visibility" Value="Collapsed" />
                                         <Setter TargetName="ActionName" Property="FontSize" Value="12.5" />
                                         <Setter TargetName="ActionName" Property="FontWeight" Value="SemiBold" />
-                                        <Setter TargetName="ActionName" Property="Foreground" Value="{DynamicResource AppBorderBrush}" />
+                                        <Setter TargetName="ActionName" Property="Foreground" Value="{DynamicResource AppTextBrush}" />
                                     </DataTrigger>
                                 </HierarchicalDataTemplate.Triggers>
                             </HierarchicalDataTemplate>
@@ -1462,7 +1462,7 @@
                                             <Setter TargetName="PopupActionRow" Property="Cursor" Value="Arrow" />
                                             <Setter TargetName="PopupActionName" Property="FontSize" Value="12.5" />
                                             <Setter TargetName="PopupActionName" Property="FontWeight" Value="SemiBold" />
-                                            <Setter TargetName="PopupActionName" Property="Foreground" Value="{DynamicResource AppBorderBrush}" />
+                                            <Setter TargetName="PopupActionName" Property="Foreground" Value="{DynamicResource AppTextBrush}" />
                                         </DataTrigger>
                                     </HierarchicalDataTemplate.Triggers>
                                 </HierarchicalDataTemplate>

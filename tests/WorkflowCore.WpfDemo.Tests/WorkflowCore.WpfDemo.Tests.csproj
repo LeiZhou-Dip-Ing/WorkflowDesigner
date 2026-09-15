@@ -23,4 +23,9 @@
     <PackageReference Include="WorkflowDesigner.WpfSdk" Version="$(WorkflowVersion)" />
     <ProjectReference Include="..\..\samples\WorkflowRuntime.OpenCvSamplePlugin\WorkflowRuntime.OpenCvSamplePlugin.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\WorkflowDesigner\SampleProjects\ThreadFileActions\ThreadFileActionsDemo.json"
+          Link="SampleProjects\ThreadFileActionsDemo.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

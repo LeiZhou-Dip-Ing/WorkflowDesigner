@@ -1,0 +1,445 @@
+{
+  "editorSchemaVersion": 2,
+  "projectId": "65da296f-ea3d-4f77-b94d-e4cd785d72ba",
+  "name": "Thread File Actions Demo",
+  "version": "1.0",
+  "methods": [
+    {
+      "uid": "37154ddc-69a1-4f0c-9310-9ac29eae58bf",
+      "name": "Main",
+      "methodType": 0,
+      "initAtStart": false,
+      "initMethodName": null,
+      "lastExecution": null,
+      "methodLines": [
+        {
+          "canvasX": 80,
+          "canvasY": 70,
+          "uid": "ab093bb5-5863-4af0-82a9-20ce35c6953e",
+          "lineNo": 10,
+          "sequenceNo": 0,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Create a 32 MB source file for the repeatable demo.",
+          "action": {
+            "actionId": "executeFile",
+            "actionType": "executeFile",
+            "uid": "842aec6d-a55e-488f-95b6-5f7f386500d9",
+            "name": "",
+            "isActive": true,
+            "sourceFileName": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+            "runParams": "-NoProfile -NonInteractive -Command \u0022$p=Join-Path $env:TEMP \u0027WorkflowCoreThreadDemo\u0027; New-Item -ItemType Directory -Force -Path $p | Out-Null; [IO.File]::WriteAllBytes((Join-Path $p \u0027source.bin\u0027), (New-Object byte[] 33554432))\u0022",
+            "waitForProgram": true,
+            "exitCodeForProcess": "_$0setupExitCode"
+          }
+        },
+        {
+          "canvasX": 445,
+          "canvasY": 70,
+          "uid": "5e5521ad-198b-4bea-a270-321264606e34",
+          "lineNo": 20,
+          "sequenceNo": 1,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Start the expensive file work without blocking Main.",
+          "action": {
+            "actionId": "threadStart",
+            "actionType": "threadStart",
+            "uid": "c7682284-c94c-45cc-83ee-d0a480514385",
+            "name": "",
+            "isActive": true,
+            "methodName": "CopyFileWorker",
+            "parameters": {
+              "sourcePath": "%TEMP%\\WorkflowCoreThreadDemo\\source.bin",
+              "targetDirectory": "%TEMP%\\WorkflowCoreThreadDemo\\output"
+            },
+            "taskVarName": "_$0copyTask"
+          }
+        },
+        {
+          "canvasX": 810,
+          "canvasY": 70,
+          "uid": "633ad8b3-dc54-45a8-9503-698796cd71d2",
+          "lineNo": 30,
+          "sequenceNo": 2,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "This line executes while CopyFileWorker is running.",
+          "action": {
+            "actionId": "log",
+            "actionType": "log",
+            "uid": "40125ff3-dc60-420f-b52a-e83d233b7aaf",
+            "name": "",
+            "isActive": true,
+            "message": "Main continues immediately after Thread Start."
+          }
+        },
+        {
+          "canvasX": 80,
+          "canvasY": 315,
+          "uid": "00c8d8c7-1ab9-463c-b026-a9854e15ff13",
+          "lineNo": 40,
+          "sequenceNo": 3,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Read the background task state without waiting.",
+          "action": {
+            "actionId": "threadInfo",
+            "actionType": "threadInfo",
+            "uid": "209e9bec-f83f-4b20-b987-625a360649b8",
+            "name": "",
+            "isActive": true,
+            "taskVarName": "_$0copyTask",
+            "storeResultAs": "_$0copyIsRunning"
+          }
+        },
+        {
+          "canvasX": 445,
+          "canvasY": 315,
+          "uid": "f3e291ab-ad0d-4674-b22c-ff3f3e9fcfd7",
+          "lineNo": 50,
+          "sequenceNo": 4,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Observe the state returned by Thread Info.",
+          "action": {
+            "actionId": "log",
+            "actionType": "log",
+            "uid": "ae069f13-201f-49c4-af6c-a027f45feb0e",
+            "name": "",
+            "isActive": true,
+            "message": "Copy worker running={_$0copyIsRunning}"
+          }
+        },
+        {
+          "canvasX": 810,
+          "canvasY": 315,
+          "uid": "8915daee-3a5f-4bb0-a8d3-c55c5dc6ee3d",
+          "lineNo": 60,
+          "sequenceNo": 5,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Join the worker before reading the shared result.",
+          "action": {
+            "actionId": "threadWait",
+            "actionType": "threadWait",
+            "uid": "4d692f51-e959-42e3-972e-030528b96c76",
+            "name": "",
+            "isActive": true,
+            "taskVarName": "_$0copyTask"
+          }
+        },
+        {
+          "canvasX": 80,
+          "canvasY": 560,
+          "uid": "5ac2f821-4d3b-47ed-a737-ee9b3f900384",
+          "lineNo": 70,
+          "sequenceNo": 6,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Read the global value written by the worker after ThreadWait.",
+          "action": {
+            "actionId": "log",
+            "actionType": "log",
+            "uid": "2f721f2f-a4c2-4913-88fc-1fb80ef01233",
+            "name": "",
+            "isActive": true,
+            "message": "Thread completed. Copied file={_0copiedFile}"
+          }
+        }
+      ],
+      "methodVariables": [
+        {
+          "uid": "e009922d-80cf-4503-85fa-6150bb335fe1",
+          "variableName": "_$0setupExitCode",
+          "value": null,
+          "dataType": "integer",
+          "isActive": true,
+          "description": "PowerShell setup process exit code.",
+          "requestText": null,
+          "orderIndex": 0,
+          "defaultValue": 0,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "f40fab06-3417-40ba-b2c4-8c4f2a55d002",
+          "variableName": "_$0copyTask",
+          "value": null,
+          "dataType": "integer",
+          "isActive": true,
+          "description": "Task id created by Thread Start.",
+          "requestText": null,
+          "orderIndex": 1,
+          "defaultValue": null,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "24a8bf36-ea0c-4db5-8aca-185efb06037d",
+          "variableName": "_$0copyIsRunning",
+          "value": null,
+          "dataType": "boolean",
+          "isActive": true,
+          "description": "Current state returned by Thread Info.",
+          "requestText": null,
+          "orderIndex": 2,
+          "defaultValue": false,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "a87aee6e-5c17-4471-834c-f60d9e66997b",
+          "variableName": "_0copiedFile",
+          "value": null,
+          "dataType": "string",
+          "isActive": true,
+          "description": "Project-global file path written by CopyFileWorker.",
+          "requestText": null,
+          "orderIndex": 3,
+          "defaultValue": "",
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        }
+      ],
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "uid": "f9980401-004a-453c-8724-d618f284a2d8",
+      "name": "CopyFileWorker",
+      "methodType": 0,
+      "initAtStart": false,
+      "initMethodName": null,
+      "lastExecution": null,
+      "methodLines": [
+        {
+          "canvasX": 80,
+          "canvasY": 70,
+          "uid": "937708dc-3069-4b2f-afd0-f5b46240522d",
+          "lineNo": 10,
+          "sequenceNo": 0,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Keep the worker active long enough to demonstrate concurrency.",
+          "action": {
+            "actionId": "delay",
+            "actionType": "delay",
+            "uid": "a3e26734-0aec-4877-a594-3a8e0f22c81b",
+            "name": "",
+            "isActive": true,
+            "waitTime": "2",
+            "timeUnit": "Second",
+            "messageText": "Preparing background file copy."
+          }
+        },
+        {
+          "canvasX": 445,
+          "canvasY": 70,
+          "uid": "747cc76c-a8a4-42b0-9669-8f45b868c2c8",
+          "lineNo": 20,
+          "sequenceNo": 1,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Acquire exclusive access to the demo output resource.",
+          "action": {
+            "actionId": "acquireResource",
+            "actionType": "acquireResource",
+            "uid": "c2874581-0ad9-4624-94b7-13f9faf7c571",
+            "name": "",
+            "isActive": true,
+            "resourceName": "thread-file-demo-output",
+            "waitTimeout": "5000",
+            "storeResultAs": "_$0resourceAcquired"
+          }
+        },
+        {
+          "canvasX": 810,
+          "canvasY": 70,
+          "uid": "15192a51-4846-457f-88dc-53cbe245d773",
+          "lineNo": 30,
+          "sequenceNo": 2,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Perform the file copy on the workflow thread.",
+          "action": {
+            "actionId": "copyFile",
+            "actionType": "copyFile",
+            "uid": "ba7a31a8-a2c9-4ce4-8f5e-af14cedd4005",
+            "name": "",
+            "isActive": true,
+            "sourceFileName": "_$sourcePath",
+            "targetPath": "_$targetDirectory",
+            "targetFileName": "copied-in-thread.bin",
+            "overrideExistingFile": true,
+            "deleteSourceFile": false
+          }
+        },
+        {
+          "canvasX": 80,
+          "canvasY": 315,
+          "uid": "a9fcfb54-547c-424b-86df-a3600585da36",
+          "lineNo": 40,
+          "sequenceNo": 3,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Publish the copied file through a project-global variable.",
+          "action": {
+            "actionId": "findFile",
+            "actionType": "findFile",
+            "uid": "cce7b8c1-aa20-4af8-b10f-62c55a8e54d2",
+            "name": "",
+            "isActive": true,
+            "targetPath": "_$targetDirectory",
+            "searchMask": "copied-in-thread.bin",
+            "searchCriteria": "ByNameFirst",
+            "storeResultAs": "_0copiedFile",
+            "storeNumOfFilesAs": "_$0matchedFileCount"
+          }
+        },
+        {
+          "canvasX": 445,
+          "canvasY": 315,
+          "uid": "d328944f-f3c1-4745-920c-8cd544228f79",
+          "lineNo": 50,
+          "sequenceNo": 4,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Release exclusive access after the file operation.",
+          "action": {
+            "actionId": "releaseResource",
+            "actionType": "releaseResource",
+            "uid": "0c84c3a0-12df-499b-af29-ae685c9541d4",
+            "name": "",
+            "isActive": true,
+            "resourceName": "thread-file-demo-output"
+          }
+        }
+      ],
+      "methodVariables": [
+        {
+          "uid": "ced6e899-c65c-4f73-bb13-060f465d91c6",
+          "variableName": "_$sourcePath",
+          "value": null,
+          "dataType": "string",
+          "isActive": true,
+          "description": "Source path supplied by Thread Start.",
+          "requestText": null,
+          "orderIndex": 0,
+          "defaultValue": null,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "53838d72-1315-48c0-8411-b40f9e9659d8",
+          "variableName": "_$targetDirectory",
+          "value": null,
+          "dataType": "string",
+          "isActive": true,
+          "description": "Target directory supplied by Thread Start.",
+          "requestText": null,
+          "orderIndex": 1,
+          "defaultValue": null,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "0c111730-ea42-44ea-9cbe-2bf388f9eb51",
+          "variableName": "_$0resourceAcquired",
+          "value": null,
+          "dataType": "boolean",
+          "isActive": true,
+          "description": "Whether the named output resource was acquired.",
+          "requestText": null,
+          "orderIndex": 2,
+          "defaultValue": false,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        },
+        {
+          "uid": "49dd097a-df21-4206-85af-a46b94b87049",
+          "variableName": "_$0matchedFileCount",
+          "value": null,
+          "dataType": "integer",
+          "isActive": true,
+          "description": "Number of matching copied files.",
+          "requestText": null,
+          "orderIndex": 3,
+          "defaultValue": 0,
+          "minCheck": false,
+          "minValue": 0,
+          "maxCheck": false,
+          "maxValue": 0,
+          "pickList": null,
+          "dataIsArray": false,
+          "arrayLengthRefToOrder": 0
+        }
+      ],
+      "inputs": [
+        {
+          "uid": "7175e4fb-9f9c-44c7-a559-b484fe61b2aa",
+          "name": "sourcePath",
+          "variableName": "_$sourcePath",
+          "displayName": "Source path",
+          "description": "File copied by the background worker.",
+          "order": 0,
+          "valueType": "string",
+          "required": true,
+          "defaultValue": null,
+          "editor": "text"
+        },
+        {
+          "uid": "09ca3d9a-d263-4716-96aa-c9e530ac8ae4",
+          "name": "targetDirectory",
+          "variableName": "_$targetDirectory",
+          "displayName": "Target directory",
+          "description": "Directory that receives the copied file.",
+          "order": 1,
+          "valueType": "string",
+          "required": true,
+          "defaultValue": null,
+          "editor": "text"
+        }
+      ],
+      "outputs": []
+    }
+  ],
+  "scripts": [],
+  "runDisplays": [],
+  "scriptLibraries": []
+}

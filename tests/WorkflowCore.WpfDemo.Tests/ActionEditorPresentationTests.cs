@@ -350,9 +350,18 @@ public sealed class ActionEditorPresentationTests
     }
 
     [Fact]
-    public void ThreadWaitProperties_DoNotExposeRunMethodReturnMappings()
+    public void ThreadProperties_MatchTheWinLissyFieldSurface()
     {
-        var caller = new WorkflowMethod { Name = "Caller" };
+        var target = MethodWithSignature("Background", "_$input", "_$0output");
+        var caller = new WorkflowMethod
+        {
+            Name = "Caller",
+            MethodVariables = [new WorkflowVariable { VariableName = "_$0backgroundTask" }]
+        };
+        var start = WorkflowAction.Create("threadStart");
+        start.SetProperty("MethodName", JsonValue.Create("Background"));
+        start.SetProperty("TaskVarName", JsonValue.Create("_$0backgroundTask"));
+        caller.MethodLines.Add(MethodLine.Create(10, 0, start));
         var wait = WorkflowAction.Create("threadWait");
         wait.SetProperty("TaskVarName", JsonValue.Create("_$0backgroundTask"));
         var waitLine = MethodLine.Create(20, 0, wait);
@@ -362,13 +371,25 @@ public sealed class ActionEditorPresentationTests
         var properties = editor.BuildProperties(
             waitLine,
             caller,
-            _ => null,
+            name => string.Equals(name, target.Name, StringComparison.OrdinalIgnoreCase) ? target : null,
             _ => ["_$0backgroundTask"],
             () => { },
             () => { });
 
-        Assert.Contains(properties, item => item.Name == "TaskVarName");
-        Assert.DoesNotContain(properties, item => item.Name.StartsWith("ReturnVarNames", StringComparison.Ordinal));
+        Assert.Equal(
+            ["TaskVarName", "Comment", "Deactivate"],
+            properties.Select(item => item.Name));
+
+        var startProperties = editor.BuildProperties(
+            caller.MethodLines[0],
+            caller,
+            name => string.Equals(name, target.Name, StringComparison.OrdinalIgnoreCase) ? target : null,
+            _ => ["_$0backgroundTask"],
+            () => { },
+            () => { });
+        Assert.Contains(startProperties, item => item.Name == "MethodName");
+        Assert.Contains(startProperties, item => item.Name == "Parameters");
+        Assert.DoesNotContain(startProperties, item => item.Name.StartsWith("Parameters.", StringComparison.Ordinal));
     }
 
     [Fact]

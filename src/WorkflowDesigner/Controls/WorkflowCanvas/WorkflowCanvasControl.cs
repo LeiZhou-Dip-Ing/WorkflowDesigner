@@ -1139,7 +1139,7 @@ public sealed class WorkflowCanvasControl : UserControl
 
         var action = line.Action;
         var descriptor = _vm.Owner.ResolveActionDescriptor(action);
-        var targetMethod = ResolveTargetMethod(action);
+        var targetMethod = ResolveTargetMethod(line, action);
         var result = new List<CanvasPortDefinition>();
         var representedFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -1196,7 +1196,7 @@ public sealed class WorkflowCanvasControl : UserControl
 
         var action = line.Action;
         var descriptor = _vm.Owner.ResolveActionDescriptor(action);
-        var targetMethod = ResolveTargetMethod(action);
+        var targetMethod = ResolveTargetMethod(line, action);
         if (targetMethod != null && IsActionType(action, "runMethod"))
         {
             return CreateMethodReturnPorts(line, action, targetMethod).ToArray();
@@ -1706,9 +1706,14 @@ public sealed class WorkflowCanvasControl : UserControl
         }
     }
 
-    private WorkflowMethod? ResolveTargetMethod(WorkflowAction action)
+    private WorkflowMethod? ResolveTargetMethod(MethodLine line, WorkflowAction action)
     {
-        if (_vm == null || (!IsActionType(action, "runMethod") && !IsActionType(action, "threadStart")))
+        if (_vm == null)
+        {
+            return null;
+        }
+
+        if (!IsActionType(action, "runMethod") && !IsActionType(action, "threadStart"))
         {
             return null;
         }

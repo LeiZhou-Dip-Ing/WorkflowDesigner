@@ -2,6 +2,7 @@ using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.AspNetCore.Http.Features;
 using System.Security.Cryptography;
 using WorkflowCore.Actions;
+using WorkflowCore.Communication;
 using WorkflowCore.Design;
 using WorkflowCore.Serialization;
 using WorkflowRuntime.Application.Catalog;
@@ -46,6 +47,9 @@ public static class Program
         new BuiltInActionMetadataModule().RegisterMetadata(metadataRegistry, assetRegistry);
 
         builder.Services.AddSingleton(options);
+        builder.Services.AddSingleton<IWorkflowEmailSender>(_ => options.Email.IsConfigured
+            ? new SmtpWorkflowEmailSender(options.Email)
+            : UnavailableWorkflowEmailSender.Instance);
         builder.Services.Configure<FormOptions>(formOptions =>
             formOptions.MultipartBodyLengthLimit = options.MaximumScriptLibraryBytes);
         var runRetention = new RunRetentionOptions

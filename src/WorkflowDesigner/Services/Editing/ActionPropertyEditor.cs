@@ -469,7 +469,7 @@ public sealed class ActionPropertyEditor : IActionPropertyEditor
 
     private static bool IsMethodParametersField(WorkflowAction action, WorkflowActionFieldDto field)
         => string.Equals(field.Name, "Parameters", StringComparison.OrdinalIgnoreCase)
-           && (IsActionType(action, "runMethod") || IsActionType(action, "threadStart"));
+           && IsActionType(action, "runMethod");
 
     private static bool IsMethodReturnsField(WorkflowAction action, WorkflowActionFieldDto field)
         => string.Equals(field.Name, "ReturnVarNames", StringComparison.OrdinalIgnoreCase)

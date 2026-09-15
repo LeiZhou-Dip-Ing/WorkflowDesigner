@@ -1,5 +1,6 @@
 namespace WorkflowRuntime.WindowsService;
 
+using WorkflowCore.Communication;
 using WorkflowRuntime.Contracts;
 using WorkflowRuntime.Application.Runtime;
 
@@ -36,6 +37,8 @@ public sealed class WorkflowRuntimeOptions
     public int RunCleanupIntervalSeconds { get; set; } = 60;
 
     public int RuntimeEventQueueCapacity { get; set; } = RuntimeEventQueue.DefaultCapacity;
+
+    public SmtpWorkflowEmailSettings Email { get; set; } = new();
 
     public List<WorkflowAutoStartOptions> AutoStart { get; set; } = new();
 }
