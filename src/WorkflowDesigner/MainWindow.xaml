@@ -953,6 +953,24 @@
                         ToolTip="Menu" />
 
                 <Button DockPanel.Dock="Bottom"
+                        Command="{Binding DataContext.ShowBasicSettingsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                        Style="{StaticResource SidebarActionButtonStyle}"
+                        ToolTip="Settings">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="48" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="22"
+                                   Foreground="{DynamicResource AppMutedTextBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" Text="Settings" FontSize="16"
+                                   Foreground="{DynamicResource AppTextBrush}" VerticalAlignment="Center"
+                                   Margin="4,0,0,0" />
+                    </Grid>
+                </Button>
+
+                <Button DockPanel.Dock="Bottom"
                         Command="{Binding NewMethodCommand}"
                         Style="{StaticResource SidebarActionButtonStyle}"
                         ToolTip="Create . . .">
@@ -1674,6 +1692,14 @@
                 </StackPanel>
             </Border>
         </Grid>
+
+        <Border Grid.Column="1" Panel.ZIndex="101"
+                Background="{DynamicResource AppPageBrush}"
+                Visibility="{Binding DataContext.IsBasicSettingsOpen, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <views:BasicEmailSettingsView DataContext="{Binding DataContext.EmailSettings, RelativeSource={RelativeSource AncestorType=Window}}" />
+            </ScrollViewer>
+        </Border>
         </Grid>
     </Grid>
 

@@ -218,6 +218,36 @@ public sealed class RuntimeApiClient : IRuntimeApiClient
             ?? throw new InvalidOperationException("Workflow Runtime returned an empty workflow document.");
     }
 
+    public async Task<RuntimeEmailSettingsDto> GetEmailSettingsAsync(CancellationToken cancellationToken = default)
+        => await _httpClient.GetFromJsonAsync<RuntimeEmailSettingsDto>(
+               "api/workflow-runtime/settings/email", cancellationToken).ConfigureAwait(false)
+           ?? throw new InvalidOperationException("Runtime returned empty email settings.");
+
+    public async Task<RuntimeEmailSettingsDto> SaveEmailSettingsAsync(
+        RuntimeEmailSettingsUpdateDto settings, CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.PutAsJsonAsync(
+            "api/workflow-runtime/settings/email", settings, cancellationToken).ConfigureAwait(false);
+        return await ReadJsonAsync<RuntimeEmailSettingsDto>(response, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<MicrosoftGraphConnectChallengeDto> StartMicrosoftMailConnectionAsync(
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.PostAsync(
+            "api/workflow-runtime/settings/email/microsoft-connection", null, cancellationToken)
+            .ConfigureAwait(false);
+        return await ReadJsonAsync<MicrosoftGraphConnectChallengeDto>(response, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<MicrosoftGraphConnectionStatusDto> GetMicrosoftMailConnectionStatusAsync(
+        CancellationToken cancellationToken = default)
+        => await _httpClient.GetFromJsonAsync<MicrosoftGraphConnectionStatusDto>(
+               "api/workflow-runtime/settings/email/microsoft-connection", cancellationToken)
+               .ConfigureAwait(false)
+           ?? throw new InvalidOperationException("Runtime returned empty Microsoft mail connection status.");
+
     public async Task<WorkflowPublishResponse> ImportProtectedWorkflowAsync(
         string workflowId,
         string filePath,

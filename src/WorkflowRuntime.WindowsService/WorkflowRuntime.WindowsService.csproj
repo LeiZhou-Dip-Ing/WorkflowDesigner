@@ -8,6 +8,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.66.1" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
     <PackageReference Include="WorkflowCore" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowRuntime.Application" Version="$(WorkflowVersion)" />
     <PackageReference Include="WorkflowRuntime.Contracts" Version="$(WorkflowVersion)" />

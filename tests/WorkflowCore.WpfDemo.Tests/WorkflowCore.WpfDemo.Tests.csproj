@@ -27,5 +27,8 @@
     <None Include="..\..\src\WorkflowDesigner\SampleProjects\ThreadFileActions\ThreadFileActionsDemo.json"
           Link="SampleProjects\ThreadFileActionsDemo.json"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\src\WorkflowDesigner\SampleProjects\Email\EmailDemo.json"
+          Link="SampleProjects\EmailDemo.json"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

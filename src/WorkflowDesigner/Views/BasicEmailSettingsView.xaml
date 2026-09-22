@@ -1,0 +1,250 @@
+<UserControl x:Class="WorkflowCore.WpfDemo.Views.BasicEmailSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppPanelBrush}"
+             Foreground="{DynamicResource AppTextBrush}"
+             HorizontalContentAlignment="Stretch">
+    <UserControl.Resources>
+        <Style x:Key="SettingLabel" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="16,0" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}" />
+        </Style>
+        <Style x:Key="SettingDetail" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="16,0" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        </Style>
+        <Style x:Key="SettingInput" TargetType="TextBox">
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Margin" Value="12,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="Background" Value="{DynamicResource AppInputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppInputBorderBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+        </Style>
+        <Style x:Key="SettingPasswordInput" TargetType="PasswordBox">
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Margin" Value="12,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="Background" Value="{DynamicResource AppInputBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppInputBorderBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppTextBrush}" />
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="32,24,32,30" HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Runtime / Basic Settings" FontSize="12"
+                           Foreground="{DynamicResource AppSubtleTextBrush}" />
+                <TextBlock Text="E-Mail" FontSize="24" FontWeight="SemiBold" Margin="0,5,0,0" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Status}" MaxWidth="320" TextWrapping="Wrap"
+                           VerticalAlignment="Center" Margin="0,0,16,0"
+                           Foreground="{DynamicResource AppMutedTextBrush}" />
+                <Button Content="Refresh" Command="{Binding RefreshCommand}"
+                        MinWidth="88" Height="36" Margin="0,0,8,0" />
+                <Button Content="Save changes" Command="{Binding SaveCommand}"
+                        MinWidth="116" Height="36" Margin="0,0,12,0"
+                        Background="{DynamicResource AppPrimaryBrush}"
+                        Foreground="{DynamicResource AppPanelBrush}"
+                        BorderBrush="{DynamicResource AppPrimaryBrush}" />
+                <Button Command="{Binding DataContext.CloseBasicSettingsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                        Width="36" Height="36" ToolTip="Close settings">
+                    <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="13" />
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,24,0,0" VerticalAlignment="Center">
+            <TextBlock Text="Delivery method" VerticalAlignment="Center" Margin="0,0,16,0" />
+            <ComboBox Width="190" Height="34" SelectedValuePath="Tag"
+                      SelectedValue="{Binding DeliveryMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <ComboBoxItem Content="SMTP" Tag="smtp" />
+                <ComboBoxItem Content="Microsoft Graph" Tag="microsoftGraph" />
+            </ComboBox>
+        </StackPanel>
+
+        <Grid Grid.Row="2" Margin="0,20,0,0" HorizontalAlignment="Stretch"
+              Visibility="{Binding IsSmtpMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.2*" MinWidth="215" />
+                <ColumnDefinition Width="3.5*" MinWidth="260" />
+                <ColumnDefinition Width="1.2*" MinWidth="105" />
+                <ColumnDefinition Width="2.9*" MinWidth="240" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="42" />
+                <RowDefinition Height="38" />
+                <RowDefinition Height="54" />
+                <RowDefinition Height="54" />
+                <RowDefinition Height="54" />
+                <RowDefinition Height="54" />
+                <RowDefinition Height="54" />
+                <RowDefinition Height="54" />
+                <RowDefinition Height="54" />
+                <RowDefinition Height="54" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Grid.ColumnSpan="4" Background="{DynamicResource AppSelectedBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,1,0,1" />
+            <Border Grid.Row="1" Grid.ColumnSpan="4" Background="{DynamicResource AppDataGridHeaderBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="2" Grid.ColumnSpan="4" Background="{DynamicResource AppDataGridRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="3" Grid.ColumnSpan="4" Background="{DynamicResource AppDataGridAlternateRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="4" Grid.ColumnSpan="4" Background="{DynamicResource AppDataGridRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="5" Grid.ColumnSpan="4" Background="{DynamicResource AppDataGridAlternateRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="6" Grid.ColumnSpan="4" Background="{DynamicResource AppDataGridRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="7" Grid.ColumnSpan="4" Background="{DynamicResource AppDataGridAlternateRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="8" Grid.ColumnSpan="4" Background="{DynamicResource AppDataGridRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="9" Grid.ColumnSpan="4" Background="{DynamicResource AppDataGridAlternateRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+
+            <TextBlock Text="SMTP configuration" Grid.Row="0" Grid.ColumnSpan="2"
+                       Style="{StaticResource SettingLabel}" />
+            <TextBlock Text="Runtime settings" Grid.Row="0" Grid.Column="3"
+                       Style="{StaticResource SettingDetail}" HorizontalAlignment="Right" />
+            <TextBlock Text="Identifier" Grid.Row="1" Style="{StaticResource SettingDetail}" FontWeight="SemiBold" />
+            <TextBlock Text="Current value" Grid.Row="1" Grid.Column="1" Style="{StaticResource SettingDetail}" FontWeight="SemiBold" />
+            <TextBlock Text="Default" Grid.Row="1" Grid.Column="2" Style="{StaticResource SettingDetail}" FontWeight="SemiBold" />
+            <TextBlock Text="Description" Grid.Row="1" Grid.Column="3" Style="{StaticResource SettingDetail}" FontWeight="SemiBold" />
+
+            <TextBlock Text="SMTPHost" Grid.Row="2" Style="{StaticResource SettingLabel}" />
+            <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource SettingInput}"
+                     Text="{Binding SmtpHost, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="SMTP server host or IP address" Grid.Row="2" Grid.Column="3" Style="{StaticResource SettingDetail}" />
+
+            <TextBlock Text="SMTPPort" Grid.Row="3" Style="{StaticResource SettingLabel}" />
+            <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource SettingInput}"
+                     Text="{Binding SmtpPort, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="587" Grid.Row="3" Grid.Column="2" Style="{StaticResource SettingDetail}" />
+            <TextBlock Text="SMTP server port" Grid.Row="3" Grid.Column="3" Style="{StaticResource SettingDetail}" />
+
+            <TextBlock Text="SenderAddress" Grid.Row="4" Style="{StaticResource SettingLabel}" />
+            <TextBox Grid.Row="4" Grid.Column="1" Style="{StaticResource SettingInput}"
+                     Text="{Binding SenderAddress, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="Sender mail address" Grid.Row="4" Grid.Column="3" Style="{StaticResource SettingDetail}" />
+
+            <TextBlock Text="Password" Grid.Row="5" Style="{StaticResource SettingLabel}" />
+            <PasswordBox x:Name="PasswordInput" Grid.Row="5" Grid.Column="1"
+                         Style="{StaticResource SettingPasswordInput}" PasswordChanged="PasswordChanged" />
+            <TextBlock Text="Saved" Grid.Row="5" Grid.Column="2" Style="{StaticResource SettingDetail}"
+                       Foreground="{DynamicResource WorkflowSdkSuccessBrush}"
+                       Visibility="{Binding HasPassword, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            <CheckBox Content="Clear saved password" IsChecked="{Binding ClearPassword}"
+                      Grid.Row="5" Grid.Column="3" Margin="16,0" VerticalAlignment="Center" />
+
+            <TextBlock Text="AutomaticErrorRecipients" Grid.Row="6" Style="{StaticResource SettingLabel}" />
+            <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource SettingInput}"
+                     Text="{Binding AutomaticErrorRecipients, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="Error notification recipients" Grid.Row="6" Grid.Column="3" Style="{StaticResource SettingDetail}" />
+
+            <TextBlock Text="AutomaticErrorCCRecipients" Grid.Row="7" Style="{StaticResource SettingLabel}" />
+            <TextBox Grid.Row="7" Grid.Column="1" Style="{StaticResource SettingInput}"
+                     Text="{Binding AutomaticErrorCcRecipients, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="Error notification CC recipients" Grid.Row="7" Grid.Column="3" Style="{StaticResource SettingDetail}" />
+
+            <TextBlock Text="UserName" Grid.Row="8" Style="{StaticResource SettingLabel}" />
+            <TextBox Grid.Row="8" Grid.Column="1" Style="{StaticResource SettingInput}"
+                     Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="SenderAddress" Grid.Row="8" Grid.Column="2" Style="{StaticResource SettingDetail}" />
+            <TextBlock Text="SMTP login, when required" Grid.Row="8" Grid.Column="3" Style="{StaticResource SettingDetail}" />
+
+            <TextBlock Text="UseSSL" Grid.Row="9" Style="{StaticResource SettingLabel}" />
+            <CheckBox Grid.Row="9" Grid.Column="1" IsChecked="{Binding EnableSsl}"
+                      Margin="16,0" VerticalAlignment="Center" />
+            <TextBlock Text="True" Grid.Row="9" Grid.Column="2" Style="{StaticResource SettingDetail}" />
+            <TextBlock Text="Secure SMTP connection" Grid.Row="9" Grid.Column="3" Style="{StaticResource SettingDetail}" />
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="0,20,0,0" HorizontalAlignment="Stretch"
+              Visibility="{Binding IsMicrosoftGraphMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.2*" MinWidth="215" />
+                <ColumnDefinition Width="3.5*" MinWidth="260" />
+                <ColumnDefinition Width="4.1*" MinWidth="345" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="42" />
+                <RowDefinition Height="54" />
+                <RowDefinition Height="54" />
+                <RowDefinition Height="54" />
+                <RowDefinition Height="54" />
+                <RowDefinition Height="54" />
+                <RowDefinition Height="54" />
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Grid.ColumnSpan="3" Background="{DynamicResource AppSelectedBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,1,0,1" />
+            <TextBlock Text="Microsoft account" Grid.Row="0" Grid.ColumnSpan="2"
+                       Style="{StaticResource SettingLabel}" />
+            <Border Grid.Row="1" Grid.ColumnSpan="3" Background="{DynamicResource AppDataGridRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="2" Grid.ColumnSpan="3" Background="{DynamicResource AppDataGridAlternateRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="3" Grid.ColumnSpan="3" Background="{DynamicResource AppDataGridRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="4" Grid.ColumnSpan="3" Background="{DynamicResource AppDataGridAlternateRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="5" Grid.ColumnSpan="3" Background="{DynamicResource AppDataGridRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <Border Grid.Row="6" Grid.ColumnSpan="3" Background="{DynamicResource AppDataGridAlternateRowBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+
+            <TextBlock Text="Expected sender address" Grid.Row="1" Style="{StaticResource SettingLabel}" />
+            <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource SettingInput}"
+                     Text="{Binding SenderAddress, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource SettingDetail}"
+                       Text="Must match the Microsoft account used to connect." />
+            <TextBlock Text="Application (client) ID" Grid.Row="2" Style="{StaticResource SettingLabel}" />
+            <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource SettingInput}"
+                     Text="{Binding MicrosoftClientId, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Grid.Row="2" Grid.Column="2" Style="{StaticResource SettingDetail}"
+                       Text="Copy from the Microsoft Entra app registration." />
+            <TextBlock Text="Connected account" Grid.Row="3" Style="{StaticResource SettingLabel}" />
+            <TextBlock Text="{Binding MicrosoftAccount, TargetNullValue=Not connected}"
+                       Grid.Row="3" Grid.Column="1" Style="{StaticResource SettingDetail}" />
+            <TextBlock Grid.Row="3" Grid.Column="2" Style="{StaticResource SettingDetail}"
+                       Text="Mail is sent from the connected account." />
+            <TextBlock Text="Authorization" Grid.Row="4" Style="{StaticResource SettingLabel}" />
+            <Button Grid.Row="4" Grid.Column="1" Content="Connect Microsoft account"
+                    Command="{Binding ConnectMicrosoftCommand}" Margin="12,7" HorizontalAlignment="Left" />
+            <TextBlock Grid.Row="4" Grid.Column="2" Style="{StaticResource SettingDetail}"
+                       Text="Save these settings, then connect and approve Mail.Send." />
+            <TextBlock Text="Sign-in page" Grid.Row="5" Style="{StaticResource SettingLabel}" />
+            <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource SettingInput}"
+                     Text="{Binding VerificationUrl}" IsReadOnly="True" />
+            <Button Grid.Row="5" Grid.Column="2" Content="Open sign-in page" Click="OpenMicrosoftSignInPage"
+                    Margin="12,7" HorizontalAlignment="Left"
+                    IsEnabled="{Binding HasUserCode}" />
+            <TextBlock Text="Sign-in code" Grid.Row="6" Style="{StaticResource SettingLabel}" />
+            <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource SettingInput}"
+                     Text="{Binding UserCode}" IsReadOnly="True" />
+            <TextBlock Grid.Row="6" Grid.Column="2" Style="{StaticResource SettingDetail}"
+                       Text="Enter this code on the Microsoft page." />
+        </Grid>
+    </Grid>
+</UserControl>

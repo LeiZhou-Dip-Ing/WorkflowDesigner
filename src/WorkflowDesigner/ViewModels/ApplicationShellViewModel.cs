@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using WorkflowCore.WpfDemo.Models;
+using WorkflowCore.WpfDemo.Services;
 using WorkflowCore.WpfDemo.Services.Projects;
 using WorkflowCore.WpfDemo.Services.Ui;
 
@@ -21,6 +22,7 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
     private bool _isRibbonMinimized;
     private bool _isRibbonPreviewOpen;
     private bool _isProjectHubOpen = true;
+    private bool _isBasicSettingsOpen;
   
     private string _startPageError = string.Empty;
     private RecentProjectEntry? _missingRecentProject;
@@ -31,13 +33,15 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
         IProjectWorkspaceFactory workspaceFactory,
         IEditorFileDialogs fileDialogs,
         TimeProvider timeProvider,
-        IWorkflowThemeService? themeService = null)
+        IWorkflowThemeService? themeService = null,
+        EmailSettingsViewModel? emailSettings = null)
     {
         _recentProjects = recentProjects ?? throw new ArgumentNullException(nameof(recentProjects));
         _projectFiles = projectFiles ?? throw new ArgumentNullException(nameof(projectFiles));
         _workspaceFactory = workspaceFactory ?? throw new ArgumentNullException(nameof(workspaceFactory));
         _fileDialogs = fileDialogs ?? throw new ArgumentNullException(nameof(fileDialogs));
         _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+        EmailSettings = emailSettings ?? new EmailSettingsViewModel(new RuntimeApiClient());
         _themeService = themeService ?? new WorkflowThemeService();
 
         NewProjectCommand = new RelayCommand(CreateProject);
@@ -50,6 +54,8 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
         HideProjectHubCommand = new RelayCommand(HideProjectHub, () => ActiveWorkspace != null && IsProjectHubOpen);
         SelectWorkflowDesignTabCommand = new RelayCommand(() => SelectRibbonTab("WorkflowDesign"));
         SelectUserSettingsTabCommand = new RelayCommand(() => SelectRibbonTab("UserSettings"));
+        ShowBasicSettingsCommand = new RelayCommand(ShowBasicSettings);
+        CloseBasicSettingsCommand = new RelayCommand(() => IsBasicSettingsOpen = false);
         SetThemeCommand = new RelayCommand(parameter => ApplyTheme(parameter as string));
         ToggleRibbonMinimizedCommand = new RelayCommand(() => IsRibbonMinimized = !IsRibbonMinimized);
         RefreshRecentProjects();
@@ -88,6 +94,13 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
 
     public bool IsWorkflowDesignTabSelected => SelectedRibbonTab == "WorkflowDesign";
     public bool IsUserSettingsTabSelected => SelectedRibbonTab == "UserSettings";
+    public EmailSettingsViewModel EmailSettings { get; }
+
+    public bool IsBasicSettingsOpen
+    {
+        get => _isBasicSettingsOpen;
+        private set => SetProperty(ref _isBasicSettingsOpen, value);
+    }
 
     public bool IsRibbonMinimized
     {
@@ -184,6 +197,8 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
     public RelayCommand HideProjectHubCommand { get; }
     public RelayCommand SelectWorkflowDesignTabCommand { get; }
     public RelayCommand SelectUserSettingsTabCommand { get; }
+    public RelayCommand ShowBasicSettingsCommand { get; }
+    public RelayCommand CloseBasicSettingsCommand { get; }
     public RelayCommand SetThemeCommand { get; }
     public RelayCommand ToggleRibbonMinimizedCommand { get; }
 
@@ -216,6 +231,12 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
         {
             IsRibbonPreviewOpen = true;
         }
+    }
+
+    private void ShowBasicSettings()
+    {
+        IsBasicSettingsOpen = true;
+        _ = EmailSettings.LoadAsync();
     }
 
     private void CreateProject()

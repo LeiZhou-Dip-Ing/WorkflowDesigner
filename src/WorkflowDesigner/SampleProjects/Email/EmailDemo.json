@@ -1,0 +1,45 @@
+{
+  "editorSchemaVersion": 2,
+  "projectId": "c9890e95-f27e-4e37-9456-3e1a354ca167",
+  "name": "Email Demo",
+  "version": "1.0",
+  "methods": [
+    {
+      "uid": "8ab50895-23fa-4ef7-bd36-256c73b91ce8",
+      "name": "SendDemoEmail",
+      "methodType": 0,
+      "initAtStart": false,
+      "initMethodName": null,
+      "lastExecution": null,
+      "methodLines": [
+        {
+          "canvasX": 80,
+          "canvasY": 70,
+          "uid": "d3a2e7b1-b0b0-42d6-bfb8-8a0d739b6794",
+          "lineNo": 10,
+          "sequenceNo": 0,
+          "nestingLevel": 0,
+          "isActive": true,
+          "comment": "Send one test email after Runtime SMTP settings are saved.",
+          "action": {
+            "actionId": "sendEmail",
+            "actionType": "sendEmail",
+            "uid": "201c31c7-faea-4b04-b3fb-d306e6f665c3",
+            "name": "",
+            "isActive": true,
+            "recipients": "dip_ing_leizhou@outlook.com",
+            "ccRecipients": "",
+            "subject": "WorkflowCore Email Action demo",
+            "text": "This is a test email sent by the WorkflowCore Email Action.",
+            "attachmentsPaths": ""
+          }
+        }
+      ],
+      "inputs": [],
+      "outputs": []
+    }
+  ],
+  "scripts": [],
+  "runDisplays": [],
+  "scriptLibraries": []
+}

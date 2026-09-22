@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.AspNetCore.Http.Features;
 using System.Security.Cryptography;
+using System.Net;
 using WorkflowCore.Actions;
 using WorkflowCore.Communication;
 using WorkflowCore.Design;
@@ -47,9 +48,10 @@ public static class Program
         new BuiltInActionMetadataModule().RegisterMetadata(metadataRegistry, assetRegistry);
 
         builder.Services.AddSingleton(options);
-        builder.Services.AddSingleton<IWorkflowEmailSender>(_ => options.Email.IsConfigured
-            ? new SmtpWorkflowEmailSender(options.Email)
-            : UnavailableWorkflowEmailSender.Instance);
+        builder.Services.AddSingleton<RuntimeEmailSettingsStore>(_ =>
+            new RuntimeEmailSettingsStore(options.StorageDirectory, options.Email));
+        builder.Services.AddSingleton<IWorkflowEmailSender>(provider =>
+            provider.GetRequiredService<RuntimeEmailSettingsStore>());
         builder.Services.Configure<FormOptions>(formOptions =>
             formOptions.MultipartBodyLengthLimit = options.MaximumScriptLibraryBytes);
         var runRetention = new RunRetentionOptions
@@ -127,6 +129,47 @@ public static class Program
         app.UseWorkflowRuntimeApiDocumentation();
         app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
         app.MapWorkflowRuntimeEndpoints();
+
+        app.MapGet("/api/workflow-runtime/settings/email", (HttpContext context, RuntimeEmailSettingsStore settings) =>
+            IPAddress.IsLoopback(context.Connection.RemoteIpAddress ?? IPAddress.None)
+                ? Results.Ok(settings.GetSettings())
+                : Results.StatusCode(StatusCodes.Status403Forbidden));
+
+        app.MapPut("/api/workflow-runtime/settings/email", (HttpContext context, RuntimeEmailSettingsUpdate update,
+            RuntimeEmailSettingsStore settings) =>
+        {
+            if (!IPAddress.IsLoopback(context.Connection.RemoteIpAddress ?? IPAddress.None))
+                return Results.StatusCode(StatusCodes.Status403Forbidden);
+            try
+            {
+                return Results.Ok(settings.Save(update));
+            }
+            catch (Exception exception) when (exception is ArgumentException or FormatException)
+            {
+                return Results.BadRequest(new { error = exception.Message });
+            }
+        });
+
+        app.MapGet("/api/workflow-runtime/settings/email/microsoft-connection",
+            (HttpContext context, RuntimeEmailSettingsStore settings) =>
+                IPAddress.IsLoopback(context.Connection.RemoteIpAddress ?? IPAddress.None)
+                    ? Results.Ok(settings.GetMicrosoftConnectionStatus())
+                    : Results.StatusCode(StatusCodes.Status403Forbidden));
+
+        app.MapPost("/api/workflow-runtime/settings/email/microsoft-connection",
+            async (HttpContext context, RuntimeEmailSettingsStore settings, CancellationToken cancellationToken) =>
+            {
+                if (!IPAddress.IsLoopback(context.Connection.RemoteIpAddress ?? IPAddress.None))
+                    return Results.StatusCode(StatusCodes.Status403Forbidden);
+                try
+                {
+                    return Results.Ok(await settings.StartMicrosoftConnectionAsync(cancellationToken));
+                }
+                catch (Exception error) when (error is ArgumentException or InvalidOperationException)
+                {
+                    return Results.BadRequest(new { error = error.Message });
+                }
+            });
 
         app.MapPost(
                 "/api/workflow-runtime/extensions/commands",

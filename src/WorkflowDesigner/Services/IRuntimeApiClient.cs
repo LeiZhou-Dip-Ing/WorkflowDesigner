@@ -14,6 +14,19 @@ public interface IRuntimeApiClient : IDisposable, IAsyncDisposable
 
     Uri ResolveRuntimeUri(string relativeUri);
 
+    Task<RuntimeEmailSettingsDto> GetEmailSettingsAsync(CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
+
+    Task<RuntimeEmailSettingsDto> SaveEmailSettingsAsync(
+        RuntimeEmailSettingsUpdateDto settings, CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
+
+    Task<MicrosoftGraphConnectChallengeDto> StartMicrosoftMailConnectionAsync(
+        CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+    Task<MicrosoftGraphConnectionStatusDto> GetMicrosoftMailConnectionStatusAsync(
+        CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
     Task ConnectEventsAsync(CancellationToken cancellationToken = default);
 
     Task<ActionCatalogResponse> GetActionCatalogAsync(CancellationToken cancellationToken = default);
