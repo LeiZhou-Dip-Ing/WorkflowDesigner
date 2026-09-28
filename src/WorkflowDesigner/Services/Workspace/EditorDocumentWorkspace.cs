@@ -141,10 +141,14 @@ public sealed class EditorDocumentWorkspace
         Activate(pane);
     }
 
-    public void OpenRunDisplay(WorkflowRunDisplay? runDisplay, MainWindowViewModel owner)
+    public void OpenRuntimeDisplay(
+        WorkflowProject project,
+        RuntimeDisplayDefinition? runtimeDisplay,
+        Uri dashboardUri)
     {
-        if (runDisplay == null) return;
-        var contentId = GetRunDisplayContentId(runDisplay);
+        ArgumentNullException.ThrowIfNull(project);
+        if (runtimeDisplay == null) return;
+        var contentId = GetRuntimeDisplayContentId(runtimeDisplay);
         var existing = FindPane(contentId);
         if (existing != null)
         {
@@ -152,20 +156,24 @@ public sealed class EditorDocumentWorkspace
             return;
         }
 
-        var editor = new RunDisplayEditorViewModel(runDisplay, owner) { IsDirty = IsDirty(contentId) };
+        var editor = new RuntimeDisplayEditorViewModel(project, runtimeDisplay, dashboardUri)
+        {
+            IsDirty = IsDirty(contentId)
+        };
         PropertyChangedEventHandler titleChanged = (_, args) =>
         {
-            if (args.PropertyName == nameof(WorkflowRunDisplay.Name)) UpdatePaneTitle(contentId, runDisplay.Name);
+            if (args.PropertyName == nameof(RuntimeDisplayDefinition.Name))
+                UpdatePaneTitle(contentId, runtimeDisplay.Name);
         };
         var pane = new DockPaneItem
         {
             ContentId = contentId,
-            Title = FormatTitle(runDisplay.Name, editor.IsDirty),
-            IconKey = DocumentIconKeys.RunDisplay,
+            Title = FormatTitle(runtimeDisplay.Name, editor.IsDirty),
+            IconKey = DocumentIconKeys.RuntimeDisplay,
             Content = editor,
-            ClosedCallback = _ => runDisplay.PropertyChanged -= titleChanged
+            ClosedCallback = _ => runtimeDisplay.PropertyChanged -= titleChanged
         };
-        runDisplay.PropertyChanged += titleChanged;
+        runtimeDisplay.PropertyChanged += titleChanged;
         pane.CloseCommand = new DelegateCommand(() => Close(pane));
         OpenedEditors.Add(pane);
         Activate(pane);
@@ -206,7 +214,8 @@ public sealed class EditorDocumentWorkspace
 
     public void CloseScript(WorkflowScript script) => CloseByContentId(GetScriptContentId(script));
 
-    public void CloseRunDisplay(WorkflowRunDisplay runDisplay) => CloseByContentId(GetRunDisplayContentId(runDisplay));
+    public void CloseRuntimeDisplay(RuntimeDisplayDefinition runtimeDisplay)
+        => CloseByContentId(GetRuntimeDisplayContentId(runtimeDisplay));
 
     public void CloseAll()
     {
@@ -230,8 +239,8 @@ public sealed class EditorDocumentWorkspace
         var savedScripts = savedProject.Scripts
             .GroupBy(script => script.Uid)
             .ToDictionary(group => group.Key, group => group.First());
-        var savedRunDisplays = savedProject.RunDisplays
-            .GroupBy(runDisplay => runDisplay.Uid)
+        var savedRuntimeDisplays = savedProject.RuntimeDisplays
+            .GroupBy(runtimeDisplay => runtimeDisplay.RuntimeDisplayId)
             .ToDictionary(group => group.Key, group => group.First());
 
         foreach (var method in project.Methods)
@@ -250,11 +259,12 @@ public sealed class EditorDocumentWorkspace
                 : WorkflowDocumentEditState.CreateUnsaved(snapshot);
         }
 
-        foreach (var runDisplay in project.RunDisplays)
+        foreach (var runtimeDisplay in project.RuntimeDisplays)
         {
-            var snapshot = Serialize(runDisplay);
-            _editStates[GetRunDisplayContentId(runDisplay)] = savedRunDisplays.TryGetValue(runDisplay.Uid, out var savedRunDisplay)
-                ? CreateSavedState(Serialize(savedRunDisplay), snapshot)
+            var snapshot = Serialize(runtimeDisplay);
+            _editStates[GetRuntimeDisplayContentId(runtimeDisplay)] = savedRuntimeDisplays.TryGetValue(
+                runtimeDisplay.RuntimeDisplayId, out var savedRuntimeDisplay)
+                ? CreateSavedState(Serialize(savedRuntimeDisplay), snapshot)
                 : WorkflowDocumentEditState.CreateUnsaved(snapshot);
         }
 
@@ -355,9 +365,9 @@ public sealed class EditorDocumentWorkspace
             Observe(GetScriptContentId(script), Serialize(script), activeContentIds);
         }
 
-        foreach (var runDisplay in project.RunDisplays)
+        foreach (var runtimeDisplay in project.RuntimeDisplays)
         {
-            Observe(GetRunDisplayContentId(runDisplay), Serialize(runDisplay), activeContentIds);
+            Observe(GetRuntimeDisplayContentId(runtimeDisplay), Serialize(runtimeDisplay), activeContentIds);
         }
 
         foreach (var removedContentId in _editStates.Keys
@@ -432,25 +442,26 @@ public sealed class EditorDocumentWorkspace
         names.AddRange(project.Scripts
             .Where(script => IsDirty(GetScriptContentId(script)))
             .Select(script => script.Name));
-        names.AddRange(project.RunDisplays
-            .Where(runDisplay => IsDirty(GetRunDisplayContentId(runDisplay)))
-            .Select(runDisplay => runDisplay.Name));
+        names.AddRange(project.RuntimeDisplays
+            .Where(runtimeDisplay => IsDirty(GetRuntimeDisplayContentId(runtimeDisplay)))
+            .Select(runtimeDisplay => runtimeDisplay.Name));
 
         if (!string.IsNullOrWhiteSpace(_session.SavedProjectJson))
         {
             var savedProject = _persistence.Deserialize(_session.SavedProjectJson);
             var currentMethodIds = project.Methods.Select(method => method.Uid).ToHashSet();
             var currentScriptIds = project.Scripts.Select(script => script.Uid).ToHashSet();
-            var currentRunDisplayIds = project.RunDisplays.Select(runDisplay => runDisplay.Uid).ToHashSet();
+            var currentRuntimeDisplayIds = project.RuntimeDisplays
+                .Select(runtimeDisplay => runtimeDisplay.RuntimeDisplayId).ToHashSet();
             names.AddRange(savedProject.Methods
                 .Where(method => !currentMethodIds.Contains(method.Uid))
                 .Select(method => $"{method.Name} (deleted)"));
             names.AddRange(savedProject.Scripts
                 .Where(script => !currentScriptIds.Contains(script.Uid))
                 .Select(script => $"{script.Name} (deleted)"));
-            names.AddRange(savedProject.RunDisplays
-                .Where(runDisplay => !currentRunDisplayIds.Contains(runDisplay.Uid))
-                .Select(runDisplay => $"{runDisplay.Name} (deleted)"));
+            names.AddRange(savedProject.RuntimeDisplays
+                .Where(runtimeDisplay => !currentRuntimeDisplayIds.Contains(runtimeDisplay.RuntimeDisplayId))
+                .Select(runtimeDisplay => $"{runtimeDisplay.Name} (deleted)"));
         }
 
         return names;
@@ -503,9 +514,9 @@ public sealed class EditorDocumentWorkspace
                         CloseScript(scriptEditor.Script);
                         project.Scripts.Remove(scriptEditor.Script);
                         break;
-                    case RunDisplayEditorViewModel runDisplayEditor:
-                        CloseRunDisplay(runDisplayEditor.RunDisplay);
-                        project.RunDisplays.Remove(runDisplayEditor.RunDisplay);
+                    case RuntimeDisplayEditorViewModel runtimeDisplayEditor:
+                        CloseRuntimeDisplay(runtimeDisplayEditor.RuntimeDisplay);
+                        project.RuntimeDisplays.Remove(runtimeDisplayEditor.RuntimeDisplay);
                         break;
                     default:
                         throw new InvalidOperationException("The selected document cannot be removed by Undo.");
@@ -539,8 +550,8 @@ public sealed class EditorDocumentWorkspace
                 case CSharpScriptEditorViewModel scriptEditor when restored.Script != null:
                     RestoreScript(scriptEditor.Script, restored.Script);
                     break;
-                case RunDisplayEditorViewModel runDisplayEditor when restored.RunDisplay != null:
-                    RestoreRunDisplay(runDisplayEditor.RunDisplay, restored.RunDisplay);
+                case RuntimeDisplayEditorViewModel runtimeDisplayEditor when restored.RuntimeDisplay != null:
+                    RestoreRuntimeDisplay(runtimeDisplayEditor.RuntimeDisplay, restored.RuntimeDisplay);
                     break;
                 default:
                     throw new InvalidOperationException("The Undo snapshot does not match the selected document type.");
@@ -557,7 +568,7 @@ public sealed class EditorDocumentWorkspace
             documentName,
             restored.Method,
             restored.Script,
-            restored.RunDisplay);
+            restored.RuntimeDisplay);
     }
 
     public void MarkDocumentSaved(WorkflowProject project, string contentId)
@@ -584,9 +595,9 @@ public sealed class EditorDocumentWorkspace
             MarkSaved(GetScriptContentId(script), Serialize(script));
         }
 
-        foreach (var runDisplay in project.RunDisplays)
+        foreach (var runtimeDisplay in project.RuntimeDisplays)
         {
-            MarkSaved(GetRunDisplayContentId(runDisplay), Serialize(runDisplay));
+            MarkSaved(GetRuntimeDisplayContentId(runtimeDisplay), Serialize(runtimeDisplay));
         }
 
         UpdateOpenDocumentStates();
@@ -636,11 +647,12 @@ public sealed class EditorDocumentWorkspace
             if (index >= 0) savedProject.Scripts[index] = script;
             else savedProject.Scripts.Add(script);
         }
-        else if (document.RunDisplay is { } runDisplay)
+        else if (document.RuntimeDisplay is { } runtimeDisplay)
         {
-            var index = savedProject.RunDisplays.FindIndex(existing => existing.Uid == runDisplay.Uid);
-            if (index >= 0) savedProject.RunDisplays[index] = runDisplay;
-            else savedProject.RunDisplays.Add(runDisplay);
+            var index = savedProject.RuntimeDisplays.FindIndex(existing =>
+                existing.RuntimeDisplayId == runtimeDisplay.RuntimeDisplayId);
+            if (index >= 0) savedProject.RuntimeDisplays[index] = runtimeDisplay;
+            else savedProject.RuntimeDisplays.Add(runtimeDisplay);
         }
     }
 
@@ -648,7 +660,8 @@ public sealed class EditorDocumentWorkspace
 
     public static string GetScriptContentId(WorkflowScript script) => $"script:{script.Uid:N}";
 
-    public static string GetRunDisplayContentId(WorkflowRunDisplay runDisplay) => $"run-display:{runDisplay.Uid:N}";
+    public static string GetRuntimeDisplayContentId(RuntimeDisplayDefinition runtimeDisplay)
+        => $"runtime-display:{runtimeDisplay.RuntimeDisplayId:N}";
 
     private static WorkflowDocumentEditState CreateSavedState(string savedSnapshot, string currentSnapshot)
     {
@@ -676,8 +689,8 @@ public sealed class EditorDocumentWorkspace
                    .SetEquals(project.Methods.Select(method => method.Uid))
                || !savedProject.Scripts.Select(script => script.Uid).ToHashSet()
                    .SetEquals(project.Scripts.Select(script => script.Uid))
-               || !savedProject.RunDisplays.Select(runDisplay => runDisplay.Uid).ToHashSet()
-                   .SetEquals(project.RunDisplays.Select(runDisplay => runDisplay.Uid))
+               || !savedProject.RuntimeDisplays.Select(runtimeDisplay => runtimeDisplay.RuntimeDisplayId).ToHashSet()
+                   .SetEquals(project.RuntimeDisplays.Select(runtimeDisplay => runtimeDisplay.RuntimeDisplayId))
                || !savedProject.ScriptLibraries.Select(CreateLibraryIdentity).ToHashSet(StringComparer.OrdinalIgnoreCase)
                    .SetEquals(project.ScriptLibraries.Select(CreateLibraryIdentity));
     }
@@ -692,9 +705,10 @@ public sealed class EditorDocumentWorkspace
             .Concat(project.Scripts
                 .Where(script => string.Equals(GetScriptContentId(script), contentId, StringComparison.OrdinalIgnoreCase))
                 .Select(WorkflowEditorDocument.FromScript))
-            .Concat(project.RunDisplays
-                .Where(runDisplay => string.Equals(GetRunDisplayContentId(runDisplay), contentId, StringComparison.OrdinalIgnoreCase))
-                .Select(WorkflowEditorDocument.FromRunDisplay))
+            .Concat(project.RuntimeDisplays
+                .Where(runtimeDisplay => string.Equals(
+                    GetRuntimeDisplayContentId(runtimeDisplay), contentId, StringComparison.OrdinalIgnoreCase))
+                .Select(WorkflowEditorDocument.FromRuntimeDisplay))
             .FirstOrDefault();
 
     private void MarkSaved(string contentId, string snapshot)
@@ -709,8 +723,8 @@ public sealed class EditorDocumentWorkspace
     private string Serialize(WorkflowScript script)
         => _persistence.SerializeDocument(WorkflowEditorDocument.FromScript(script));
 
-    private string Serialize(WorkflowRunDisplay runDisplay)
-        => _persistence.SerializeDocument(WorkflowEditorDocument.FromRunDisplay(runDisplay));
+    private string Serialize(RuntimeDisplayDefinition runtimeDisplay)
+        => _persistence.SerializeDocument(WorkflowEditorDocument.FromRuntimeDisplay(runtimeDisplay));
 
     private List<WorkflowMethod> SynchronizeMethods(
         IReadOnlyCollection<WorkflowMethod> localMethods,
@@ -806,7 +820,7 @@ public sealed class EditorDocumentWorkspace
         {
             MethodEditorViewModel methodEditor => methodEditor.Method.Name,
             CSharpScriptEditorViewModel scriptEditor => scriptEditor.Script.DisplayFileName,
-            RunDisplayEditorViewModel runDisplayEditor => runDisplayEditor.RunDisplay.Name,
+            RuntimeDisplayEditorViewModel runtimeDisplayEditor => runtimeDisplayEditor.RuntimeDisplay.Name,
             _ => document.Title.TrimEnd(' ', '*')
         };
 
@@ -846,11 +860,13 @@ public sealed class EditorDocumentWorkspace
         target.ExtensionData = (JsonObject)source.ExtensionData.DeepClone();
     }
 
-    private static void RestoreRunDisplay(WorkflowRunDisplay target, WorkflowRunDisplay source)
+    private static void RestoreRuntimeDisplay(RuntimeDisplayDefinition target, RuntimeDisplayDefinition source)
     {
         target.Name = source.Name;
-        target.Xaml = source.Xaml;
-        target.IsDefault = source.IsDefault;
+        target.Provider = source.Provider;
+        target.GrafanaDashboardUid = source.GrafanaDashboardUid;
+        target.VariableBindings = source.VariableBindings;
+        target.MethodBindings = source.MethodBindings;
         target.ExtensionData = (JsonObject)source.ExtensionData.DeepClone();
     }
 }
@@ -867,7 +883,7 @@ public sealed record WorkflowDocumentUndoResult(
     string DocumentName,
     WorkflowMethod? Method,
     WorkflowScript? Script,
-    WorkflowRunDisplay? RunDisplay = null)
+    RuntimeDisplayDefinition? RuntimeDisplay = null)
 {
     public static WorkflowDocumentUndoResult None { get; } =
         new(WorkflowDocumentUndoKind.None, string.Empty, null, null);

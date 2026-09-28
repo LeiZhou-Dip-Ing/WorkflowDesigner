@@ -16,6 +16,7 @@ using WorkflowCore.WpfDemo.Services.Workspace;
 using WorkflowCore.WpfDemo.Services.Runtime;
 using WorkflowCore.WpfDemo.Services.Scripting;
 using WorkflowCore.WpfDemo.Services.Projects;
+using WorkflowCore.WpfDemo.Services.Grafana;
 using WorkflowRuntime.Contracts;
 
 namespace WorkflowCore.WpfDemo.ViewModels;
@@ -115,7 +116,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         IWorkflowProjectFileService? projectFileService = null,
         string? projectFilePath = null,
         IProtectedWorkflowImportService? protectedWorkflowImporter = null,
-        IActionLogWindowService? actionLogWindowService = null)
+        IActionLogWindowService? actionLogWindowService = null,
+        IRuntimeDisplayProjectService? runtimeDisplayProjectService = null,
+        GrafanaDashboardUrlBuilder? grafanaDashboardUrlBuilder = null)
     {
         _methodEditorViewModelFactory = methodEditorViewModelFactory
             ?? throw new ArgumentNullException(nameof(methodEditorViewModelFactory));
@@ -181,6 +184,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         _projectFilePath = string.IsNullOrWhiteSpace(projectFilePath)
             ? null
             : ProjectPathIdentity.Normalize(projectFilePath);
+        _runtimeDisplayProjectService = runtimeDisplayProjectService
+            ?? new RuntimeDisplayProjectService(new UnavailableGrafanaDashboardClient());
+        _grafanaDashboardUrlBuilder = grafanaDashboardUrlBuilder
+            ?? new GrafanaDashboardUrlBuilder(new GrafanaConnectionOptions());
         _runtimeApi.RuntimeEventReceived += RuntimeApiOnRuntimeEventReceived;
         _runtimeApi.ActionCatalogChanged += RuntimeApiOnActionCatalogChanged;
         _runtimeApi.ConnectionStateChanged += RuntimeApiOnConnectionStateChanged;
@@ -311,13 +318,16 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         OpenSelectedMethodCommand = new RelayCommand(() => OpenMethod(SelectedMethod), () => SelectedMethod != null);
         OpenMethodCommand = new RelayCommand(parameter => OpenMethod(parameter as WorkflowMethod));
         OpenScriptCommand = new RelayCommand(parameter => OpenScript(parameter as WorkflowScript));
-        OpenRunDisplayCommand = new RelayCommand(parameter => OpenRunDisplay(parameter as WorkflowRunDisplay));
+        OpenRuntimeDisplayCommand = new RelayCommand(parameter => OpenRuntimeDisplay(parameter as RuntimeDisplayDefinition));
         DeleteScriptCommand = new RelayCommand(
             DeleteScript,
             parameter => !IsRunning && parameter is WorkflowScript);
-        DeleteRunDisplayCommand = new RelayCommand(
-            DeleteRunDisplay,
-            parameter => !IsRunning && parameter is WorkflowRunDisplay);
+        RenameRuntimeDisplayCommand = new RelayCommand(
+            ShowRenameRuntimeDisplayDialog,
+            parameter => !IsRunning && parameter is RuntimeDisplayDefinition);
+        DeleteRuntimeDisplayCommand = new RelayCommand(
+            parameter => _ = DeleteRuntimeDisplayAsync(parameter as RuntimeDisplayDefinition),
+            parameter => !IsRunning && parameter is RuntimeDisplayDefinition);
         ManageScriptLibrariesCommand = new RelayCommand(ManageScriptLibraries, () => !IsRunning);
         SelectHamburgerMenuCommand = new RelayCommand(SelectHamburgerMenuItem);
         CloseSubmenuCommand = new RelayCommand(CloseSubmenu);
@@ -436,7 +446,6 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
 
     public ObservableCollection<WorkflowMethod> Methods { get; } = new();
     public ObservableCollection<WorkflowScript> Scripts { get; } = new();
-    public ObservableCollection<WorkflowRunDisplay> RunDisplays { get; } = new();
 
     public ResettableObservableCollection<MethodLine> SelectedMethodLines { get; } = new();
 
@@ -478,7 +487,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
                 IsCreateMenuOpen = false;
                 OnPropertyChanged(nameof(IsMethodsSubmenuOpen));
                 OnPropertyChanged(nameof(IsScriptsSubmenuOpen));
-                OnPropertyChanged(nameof(IsRunDisplaysSubmenuOpen));
+                OnPropertyChanged(nameof(IsRuntimeDisplaysSubmenuOpen));
                 OnPropertyChanged(nameof(IsSubmenuOpen));
             }
         }
@@ -745,7 +754,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         {
             CreateDocumentKind.Method => "Create method",
             CreateDocumentKind.CSharpScript => "Create CSharp Script",
-            _ => "Create Run Display"
+            CreateDocumentKind.RuntimeDisplay => "Create Runtime Display",
+            _ => "Rename Runtime Display"
         };
 
     public string CreateNameLabel
@@ -812,9 +822,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
 
     public bool IsScriptsSubmenuOpen => SelectedHamburgerMenuItem?.Key == "CSharpScripts";
 
-    public bool IsRunDisplaysSubmenuOpen => SelectedHamburgerMenuItem?.Key == "RunDisplays";
+    public bool IsRuntimeDisplaysSubmenuOpen => SelectedHamburgerMenuItem?.Key == "RuntimeDisplays";
 
-    public bool IsSubmenuOpen => IsMethodsSubmenuOpen || IsScriptsSubmenuOpen || IsRunDisplaysSubmenuOpen;
+    public bool IsSubmenuOpen => IsMethodsSubmenuOpen || IsScriptsSubmenuOpen || IsRuntimeDisplaysSubmenuOpen;
 
     public DockPaneItem? SelectedDockPane
     {
@@ -938,19 +948,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
     public RelayCommand OpenSelectedMethodCommand { get; }
 
     public RelayCommand OpenMethodCommand { get; }
-
     public RelayCommand OpenScriptCommand { get; }
-    public RelayCommand OpenRunDisplayCommand { get; }
-
     public RelayCommand DeleteScriptCommand { get; }
-    public RelayCommand DeleteRunDisplayCommand { get; }
-
     public RelayCommand ManageScriptLibrariesCommand { get; }
 
     public RelayCommand SelectHamburgerMenuCommand { get; }
-
     public RelayCommand CloseSubmenuCommand { get; }
-
     public RelayCommand ConfirmCreateMethodCommand { get; }
 
     public RelayCommand CancelCreateMethodCommand { get; }
@@ -1113,9 +1116,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         {
             ShowCreateScriptDialog();
         }
-        else if (string.Equals(itemKind, "RunDisplay", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(itemKind, "RuntimeDisplay", StringComparison.OrdinalIgnoreCase))
         {
-            ShowCreateRunDisplayDialog();
+            ShowCreateRuntimeDisplayDialog();
         }
     }
 
@@ -1147,6 +1150,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
     {
         IsCreateMethodDialogOpen = false;
         CreateMethodError = string.Empty;
+        _runtimeDisplayBeingRenamed = null;
     }
 
     private void ShowRenameVariableDialog()
@@ -1221,9 +1225,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
 
     private void CreateMethodFromDialog()
     {
-        if (_createDocumentKind == CreateDocumentKind.RunDisplay)
+        if (_createDocumentKind is CreateDocumentKind.RuntimeDisplay or CreateDocumentKind.RuntimeDisplayRename)
         {
-            CreateRunDisplayFromDialog();
+            _ = SaveRuntimeDisplayDialogAsync();
             return;
         }
 
@@ -2435,10 +2439,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
             Scripts.Add(script);
         }
 
-        RunDisplays.Clear();
-        foreach (var runDisplay in Project.RunDisplays)
+        RuntimeDisplays.Clear();
+        foreach (var runtimeDisplay in Project.RuntimeDisplays)
         {
-            RunDisplays.Add(runDisplay);
+            RuntimeDisplays.Add(runtimeDisplay);
         }
 
         _projectActionCatalog.BindProject(Project, IsCurrentProjectActive);
@@ -2972,6 +2976,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         OpenSelectedMethodCommand.RaiseCanExecuteChanged();
         OpenScriptCommand.RaiseCanExecuteChanged();
         DeleteScriptCommand.RaiseCanExecuteChanged();
+        OpenRuntimeDisplayCommand.RaiseCanExecuteChanged();
+        RenameRuntimeDisplayCommand.RaiseCanExecuteChanged();
+        DeleteRuntimeDisplayCommand.RaiseCanExecuteChanged();
         ManageScriptLibrariesCommand.RaiseCanExecuteChanged();
         SelectCreateItemCommand.RaiseCanExecuteChanged();
         ConfirmCreateMethodCommand.RaiseCanExecuteChanged();
@@ -2987,13 +2994,6 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         {
             scriptEditor.RefreshOwnerDependentCommandStates();
         }
-    }
-
-    private enum CreateDocumentKind
-    {
-        Method,
-        CSharpScript,
-        RunDisplay
     }
 
 }

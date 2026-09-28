@@ -30,11 +30,11 @@ public sealed class WorkflowEditorJsonSerializer
                 ["documentType"] = "csharpScript",
                 ["script"] = SerializeScript(document.Script)
             },
-            WorkflowEditorDocumentKind.RunDisplay when document.RunDisplay != null => new JsonObject
+            WorkflowEditorDocumentKind.RuntimeDisplay when document.RuntimeDisplay != null => new JsonObject
             {
                 ["editorSchemaVersion"] = CurrentEditorSchemaVersion,
-                ["documentType"] = "runDisplay",
-                ["runDisplay"] = SerializeRunDisplay(document.RunDisplay)
+                ["documentType"] = "runtimeDisplay",
+                ["runtimeDisplay"] = SerializeRuntimeDisplay(document.RuntimeDisplay)
             },
             _ => throw new InvalidOperationException("The workflow editor document has no exportable content.")
         };
@@ -52,7 +52,7 @@ public sealed class WorkflowEditorJsonSerializer
         root["version"] = project.Version;
         root["methods"] = new JsonArray(project.Methods.Select(SerializeMethod).ToArray<JsonNode?>());
         root["scripts"] = new JsonArray(project.Scripts.Select(SerializeScript).ToArray<JsonNode?>());
-        root["runDisplays"] = new JsonArray(project.RunDisplays.Select(SerializeRunDisplay).ToArray<JsonNode?>());
+        root["runtimeDisplays"] = new JsonArray(project.RuntimeDisplays.Select(SerializeRuntimeDisplay).ToArray<JsonNode?>());
         root["scriptLibraries"] = new JsonArray(project.ScriptLibraries.Select(reference => new JsonObject
         {
             ["libraryId"] = reference.LibraryId,
@@ -92,13 +92,13 @@ public sealed class WorkflowEditorJsonSerializer
             return WorkflowEditorDocument.FromScript(DeserializeScript(script));
         }
 
-        if (string.Equals(documentType, "runDisplay", StringComparison.OrdinalIgnoreCase)
-            && root["runDisplay"] is JsonObject runDisplay)
+        if (string.Equals(documentType, "runtimeDisplay", StringComparison.OrdinalIgnoreCase)
+            && root["runtimeDisplay"] is JsonObject runtimeDisplay)
         {
-            return WorkflowEditorDocument.FromRunDisplay(DeserializeRunDisplay(runDisplay));
+            return WorkflowEditorDocument.FromRuntimeDisplay(DeserializeRuntimeDisplay(runtimeDisplay));
         }
 
-        throw new JsonException("The selected file must contain exactly one current workflow method, C# script, or Run Display document.");
+        throw new JsonException("The selected file must contain exactly one current workflow document.");
     }
 
     public WorkflowProject Deserialize(JsonObject root)
@@ -115,7 +115,7 @@ public sealed class WorkflowEditorJsonSerializer
             ProjectIdWasGenerated = !projectId.HasValue,
             Name = GetString(root, "name") ?? "Workflow Project",
             Version = GetString(root, "version") ?? "1.0",
-            ExtensionData = CaptureExtension(root, "editorSchemaVersion", "projectId", "name", "version", "methods", "scripts", "runDisplays", "scriptLibraries")
+            ExtensionData = CaptureExtension(root, "editorSchemaVersion", "projectId", "name", "version", "methods", "scripts", "runtimeDisplays", "scriptLibraries")
         };
         if (root["methods"] is JsonArray methods)
         {
@@ -127,9 +127,9 @@ public sealed class WorkflowEditorJsonSerializer
             project.Scripts.AddRange(scripts.OfType<JsonObject>().Select(DeserializeScript));
         }
 
-        if (root["runDisplays"] is JsonArray runDisplays)
+        if (root["runtimeDisplays"] is JsonArray runtimeDisplays)
         {
-            project.RunDisplays.AddRange(runDisplays.OfType<JsonObject>().Select(DeserializeRunDisplay));
+            project.RuntimeDisplays.AddRange(runtimeDisplays.OfType<JsonObject>().Select(DeserializeRuntimeDisplay));
         }
 
         if (root["scriptLibraries"] is JsonArray scriptLibraries)
@@ -156,14 +156,18 @@ public sealed class WorkflowEditorJsonSerializer
             ExtensionData = CaptureExtension(document, "uid", "name", "language", "content")
         };
 
-    private static WorkflowRunDisplay DeserializeRunDisplay(JsonObject document)
+    private static RuntimeDisplayDefinition DeserializeRuntimeDisplay(JsonObject document)
         => new()
         {
-            Uid = GetGuid(document, "uid") ?? Guid.NewGuid(),
+            RuntimeDisplayId = GetGuid(document, "runtimeDisplayId") ?? Guid.NewGuid(),
             Name = GetString(document, "name") ?? string.Empty,
-            Xaml = GetString(document, "xaml") ?? RunDisplayDefaults.InitialXaml,
-            IsDefault = GetBool(document, "isDefault") ?? false,
-            ExtensionData = CaptureExtension(document, "uid", "name", "xaml", "isDefault")
+            Provider = Enum.TryParse<RuntimeDisplayProvider>(GetString(document, "provider"), true, out var provider)
+                ? provider
+                : RuntimeDisplayProvider.Grafana,
+            GrafanaDashboardUid = GetString(document, "grafanaDashboardUid") ?? string.Empty,
+            VariableBindings = DeserializeRuntimeDisplayVariableBindings(document["variableBindings"] as JsonArray),
+            MethodBindings = DeserializeRuntimeDisplayMethodBindings(document["methodBindings"] as JsonArray),
+            ExtensionData = CaptureExtension(document, "runtimeDisplayId", "name", "provider", "grafanaDashboardUid", "variableBindings", "methodBindings")
         };
 
     private static WorkflowMethod DeserializeMethod(JsonObject document)
@@ -336,15 +340,39 @@ public sealed class WorkflowEditorJsonSerializer
         return result;
     }
 
-    private static JsonObject SerializeRunDisplay(WorkflowRunDisplay runDisplay)
+    private static JsonObject SerializeRuntimeDisplay(RuntimeDisplayDefinition runtimeDisplay)
     {
-        var result = Clone(runDisplay.ExtensionData);
-        result["uid"] = runDisplay.Uid.ToString();
-        result["name"] = runDisplay.Name;
-        result["xaml"] = runDisplay.Xaml;
-        result["isDefault"] = runDisplay.IsDefault;
+        var result = Clone(runtimeDisplay.ExtensionData);
+        result["runtimeDisplayId"] = runtimeDisplay.RuntimeDisplayId.ToString("D");
+        result["name"] = runtimeDisplay.Name;
+        result["provider"] = runtimeDisplay.Provider.ToString();
+        result["grafanaDashboardUid"] = runtimeDisplay.GrafanaDashboardUid;
+        result["variableBindings"] = new JsonArray(runtimeDisplay.VariableBindings.Select(binding => new JsonObject
+        {
+            ["alias"] = binding.Alias,
+            ["variableName"] = binding.VariableName
+        }).ToArray<JsonNode?>());
+        result["methodBindings"] = new JsonArray(runtimeDisplay.MethodBindings.Select(binding => new JsonObject
+        {
+            ["alias"] = binding.Alias,
+            ["methodId"] = binding.MethodId.ToString("D")
+        }).ToArray<JsonNode?>());
         return result;
     }
+
+    private static List<RuntimeDisplayVariableBinding> DeserializeRuntimeDisplayVariableBindings(JsonArray? bindings)
+        => bindings?.OfType<JsonObject>().Select(binding => new RuntimeDisplayVariableBinding
+        {
+            Alias = GetString(binding, "alias") ?? string.Empty,
+            VariableName = GetString(binding, "variableName") ?? string.Empty
+        }).ToList() ?? new List<RuntimeDisplayVariableBinding>();
+
+    private static List<RuntimeDisplayMethodBinding> DeserializeRuntimeDisplayMethodBindings(JsonArray? bindings)
+        => bindings?.OfType<JsonObject>().Select(binding => new RuntimeDisplayMethodBinding
+        {
+            Alias = GetString(binding, "alias") ?? string.Empty,
+            MethodId = GetGuid(binding, "methodId") ?? Guid.Empty
+        }).ToList() ?? new List<RuntimeDisplayMethodBinding>();
 
     private static JsonObject SerializeLine(MethodLine line)
     {

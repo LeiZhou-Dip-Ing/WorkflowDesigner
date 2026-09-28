@@ -28,23 +28,31 @@ public sealed class JsonEditorDocumentPersistenceTests
     }
 
     [Fact]
-    public void SerializeAndDeserialize_PreserveRunDisplays()
+    public void SerializeAndDeserialize_PreserveRuntimeDisplays()
     {
         var service = CreateService();
         var project = EditorTestProjectFactory.Create();
-        project.RunDisplays.Add(new WorkflowRunDisplay
+        var runtimeDisplayId = Guid.NewGuid();
+        var methodId = project.Methods[0].Uid;
+        project.RuntimeDisplays.Add(new RuntimeDisplayDefinition
         {
+            RuntimeDisplayId = runtimeDisplayId,
             Name = "Operator panel",
-            Xaml = "<Canvas xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" />",
-            IsDefault = true
+            Provider = RuntimeDisplayProvider.Grafana,
+            GrafanaDashboardUid = "production-overview",
+            VariableBindings = [new RuntimeDisplayVariableBinding { Alias = "Temperature", VariableName = "_$temperature" }],
+            MethodBindings = [new RuntimeDisplayMethodBinding { Alias = "Start", MethodId = methodId }]
         });
 
         var restored = service.Deserialize(service.Serialize(project));
 
-        var runDisplay = Assert.Single(restored.RunDisplays);
-        Assert.Equal("Operator panel", runDisplay.Name);
-        Assert.True(runDisplay.IsDefault);
-        Assert.Contains("Canvas", runDisplay.Xaml);
+        var runtimeDisplay = Assert.Single(restored.RuntimeDisplays);
+        Assert.Equal(runtimeDisplayId, runtimeDisplay.RuntimeDisplayId);
+        Assert.Equal("Operator panel", runtimeDisplay.Name);
+        Assert.Equal(RuntimeDisplayProvider.Grafana, runtimeDisplay.Provider);
+        Assert.Equal("production-overview", runtimeDisplay.GrafanaDashboardUid);
+        Assert.Equal("_$temperature", Assert.Single(runtimeDisplay.VariableBindings).VariableName);
+        Assert.Equal(methodId, Assert.Single(runtimeDisplay.MethodBindings).MethodId);
     }
 
     [Fact]

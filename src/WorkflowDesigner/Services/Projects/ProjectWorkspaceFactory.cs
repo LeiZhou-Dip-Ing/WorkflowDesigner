@@ -4,6 +4,7 @@ using WorkflowCore.WpfDemo.Services.Editing;
 using WorkflowCore.WpfDemo.Services.Runtime;
 using WorkflowCore.WpfDemo.Services.Scripting;
 using WorkflowCore.WpfDemo.Services.Ui;
+using WorkflowCore.WpfDemo.Services.Grafana;
 using WorkflowCore.WpfDemo.ViewModels;
 
 namespace WorkflowCore.WpfDemo.Services.Projects;
@@ -25,6 +26,8 @@ public sealed class ProjectWorkspaceFactory : IProjectWorkspaceFactory
     private readonly ISharpScriptLibraryManagerDialog _scriptLibraryManagerDialog;
     private readonly IWorkflowProjectFileService _projectFileService;
     private readonly IProtectedWorkflowImportService _protectedWorkflowImporter;
+    private readonly IRuntimeDisplayProjectService _runtimeDisplays;
+    private readonly GrafanaDashboardUrlBuilder _grafanaUrls;
 
     public ProjectWorkspaceFactory(
         IMethodEditorViewModelFactory methodEditorFactory,
@@ -40,7 +43,9 @@ public sealed class ProjectWorkspaceFactory : IProjectWorkspaceFactory
         ISharpScriptTemplateFactory scriptTemplateFactory,
         ISharpScriptLibraryManagerDialog scriptLibraryManagerDialog,
         IWorkflowProjectFileService projectFileService,
-        IProtectedWorkflowImportService protectedWorkflowImporter)
+        IProtectedWorkflowImportService protectedWorkflowImporter,
+        IRuntimeDisplayProjectService? runtimeDisplays = null,
+        GrafanaDashboardUrlBuilder? grafanaUrls = null)
     {
         _methodEditorFactory = methodEditorFactory;
         _scriptEditorFactory = scriptEditorFactory;
@@ -56,6 +61,10 @@ public sealed class ProjectWorkspaceFactory : IProjectWorkspaceFactory
         _scriptLibraryManagerDialog = scriptLibraryManagerDialog;
         _projectFileService = projectFileService;
         _protectedWorkflowImporter = protectedWorkflowImporter;
+        _runtimeDisplays = runtimeDisplays
+            ?? new RuntimeDisplayProjectService(new UnavailableGrafanaDashboardClient());
+        _grafanaUrls = grafanaUrls
+            ?? new GrafanaDashboardUrlBuilder(new GrafanaConnectionOptions());
     }
 
     public IProjectWorkspace Create(OpenedWorkflowProject openedProject)
@@ -77,6 +86,8 @@ public sealed class ProjectWorkspaceFactory : IProjectWorkspaceFactory
             scriptLibraryManagerDialog: _scriptLibraryManagerDialog,
             projectFileService: _projectFileService,
             projectFilePath: openedProject.FullPath,
-            protectedWorkflowImporter: _protectedWorkflowImporter);
+            protectedWorkflowImporter: _protectedWorkflowImporter,
+            runtimeDisplayProjectService: _runtimeDisplays,
+            grafanaDashboardUrlBuilder: _grafanaUrls);
     }
 }

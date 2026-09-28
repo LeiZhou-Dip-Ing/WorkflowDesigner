@@ -20,6 +20,7 @@ using WorkflowRuntime.RestService.Extensions;
 using WorkflowRuntime.ResourceSdk;
 using WorkflowRuntime.ActionSdk;
 using WorkflowRuntime.Contracts;
+using WorkflowRuntime.WindowsService.Grafana;
 
 namespace WorkflowRuntime.WindowsService;
 
@@ -34,6 +35,10 @@ public static class Program
         options.PluginDirectory = ResolvePath(options.PluginDirectory);
         options.SharpScriptDirectory = ResolvePath(options.SharpScriptDirectory);
         options.SharpScriptLibraryDirectory = ResolvePath(options.SharpScriptLibraryDirectory);
+        if (!string.IsNullOrWhiteSpace(options.Grafana.ServerExecutablePath))
+            options.Grafana.ServerExecutablePath = ResolvePath(options.Grafana.ServerExecutablePath);
+        if (!string.IsNullOrWhiteSpace(options.Grafana.ServerWorkingDirectory))
+            options.Grafana.ServerWorkingDirectory = ResolvePath(options.Grafana.ServerWorkingDirectory);
 
         builder.Host.UseWindowsService(serviceOptions =>
         {
@@ -115,6 +120,8 @@ public static class Program
         builder.Services.AddHostedService<PublishedWorkflowStartup>();
         builder.Services.AddHostedService<ExpiredRunCleanup>();
         builder.Services.AddHostedService<ResourceCleanup>();
+        builder.Services.AddSingleton<PublishedRuntimeDisplayCatalog>();
+        builder.Services.AddHostedService<GrafanaServerHostedService>();
 
         var app = builder.Build();
         if (options.AllowRemoteAccess)
@@ -129,6 +136,24 @@ public static class Program
         app.UseWorkflowRuntimeApiDocumentation();
         app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
         app.MapWorkflowRuntimeEndpoints();
+
+        app.MapGet(
+                "/api/workflow-runtime/runtime-displays",
+                async (PublishedRuntimeDisplayCatalog displays, CancellationToken cancellationToken) =>
+                    Results.Ok(await displays.GetAllAsync(cancellationToken)))
+            .WithName("GetPublishedRuntimeDisplays");
+
+        app.MapGet(
+                "/api/workflow-runtime/runtime-displays/{runtimeDisplayId:guid}/view",
+                async (Guid runtimeDisplayId, PublishedRuntimeDisplayCatalog displays,
+                    CancellationToken cancellationToken) =>
+                {
+                    var display = await displays.FindAsync(runtimeDisplayId, cancellationToken);
+                    return display == null
+                        ? Results.NotFound()
+                        : Results.Redirect(display.DashboardUrl.AbsoluteUri);
+                })
+            .WithName("OpenPublishedRuntimeDisplay");
 
         app.MapGet("/api/workflow-runtime/settings/email", (HttpContext context, RuntimeEmailSettingsStore settings) =>
             IPAddress.IsLoopback(context.Connection.RemoteIpAddress ?? IPAddress.None)

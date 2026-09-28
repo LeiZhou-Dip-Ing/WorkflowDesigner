@@ -7,6 +7,7 @@
     {
       "uid": "8ab50895-23fa-4ef7-bd36-256c73b91ce8",
       "name": "SendDemoEmail",
+      "descriptionDocument": null,
       "methodType": 0,
       "initAtStart": false,
       "initMethodName": null,
@@ -35,11 +36,21 @@
           }
         }
       ],
+      "methodVariables": [],
       "inputs": [],
       "outputs": []
     }
   ],
   "scripts": [],
-  "runDisplays": [],
+  "runtimeDisplays": [
+    {
+      "runtimeDisplayId": "510fd97c-2577-41c5-89f9-be0d0507167c",
+      "name": "RuntimeDisplay1",
+      "provider": "Grafana",
+      "grafanaDashboardUid": "asps42",
+      "variableBindings": [],
+      "methodBindings": []
+    }
+  ],
   "scriptLibraries": []
 }

@@ -15,7 +15,7 @@ namespace WorkflowCore.WpfDemo.Tests;
 public sealed class MainWindowViewModelUndoTests
 {
     [Fact]
-    public void Navigation_ExposesMethodsScriptsAndRunDisplaysAsIndependentPeerItems()
+    public void Navigation_ExposesMethodsScriptsAndRuntimeDisplaysAsIndependentPeerItems()
     {
         using var viewModel = CreateViewModel();
 
@@ -31,10 +31,10 @@ public sealed class MainWindowViewModelUndoTests
                 Assert.Equal("CSharpScripts", scripts.Key);
                 Assert.Equal(DocumentIconKeys.CSharpScript, scripts.IconKey);
             },
-            runDisplays =>
+            runtimeDisplays =>
             {
-                Assert.Equal("RunDisplays", runDisplays.Key);
-                Assert.Equal(DocumentIconKeys.RunDisplay, runDisplays.IconKey);
+                Assert.Equal("RuntimeDisplays", runtimeDisplays.Key);
+                Assert.Equal(DocumentIconKeys.RuntimeDisplay, runtimeDisplays.IconKey);
             });
 
         viewModel.SelectHamburgerMenuCommand.Execute(viewModel.HamburgerMenuItems[0]);
@@ -51,7 +51,7 @@ public sealed class MainWindowViewModelUndoTests
         Assert.True(viewModel.IsSubmenuOpen);
         Assert.False(viewModel.IsMethodsSubmenuOpen);
         Assert.False(viewModel.IsScriptsSubmenuOpen);
-        Assert.True(viewModel.IsRunDisplaysSubmenuOpen);
+        Assert.True(viewModel.IsRuntimeDisplaysSubmenuOpen);
 
         viewModel.OpenMethodCommand.Execute(viewModel.Methods[0]);
         Assert.False(viewModel.IsSubmenuOpen);

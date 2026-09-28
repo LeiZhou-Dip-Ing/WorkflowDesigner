@@ -24,9 +24,9 @@ public sealed partial class MainWindowViewModel
             },
             new HamburgerMenuItem
             {
-                Key = "RunDisplays",
-                Title = "Run Displays",
-                IconKey = DocumentIconKeys.RunDisplay,
+                Key = "RuntimeDisplays",
+                Title = "Runtime Displays",
+                IconKey = DocumentIconKeys.RuntimeDisplay,
                 HasSubmenu = true
             }
         ];

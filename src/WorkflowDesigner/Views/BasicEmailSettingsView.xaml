@@ -236,13 +236,13 @@
                        Text="Save these settings, then connect and approve Mail.Send." />
             <TextBlock Text="Sign-in page" Grid.Row="5" Style="{StaticResource SettingLabel}" />
             <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource SettingInput}"
-                     Text="{Binding VerificationUrl}" IsReadOnly="True" />
+                     Text="{Binding VerificationUrl, Mode=OneWay}" IsReadOnly="True" />
             <Button Grid.Row="5" Grid.Column="2" Content="Open sign-in page" Click="OpenMicrosoftSignInPage"
                     Margin="12,7" HorizontalAlignment="Left"
                     IsEnabled="{Binding HasUserCode}" />
             <TextBlock Text="Sign-in code" Grid.Row="6" Style="{StaticResource SettingLabel}" />
             <TextBox Grid.Row="6" Grid.Column="1" Style="{StaticResource SettingInput}"
-                     Text="{Binding UserCode}" IsReadOnly="True" />
+                     Text="{Binding UserCode, Mode=OneWay}" IsReadOnly="True" />
             <TextBlock Grid.Row="6" Grid.Column="2" Style="{StaticResource SettingDetail}"
                        Text="Enter this code on the Microsoft page." />
         </Grid>

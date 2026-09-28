@@ -40,7 +40,19 @@ public sealed class WorkflowRuntimeOptions
 
     public SmtpWorkflowEmailSettings Email { get; set; } = new();
 
+    public GrafanaRuntimeOptions Grafana { get; set; } = new();
+
     public List<WorkflowAutoStartOptions> AutoStart { get; set; } = new();
+}
+
+public sealed class GrafanaRuntimeOptions
+{
+    public bool Enabled { get; set; }
+    public string BaseUrl { get; set; } = "http://localhost:3000";
+    public string ServerExecutablePath { get; set; } = string.Empty;
+    public string ServerWorkingDirectory { get; set; } = string.Empty;
+    public string ServerArguments { get; set; } = string.Empty;
+    public int StartupTimeoutSeconds { get; set; } = 30;
 }
 
 public sealed class WorkflowAutoStartOptions
