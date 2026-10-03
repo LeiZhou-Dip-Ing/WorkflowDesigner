@@ -52,7 +52,7 @@ public sealed class GrafanaRuntimeOptions
     public string ServerExecutablePath { get; set; } = string.Empty;
     public string ServerWorkingDirectory { get; set; } = string.Empty;
     public string ServerArguments { get; set; } = string.Empty;
-    public int StartupTimeoutSeconds { get; set; } = 30;
+    public int StartupTimeoutSeconds { get; set; } = 90;
 }
 
 public sealed class WorkflowAutoStartOptions

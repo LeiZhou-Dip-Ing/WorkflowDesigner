@@ -17,7 +17,8 @@ public interface IActionPropertyEditor
         Func<string, WorkflowMethod?> methodResolver,
         Func<string?, IReadOnlyList<string>> suggestionProvider,
         Action valueChanged,
-        Action valueChanging);
+        Action valueChanging,
+        Func<string, WorkflowSqlScript?>? sqlScriptResolver = null);
 
     void RefreshSuggestions(
         IEnumerable<ActionPropertyItem> properties,

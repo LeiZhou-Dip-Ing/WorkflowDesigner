@@ -21,3 +21,6 @@ NuGet.local.Config
 *.log
 *.tmp
 *.bak
+
+# Local Grafana runtime used by Workflow Runtime Display development.
+tools/grafana/

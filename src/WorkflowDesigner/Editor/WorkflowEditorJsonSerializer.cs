@@ -30,6 +30,12 @@ public sealed class WorkflowEditorJsonSerializer
                 ["documentType"] = "csharpScript",
                 ["script"] = SerializeScript(document.Script)
             },
+            WorkflowEditorDocumentKind.SqlScript when document.SqlScript != null => new JsonObject
+            {
+                ["editorSchemaVersion"] = CurrentEditorSchemaVersion,
+                ["documentType"] = "sqlScript",
+                ["sqlScript"] = SerializeSqlScript(document.SqlScript)
+            },
             WorkflowEditorDocumentKind.RuntimeDisplay when document.RuntimeDisplay != null => new JsonObject
             {
                 ["editorSchemaVersion"] = CurrentEditorSchemaVersion,
@@ -52,6 +58,7 @@ public sealed class WorkflowEditorJsonSerializer
         root["version"] = project.Version;
         root["methods"] = new JsonArray(project.Methods.Select(SerializeMethod).ToArray<JsonNode?>());
         root["scripts"] = new JsonArray(project.Scripts.Select(SerializeScript).ToArray<JsonNode?>());
+        root["sqlScripts"] = new JsonArray(project.SqlScripts.Select(SerializeSqlScript).ToArray<JsonNode?>());
         root["runtimeDisplays"] = new JsonArray(project.RuntimeDisplays.Select(SerializeRuntimeDisplay).ToArray<JsonNode?>());
         root["scriptLibraries"] = new JsonArray(project.ScriptLibraries.Select(reference => new JsonObject
         {
@@ -92,6 +99,12 @@ public sealed class WorkflowEditorJsonSerializer
             return WorkflowEditorDocument.FromScript(DeserializeScript(script));
         }
 
+        if (string.Equals(documentType, "sqlScript", StringComparison.OrdinalIgnoreCase)
+            && root["sqlScript"] is JsonObject sqlScript)
+        {
+            return WorkflowEditorDocument.FromSqlScript(DeserializeSqlScript(sqlScript));
+        }
+
         if (string.Equals(documentType, "runtimeDisplay", StringComparison.OrdinalIgnoreCase)
             && root["runtimeDisplay"] is JsonObject runtimeDisplay)
         {
@@ -115,7 +128,7 @@ public sealed class WorkflowEditorJsonSerializer
             ProjectIdWasGenerated = !projectId.HasValue,
             Name = GetString(root, "name") ?? "Workflow Project",
             Version = GetString(root, "version") ?? "1.0",
-            ExtensionData = CaptureExtension(root, "editorSchemaVersion", "projectId", "name", "version", "methods", "scripts", "runtimeDisplays", "scriptLibraries")
+            ExtensionData = CaptureExtension(root, "editorSchemaVersion", "projectId", "name", "version", "methods", "scripts", "sqlScripts", "runtimeDisplays", "scriptLibraries")
         };
         if (root["methods"] is JsonArray methods)
         {
@@ -125,6 +138,11 @@ public sealed class WorkflowEditorJsonSerializer
         if (root["scripts"] is JsonArray scripts)
         {
             project.Scripts.AddRange(scripts.OfType<JsonObject>().Select(DeserializeScript));
+        }
+
+        if (root["sqlScripts"] is JsonArray sqlScripts)
+        {
+            project.SqlScripts.AddRange(sqlScripts.OfType<JsonObject>().Select(DeserializeSqlScript));
         }
 
         if (root["runtimeDisplays"] is JsonArray runtimeDisplays)
@@ -154,6 +172,15 @@ public sealed class WorkflowEditorJsonSerializer
             Language = GetString(document, "language") ?? "CSharp",
             Content = GetString(document, "content") ?? string.Empty,
             ExtensionData = CaptureExtension(document, "uid", "name", "language", "content")
+        };
+
+    private static WorkflowSqlScript DeserializeSqlScript(JsonObject document)
+        => new()
+        {
+            Uid = GetGuid(document, "uid") ?? Guid.NewGuid(),
+            Name = GetString(document, "name") ?? string.Empty,
+            Content = GetString(document, "content") ?? string.Empty,
+            ExtensionData = CaptureExtension(document, "uid", "name", "content")
         };
 
     private static RuntimeDisplayDefinition DeserializeRuntimeDisplay(JsonObject document)
@@ -336,6 +363,15 @@ public sealed class WorkflowEditorJsonSerializer
         result["uid"] = script.Uid.ToString();
         result["name"] = script.Name;
         result["language"] = script.Language;
+        result["content"] = script.Content;
+        return result;
+    }
+
+    private static JsonObject SerializeSqlScript(WorkflowSqlScript script)
+    {
+        var result = Clone(script.ExtensionData);
+        result["uid"] = script.Uid.ToString("D");
+        result["name"] = script.Name;
         result["content"] = script.Content;
         return result;
     }

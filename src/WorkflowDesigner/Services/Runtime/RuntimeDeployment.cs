@@ -161,6 +161,12 @@ public sealed class RuntimeDeployment
                 .ConfigureAwait(false);
         }
 
+        if (localDocument.Kind == WorkflowEditorDocumentKind.SqlScript && localDocument.SqlScript != null)
+        {
+            return await DeploySqlScriptAsync(localDocument.SqlScript, hasUnsavedChanges, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         if (localDocument.Kind != WorkflowEditorDocumentKind.Method || localDocument.Method == null)
         {
             return new WorkflowDocumentDeployResult(
@@ -399,9 +405,12 @@ public sealed class RuntimeDeployment
         var response = await _runtimeApi.GetWorkflowAsync(
             WorkflowRuntimeDefaults.DefaultWorkflowId,
             cancellationToken);
-        EnsureRuntimeDocumentMatches(ReadSavedProject(), response, localDocument.Kind == WorkflowEditorDocumentKind.Method
-            ? ProjectDeploymentScope.CurrentMethod
-            : ProjectDeploymentScope.CurrentScript);
+        EnsureRuntimeDocumentMatches(ReadSavedProject(), response, localDocument.Kind switch
+        {
+            WorkflowEditorDocumentKind.Method => ProjectDeploymentScope.CurrentMethod,
+            WorkflowEditorDocumentKind.SqlScript => ProjectDeploymentScope.CurrentSqlScript,
+            _ => ProjectDeploymentScope.CurrentScript
+        });
         _workspaceSync.ApplyRuntimeSnapshot(response);
 
         var runtimeProject = _persistence.Deserialize(response.Workflow.ToJsonString());
@@ -471,9 +480,12 @@ public sealed class RuntimeDeployment
     {
         ArgumentNullException.ThrowIfNull(localDocument);
         var localProject = ReadSavedProject();
-        var deploymentScope = localDocument.Kind == WorkflowEditorDocumentKind.Method
-            ? ProjectDeploymentScope.CurrentMethod
-            : ProjectDeploymentScope.CurrentScript;
+        var deploymentScope = localDocument.Kind switch
+        {
+            WorkflowEditorDocumentKind.Method => ProjectDeploymentScope.CurrentMethod,
+            WorkflowEditorDocumentKind.SqlScript => ProjectDeploymentScope.CurrentSqlScript,
+            _ => ProjectDeploymentScope.CurrentScript
+        };
         await RequireMatchingActiveProjectOrThrowAsync(
                 localProject,
                 deploymentScope,
@@ -497,6 +509,77 @@ public sealed class RuntimeDeployment
             FindMatchingDocument(runtimeProject, localDocument),
             response,
             hasUnsavedChanges);
+    }
+
+    private async Task<WorkflowDocumentDeployResult> DeploySqlScriptAsync(
+        WorkflowSqlScript localScript,
+        bool hasUnsavedChanges,
+        CancellationToken cancellationToken)
+    {
+        if (hasUnsavedChanges || string.IsNullOrWhiteSpace(_session.SavedProjectJson))
+        {
+            const string message = "Save the SQL script locally before deploying it.";
+            _dialogs.ShowWarning("SQL script is not saved", message);
+            return new WorkflowDocumentDeployResult(false, false, null, message);
+        }
+
+        var savedProject = _persistence.Deserialize(_session.SavedProjectJson);
+        var savedScript = savedProject.SqlScripts.FirstOrDefault(script => script.Uid == localScript.Uid);
+        if (savedScript == null)
+        {
+            return new WorkflowDocumentDeployResult(false, false, null,
+                "The saved Project does not contain this SQL script. Save the Project first.");
+        }
+
+        var active = await RequireMatchingActiveProjectAsync(
+            savedProject, ProjectDeploymentScope.CurrentSqlScript, cancellationToken).ConfigureAwait(false);
+        if (active == null)
+        {
+            var message = CreateProjectMismatchMessage(savedProject, ProjectDeploymentScope.CurrentSqlScript);
+            _dialogs.ShowWarning("Complete Project deployment required", message);
+            return new WorkflowDocumentDeployResult(false, false, null, message);
+        }
+
+        var runtimeDocument = await _runtimeApi.GetWorkflowAsync(
+            WorkflowRuntimeDefaults.DefaultWorkflowId, cancellationToken).ConfigureAwait(false);
+        EnsureRuntimeDocumentMatches(savedProject, runtimeDocument, ProjectDeploymentScope.CurrentSqlScript);
+        var expectedProject = _persistence.Deserialize(runtimeDocument.Workflow.ToJsonString());
+        var index = expectedProject.SqlScripts.FindIndex(script => script.Uid == savedScript.Uid);
+        if (index >= 0) expectedProject.SqlScripts[index] = savedScript;
+        else expectedProject.SqlScripts.Add(savedScript);
+        var expectedWorkflow = JsonNode.Parse(_persistence.Serialize(expectedProject))
+            ?? throw new InvalidOperationException("The expected Runtime Project is empty.");
+        if (!_dialogs.Confirm("Deploy SQL script",
+            $"Deploy SQL script '{savedScript.Name}' to the active Project? Other Project documents will remain unchanged."))
+        {
+            return new WorkflowDocumentDeployResult(false, false, null, "SQL script deployment cancelled.");
+        }
+
+        await EnsureWorkflowCanPublishAsync(expectedWorkflow, cancellationToken).ConfigureAwait(false);
+        WorkflowPublishResponse publication;
+        try
+        {
+            publication = await _runtimeApi.PublishWorkflowAsync(
+                WorkflowRuntimeDefaults.DefaultWorkflowId,
+                savedProject.ProjectId,
+                ProjectDeploymentScope.CurrentSqlScript,
+                expectedWorkflow,
+                runtimeDocument.Revision,
+                cancellationToken).ConfigureAwait(false);
+        }
+        catch (RuntimeRevisionConflictException conflict)
+        {
+            _session.RuntimeRevision = conflict.CurrentRevision;
+            return new WorkflowDocumentDeployResult(false, true, null,
+                "Runtime changed since this SQL script was opened. Compare or Download before retrying.");
+        }
+
+        var verified = await VerifyRuntimeProjectAsync(
+            expectedProject, expectedWorkflow, publication.Revision, publication.ContentHash,
+            $"SQL script deployment for '{savedScript.Name}'", cancellationToken).ConfigureAwait(false);
+        var success = $"Deployed and verified SQL script '{savedScript.Name}' as Runtime revision {publication.Revision}.";
+        _dialogs.ShowInformation("SQL script deployment succeeded", success);
+        return new WorkflowDocumentDeployResult(true, false, verified, success);
     }
 
     private async Task<WorkflowDocumentDeployResult> DeployScriptAsync(
@@ -805,6 +888,10 @@ public sealed class RuntimeDeployment
             WorkflowEditorDocumentKind.CSharpScript when localDocument.Script != null
                 => runtimeProject.Scripts.FirstOrDefault(script => script.Uid == localDocument.Script.Uid) is { } script
                     ? WorkflowEditorDocument.FromScript(script)
+                    : null,
+            WorkflowEditorDocumentKind.SqlScript when localDocument.SqlScript != null
+                => runtimeProject.SqlScripts.FirstOrDefault(script => script.Uid == localDocument.SqlScript.Uid) is { } sqlScript
+                    ? WorkflowEditorDocument.FromSqlScript(sqlScript)
                     : null,
             _ => null
         };

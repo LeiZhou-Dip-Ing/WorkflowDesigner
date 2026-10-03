@@ -141,6 +141,31 @@ public sealed class EditorDocumentWorkspace
         Activate(pane);
     }
 
+    public void OpenSqlScript(WorkflowSqlScript? script, MainWindowViewModel owner)
+    {
+        if (script == null) return;
+        var contentId = GetSqlScriptContentId(script);
+        var existing = FindPane(contentId);
+        if (existing != null)
+        {
+            Activate(existing);
+            return;
+        }
+
+        var editor = new SqlScriptEditorViewModel(script, owner) { IsDirty = IsDirty(contentId) };
+        var pane = new DockPaneItem
+        {
+            ContentId = contentId,
+            Title = FormatTitle(script.DisplayFileName, editor.IsDirty),
+            IconKey = DocumentIconKeys.SqlScript,
+            Content = editor,
+            ClosedCallback = _ => editor.Dispose()
+        };
+        pane.CloseCommand = new DelegateCommand(() => Close(pane));
+        OpenedEditors.Add(pane);
+        Activate(pane);
+    }
+
     public void OpenRuntimeDisplay(
         WorkflowProject project,
         RuntimeDisplayDefinition? runtimeDisplay,
@@ -214,6 +239,8 @@ public sealed class EditorDocumentWorkspace
 
     public void CloseScript(WorkflowScript script) => CloseByContentId(GetScriptContentId(script));
 
+    public void CloseSqlScript(WorkflowSqlScript script) => CloseByContentId(GetSqlScriptContentId(script));
+
     public void CloseRuntimeDisplay(RuntimeDisplayDefinition runtimeDisplay)
         => CloseByContentId(GetRuntimeDisplayContentId(runtimeDisplay));
 
@@ -239,6 +266,9 @@ public sealed class EditorDocumentWorkspace
         var savedScripts = savedProject.Scripts
             .GroupBy(script => script.Uid)
             .ToDictionary(group => group.Key, group => group.First());
+        var savedSqlScripts = savedProject.SqlScripts
+            .GroupBy(script => script.Uid)
+            .ToDictionary(group => group.Key, group => group.First());
         var savedRuntimeDisplays = savedProject.RuntimeDisplays
             .GroupBy(runtimeDisplay => runtimeDisplay.RuntimeDisplayId)
             .ToDictionary(group => group.Key, group => group.First());
@@ -255,6 +285,14 @@ public sealed class EditorDocumentWorkspace
         {
             var snapshot = Serialize(script);
             _editStates[GetScriptContentId(script)] = savedScripts.TryGetValue(script.Uid, out var savedScript)
+                ? CreateSavedState(Serialize(savedScript), snapshot)
+                : WorkflowDocumentEditState.CreateUnsaved(snapshot);
+        }
+
+        foreach (var script in project.SqlScripts)
+        {
+            var snapshot = Serialize(script);
+            _editStates[GetSqlScriptContentId(script)] = savedSqlScripts.TryGetValue(script.Uid, out var savedScript)
                 ? CreateSavedState(Serialize(savedScript), snapshot)
                 : WorkflowDocumentEditState.CreateUnsaved(snapshot);
         }
@@ -291,6 +329,7 @@ public sealed class EditorDocumentWorkspace
             localProject.ExtensionData = (JsonObject)runtimeProject.ExtensionData.DeepClone();
             localProject.Methods = SynchronizeMethods(localProject.Methods, runtimeProject.Methods);
             localProject.Scripts = SynchronizeScripts(localProject.Scripts, runtimeProject.Scripts);
+            localProject.SqlScripts = SynchronizeSqlScripts(localProject.SqlScripts, runtimeProject.SqlScripts);
         }
         finally
         {
@@ -337,6 +376,14 @@ public sealed class EditorDocumentWorkspace
                 return WorkflowEditorDocument.FromScript(localScript);
             }
 
+            if (runtimeDocument.SqlScript is { } runtimeSqlScript)
+            {
+                var localScript = localProject.SqlScripts.FirstOrDefault(script => script.Uid == runtimeSqlScript.Uid)
+                    ?? throw new InvalidOperationException($"Local SQL script '{runtimeSqlScript.Name}' no longer exists.");
+                RestoreSqlScript(localScript, runtimeSqlScript);
+                return WorkflowEditorDocument.FromSqlScript(localScript);
+            }
+
             throw new InvalidOperationException("Runtime document has neither a method nor a script.");
         }
         finally
@@ -363,6 +410,11 @@ public sealed class EditorDocumentWorkspace
         foreach (var script in project.Scripts)
         {
             Observe(GetScriptContentId(script), Serialize(script), activeContentIds);
+        }
+
+        foreach (var script in project.SqlScripts)
+        {
+            Observe(GetSqlScriptContentId(script), Serialize(script), activeContentIds);
         }
 
         foreach (var runtimeDisplay in project.RuntimeDisplays)
@@ -442,6 +494,9 @@ public sealed class EditorDocumentWorkspace
         names.AddRange(project.Scripts
             .Where(script => IsDirty(GetScriptContentId(script)))
             .Select(script => script.Name));
+        names.AddRange(project.SqlScripts
+            .Where(script => IsDirty(GetSqlScriptContentId(script)))
+            .Select(script => script.Name));
         names.AddRange(project.RuntimeDisplays
             .Where(runtimeDisplay => IsDirty(GetRuntimeDisplayContentId(runtimeDisplay)))
             .Select(runtimeDisplay => runtimeDisplay.Name));
@@ -451,6 +506,7 @@ public sealed class EditorDocumentWorkspace
             var savedProject = _persistence.Deserialize(_session.SavedProjectJson);
             var currentMethodIds = project.Methods.Select(method => method.Uid).ToHashSet();
             var currentScriptIds = project.Scripts.Select(script => script.Uid).ToHashSet();
+            var currentSqlScriptIds = project.SqlScripts.Select(script => script.Uid).ToHashSet();
             var currentRuntimeDisplayIds = project.RuntimeDisplays
                 .Select(runtimeDisplay => runtimeDisplay.RuntimeDisplayId).ToHashSet();
             names.AddRange(savedProject.Methods
@@ -458,6 +514,9 @@ public sealed class EditorDocumentWorkspace
                 .Select(method => $"{method.Name} (deleted)"));
             names.AddRange(savedProject.Scripts
                 .Where(script => !currentScriptIds.Contains(script.Uid))
+                .Select(script => $"{script.Name} (deleted)"));
+            names.AddRange(savedProject.SqlScripts
+                .Where(script => !currentSqlScriptIds.Contains(script.Uid))
                 .Select(script => $"{script.Name} (deleted)"));
             names.AddRange(savedProject.RuntimeDisplays
                 .Where(runtimeDisplay => !currentRuntimeDisplayIds.Contains(runtimeDisplay.RuntimeDisplayId))
@@ -514,6 +573,10 @@ public sealed class EditorDocumentWorkspace
                         CloseScript(scriptEditor.Script);
                         project.Scripts.Remove(scriptEditor.Script);
                         break;
+                    case SqlScriptEditorViewModel sqlEditor:
+                        CloseSqlScript(sqlEditor.Script);
+                        project.SqlScripts.Remove(sqlEditor.Script);
+                        break;
                     case RuntimeDisplayEditorViewModel runtimeDisplayEditor:
                         CloseRuntimeDisplay(runtimeDisplayEditor.RuntimeDisplay);
                         project.RuntimeDisplays.Remove(runtimeDisplayEditor.RuntimeDisplay);
@@ -549,6 +612,9 @@ public sealed class EditorDocumentWorkspace
                     break;
                 case CSharpScriptEditorViewModel scriptEditor when restored.Script != null:
                     RestoreScript(scriptEditor.Script, restored.Script);
+                    break;
+                case SqlScriptEditorViewModel sqlEditor when restored.SqlScript != null:
+                    RestoreSqlScript(sqlEditor.Script, restored.SqlScript);
                     break;
                 case RuntimeDisplayEditorViewModel runtimeDisplayEditor when restored.RuntimeDisplay != null:
                     RestoreRuntimeDisplay(runtimeDisplayEditor.RuntimeDisplay, restored.RuntimeDisplay);
@@ -593,6 +659,11 @@ public sealed class EditorDocumentWorkspace
         foreach (var script in project.Scripts)
         {
             MarkSaved(GetScriptContentId(script), Serialize(script));
+        }
+
+        foreach (var script in project.SqlScripts)
+        {
+            MarkSaved(GetSqlScriptContentId(script), Serialize(script));
         }
 
         foreach (var runtimeDisplay in project.RuntimeDisplays)
@@ -647,6 +718,12 @@ public sealed class EditorDocumentWorkspace
             if (index >= 0) savedProject.Scripts[index] = script;
             else savedProject.Scripts.Add(script);
         }
+        else if (document.SqlScript is { } sqlScript)
+        {
+            var index = savedProject.SqlScripts.FindIndex(existing => existing.Uid == sqlScript.Uid);
+            if (index >= 0) savedProject.SqlScripts[index] = sqlScript;
+            else savedProject.SqlScripts.Add(sqlScript);
+        }
         else if (document.RuntimeDisplay is { } runtimeDisplay)
         {
             var index = savedProject.RuntimeDisplays.FindIndex(existing =>
@@ -659,6 +736,8 @@ public sealed class EditorDocumentWorkspace
     public static string GetMethodContentId(WorkflowMethod method) => $"method:{method.Uid:N}";
 
     public static string GetScriptContentId(WorkflowScript script) => $"script:{script.Uid:N}";
+
+    public static string GetSqlScriptContentId(WorkflowSqlScript script) => $"sql-script:{script.Uid:N}";
 
     public static string GetRuntimeDisplayContentId(RuntimeDisplayDefinition runtimeDisplay)
         => $"runtime-display:{runtimeDisplay.RuntimeDisplayId:N}";
@@ -681,7 +760,7 @@ public sealed class EditorDocumentWorkspace
     {
         if (string.IsNullOrWhiteSpace(_session.SavedProjectJson))
         {
-            return project.Methods.Count > 0 || project.Scripts.Count > 0 || project.ScriptLibraries.Count > 0;
+            return project.Methods.Count > 0 || project.Scripts.Count > 0 || project.SqlScripts.Count > 0 || project.ScriptLibraries.Count > 0;
         }
 
         var savedProject = _persistence.Deserialize(_session.SavedProjectJson);
@@ -689,6 +768,8 @@ public sealed class EditorDocumentWorkspace
                    .SetEquals(project.Methods.Select(method => method.Uid))
                || !savedProject.Scripts.Select(script => script.Uid).ToHashSet()
                    .SetEquals(project.Scripts.Select(script => script.Uid))
+               || !savedProject.SqlScripts.Select(script => script.Uid).ToHashSet()
+                   .SetEquals(project.SqlScripts.Select(script => script.Uid))
                || !savedProject.RuntimeDisplays.Select(runtimeDisplay => runtimeDisplay.RuntimeDisplayId).ToHashSet()
                    .SetEquals(project.RuntimeDisplays.Select(runtimeDisplay => runtimeDisplay.RuntimeDisplayId))
                || !savedProject.ScriptLibraries.Select(CreateLibraryIdentity).ToHashSet(StringComparer.OrdinalIgnoreCase)
@@ -705,6 +786,9 @@ public sealed class EditorDocumentWorkspace
             .Concat(project.Scripts
                 .Where(script => string.Equals(GetScriptContentId(script), contentId, StringComparison.OrdinalIgnoreCase))
                 .Select(WorkflowEditorDocument.FromScript))
+            .Concat(project.SqlScripts
+                .Where(script => string.Equals(GetSqlScriptContentId(script), contentId, StringComparison.OrdinalIgnoreCase))
+                .Select(WorkflowEditorDocument.FromSqlScript))
             .Concat(project.RuntimeDisplays
                 .Where(runtimeDisplay => string.Equals(
                     GetRuntimeDisplayContentId(runtimeDisplay), contentId, StringComparison.OrdinalIgnoreCase))
@@ -722,6 +806,29 @@ public sealed class EditorDocumentWorkspace
 
     private string Serialize(WorkflowScript script)
         => _persistence.SerializeDocument(WorkflowEditorDocument.FromScript(script));
+
+    private string Serialize(WorkflowSqlScript script)
+        => _persistence.SerializeDocument(WorkflowEditorDocument.FromSqlScript(script));
+
+    private List<WorkflowSqlScript> SynchronizeSqlScripts(
+        IReadOnlyCollection<WorkflowSqlScript> localScripts,
+        IReadOnlyCollection<WorkflowSqlScript> runtimeScripts)
+    {
+        var localByUid = localScripts.ToDictionary(script => script.Uid);
+        var runtimeUids = runtimeScripts.Select(script => script.Uid).ToHashSet();
+        foreach (var removed in localScripts.Where(script => !runtimeUids.Contains(script.Uid)))
+        {
+            CloseSqlScript(removed);
+            _editStates.Remove(GetSqlScriptContentId(removed));
+        }
+
+        return runtimeScripts.Select(script =>
+        {
+            if (!localByUid.TryGetValue(script.Uid, out var local)) return script;
+            RestoreSqlScript(local, script);
+            return local;
+        }).ToList();
+    }
 
     private string Serialize(RuntimeDisplayDefinition runtimeDisplay)
         => _persistence.SerializeDocument(WorkflowEditorDocument.FromRuntimeDisplay(runtimeDisplay));
@@ -820,6 +927,7 @@ public sealed class EditorDocumentWorkspace
         {
             MethodEditorViewModel methodEditor => methodEditor.Method.Name,
             CSharpScriptEditorViewModel scriptEditor => scriptEditor.Script.DisplayFileName,
+            SqlScriptEditorViewModel sqlEditor => sqlEditor.Script.DisplayFileName,
             RuntimeDisplayEditorViewModel runtimeDisplayEditor => runtimeDisplayEditor.RuntimeDisplay.Name,
             _ => document.Title.TrimEnd(' ', '*')
         };
@@ -856,6 +964,13 @@ public sealed class EditorDocumentWorkspace
     {
         target.Name = source.Name;
         target.Language = source.Language;
+        target.Content = source.Content;
+        target.ExtensionData = (JsonObject)source.ExtensionData.DeepClone();
+    }
+
+    private static void RestoreSqlScript(WorkflowSqlScript target, WorkflowSqlScript source)
+    {
+        target.Name = source.Name;
         target.Content = source.Content;
         target.ExtensionData = (JsonObject)source.ExtensionData.DeepClone();
     }

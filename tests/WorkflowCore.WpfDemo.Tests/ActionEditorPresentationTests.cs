@@ -393,6 +393,43 @@ public sealed class ActionEditorPresentationTests
     }
 
     [Fact]
+    public void ModifySqlProperties_AreGeneratedFromScriptParameters()
+    {
+        var script = new WorkflowSqlScript
+        {
+            Name = "InsertData",
+            Content = "INSERT INTO Data (Id, Value) VALUES (#arbpl_id#, #wert0#)"
+        };
+        var descriptor = new WorkflowActionDescriptorDto
+        {
+            ActionType = "modifySql",
+            ActionId = "modifySql",
+            DisplayName = "Modify SQL",
+            Category = "Database",
+            Inputs =
+            [
+                new WorkflowActionFieldDto { Name = "SqlScriptName", DisplayName = "SQL script", ValueType = "string", Order = 0 },
+                new WorkflowActionFieldDto { Name = "Parameters", DisplayName = "SQL parameters", ValueType = "object", Editor = "json", Order = 1 }
+            ]
+        };
+        var editor = new ActionPropertyEditor(new TestCatalog([descriptor]), new VariableEditor());
+        var action = WorkflowAction.Create("modifySql");
+        action.SetProperty("SqlScriptName", JsonValue.Create("InsertData"));
+        var method = new WorkflowMethod { Name = "Main" };
+        var line = MethodLine.Create(10, 0, action);
+        method.MethodLines.Add(line);
+
+        var properties = editor.BuildProperties(line, method, _ => null, _ => ["_$0id", "_$0value"],
+            () => { }, () => { }, name => name == script.Name ? script : null);
+
+        Assert.DoesNotContain(properties, property => property.Name == "Parameters");
+        Assert.Contains(properties, property => property.Name == "Parameters.arbpl_id");
+        var value = properties.Single(property => property.Name == "Parameters.wert0");
+        value.ValueText = "_$0value";
+        Assert.Equal("_$0value", action.GetProperty("Parameters")!["wert0"]!.GetValue<string>());
+    }
+
+    [Fact]
     public void Hierarchy_FlattensLeafActionsWithoutARealParentBlock()
     {
         var items = new[]

@@ -34,7 +34,8 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
         IEditorFileDialogs fileDialogs,
         TimeProvider timeProvider,
         IWorkflowThemeService? themeService = null,
-        EmailSettingsViewModel? emailSettings = null)
+        EmailSettingsViewModel? emailSettings = null,
+        DatabaseSettingsViewModel? databaseSettings = null)
     {
         _recentProjects = recentProjects ?? throw new ArgumentNullException(nameof(recentProjects));
         _projectFiles = projectFiles ?? throw new ArgumentNullException(nameof(projectFiles));
@@ -42,6 +43,7 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
         _fileDialogs = fileDialogs ?? throw new ArgumentNullException(nameof(fileDialogs));
         _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
         EmailSettings = emailSettings ?? new EmailSettingsViewModel(new RuntimeApiClient());
+        DatabaseSettings = databaseSettings ?? new DatabaseSettingsViewModel(new RuntimeApiClient());
         _themeService = themeService ?? new WorkflowThemeService();
 
         NewProjectCommand = new RelayCommand(CreateProject);
@@ -95,6 +97,7 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
     public bool IsWorkflowDesignTabSelected => SelectedRibbonTab == "WorkflowDesign";
     public bool IsUserSettingsTabSelected => SelectedRibbonTab == "UserSettings";
     public EmailSettingsViewModel EmailSettings { get; }
+    public DatabaseSettingsViewModel DatabaseSettings { get; }
 
     public bool IsBasicSettingsOpen
     {
@@ -237,6 +240,7 @@ public sealed class ApplicationShellViewModel : ObservableObject, IAsyncDisposab
     {
         IsBasicSettingsOpen = true;
         _ = EmailSettings.LoadAsync();
+        _ = DatabaseSettings.LoadAsync();
     }
 
     private void CreateProject()

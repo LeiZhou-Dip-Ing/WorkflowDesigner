@@ -318,6 +318,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         OpenSelectedMethodCommand = new RelayCommand(() => OpenMethod(SelectedMethod), () => SelectedMethod != null);
         OpenMethodCommand = new RelayCommand(parameter => OpenMethod(parameter as WorkflowMethod));
         OpenScriptCommand = new RelayCommand(parameter => OpenScript(parameter as WorkflowScript));
+        OpenSqlScriptCommand = new RelayCommand(parameter => OpenSqlScript(parameter as WorkflowSqlScript));
+        DeleteSqlScriptCommand = new RelayCommand(DeleteSqlScript, parameter => !IsRunning && parameter is WorkflowSqlScript);
         OpenRuntimeDisplayCommand = new RelayCommand(parameter => OpenRuntimeDisplay(parameter as RuntimeDisplayDefinition));
         DeleteScriptCommand = new RelayCommand(
             DeleteScript,
@@ -446,7 +448,6 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
 
     public ObservableCollection<WorkflowMethod> Methods { get; } = new();
     public ObservableCollection<WorkflowScript> Scripts { get; } = new();
-
     public ResettableObservableCollection<MethodLine> SelectedMethodLines { get; } = new();
 
     public ResettableObservableCollection<MethodLineViewItem> VisibleMethodLineItems { get; } = new();
@@ -487,6 +488,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
                 IsCreateMenuOpen = false;
                 OnPropertyChanged(nameof(IsMethodsSubmenuOpen));
                 OnPropertyChanged(nameof(IsScriptsSubmenuOpen));
+                OnPropertyChanged(nameof(IsSqlScriptsSubmenuOpen));
                 OnPropertyChanged(nameof(IsRuntimeDisplaysSubmenuOpen));
                 OnPropertyChanged(nameof(IsSubmenuOpen));
             }
@@ -754,6 +756,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         {
             CreateDocumentKind.Method => "Create method",
             CreateDocumentKind.CSharpScript => "Create CSharp Script",
+            CreateDocumentKind.SqlScript => "Create SQL Script",
             CreateDocumentKind.RuntimeDisplay => "Create Runtime Display",
             _ => "Rename Runtime Display"
         };
@@ -763,6 +766,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         {
             CreateDocumentKind.Method => "Method name",
             CreateDocumentKind.CSharpScript => "Script name",
+            CreateDocumentKind.SqlScript => "SQL script name",
             _ => "Display name"
         };
 
@@ -822,9 +826,11 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
 
     public bool IsScriptsSubmenuOpen => SelectedHamburgerMenuItem?.Key == "CSharpScripts";
 
+    public bool IsSqlScriptsSubmenuOpen => SelectedHamburgerMenuItem?.Key == "SqlScripts";
+
     public bool IsRuntimeDisplaysSubmenuOpen => SelectedHamburgerMenuItem?.Key == "RuntimeDisplays";
 
-    public bool IsSubmenuOpen => IsMethodsSubmenuOpen || IsScriptsSubmenuOpen || IsRuntimeDisplaysSubmenuOpen;
+    public bool IsSubmenuOpen => IsMethodsSubmenuOpen || IsScriptsSubmenuOpen || IsSqlScriptsSubmenuOpen || IsRuntimeDisplaysSubmenuOpen;
 
     public DockPaneItem? SelectedDockPane
     {
@@ -951,7 +957,6 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
     public RelayCommand OpenScriptCommand { get; }
     public RelayCommand DeleteScriptCommand { get; }
     public RelayCommand ManageScriptLibrariesCommand { get; }
-
     public RelayCommand SelectHamburgerMenuCommand { get; }
     public RelayCommand CloseSubmenuCommand { get; }
     public RelayCommand ConfirmCreateMethodCommand { get; }
@@ -1116,6 +1121,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         {
             ShowCreateScriptDialog();
         }
+        else if (string.Equals(itemKind, "SqlScript", StringComparison.OrdinalIgnoreCase))
+        {
+            ShowCreateSqlScriptDialog();
+        }
         else if (string.Equals(itemKind, "RuntimeDisplay", StringComparison.OrdinalIgnoreCase))
         {
             ShowCreateRuntimeDisplayDialog();
@@ -1234,6 +1243,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         if (_createDocumentKind == CreateDocumentKind.CSharpScript)
         {
             CreateScriptFromDialog();
+            return;
+        }
+
+        if (_createDocumentKind == CreateDocumentKind.SqlScript)
+        {
+            CreateSqlScriptFromDialog();
             return;
         }
 
@@ -1920,7 +1935,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
                 "Replace entire workflow Project",
                 $"Replace the entire current Project with '{importedProject.Name}'?\n\n"
                 + $"The imported Project contains {importedProject.Methods.Count} method(s) and "
-                + $"{importedProject.Scripts.Count} C# script(s).\n"
+                + $"{importedProject.Scripts.Count} C# script(s) and {importedProject.SqlScripts.Count} SQL script(s).\n"
                 + "All current Project documents will be replaced.");
             if (!replaceProject)
             {
@@ -1961,6 +1976,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
                 break;
             case WorkflowEditorDocumentKind.CSharpScript when document.Script != null:
                 ImportScript(document.Script, filePath);
+                break;
+            case WorkflowEditorDocumentKind.SqlScript when document.SqlScript != null:
+                ImportSqlScript(document.SqlScript, filePath);
                 break;
             default:
                 throw new InvalidOperationException("The selected workflow document type is not supported.");
@@ -2439,6 +2457,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
             Scripts.Add(script);
         }
 
+        SqlScripts.Clear();
+        foreach (var script in Project.SqlScripts)
+        {
+            SqlScripts.Add(script);
+        }
+
         RuntimeDisplays.Clear();
         foreach (var runtimeDisplay in Project.RuntimeDisplays)
         {
@@ -2615,9 +2639,15 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
                      Project.FindMethod,
                      GetEditorSuggestions,
                      OnSelectedActionPropertyChanged,
-                     CaptureSelectedMethodUndoBaseline))
+                     CaptureSelectedMethodUndoBaseline,
+                     name => Project.SqlScripts.FirstOrDefault(script =>
+                         string.Equals(script.Name, name, StringComparison.OrdinalIgnoreCase))))
         {
             if (string.Equals(property.Name, "MethodName", StringComparison.OrdinalIgnoreCase))
+            {
+                property.ValueApplied += OnSelectedTargetMethodChanged;
+            }
+            if (string.Equals(property.Name, "SqlScriptName", StringComparison.OrdinalIgnoreCase))
             {
                 property.ValueApplied += OnSelectedTargetMethodChanged;
             }
@@ -2758,31 +2788,6 @@ public sealed partial class MainWindowViewModel : ObservableObject, IProjectWork
         StatusText = "Method variable settings updated.";
         RaiseCommandStates();
     }
-
-    private IReadOnlyList<string> GetEditorSuggestions(string? dataSource)
-        => dataSource?.ToLowerInvariant() switch
-        {
-            "methodvariables" => SelectedMethodVariables
-                .Select(variable => variable.VariableName)
-                .ToArray(),
-            "methodvariableexpressions" => SelectedMethodVariables
-                .Select(variable => variable.VariableName)
-                .ToArray(),
-            "threadtaskvariables" when SelectedMethod != null
-                => ThreadTaskVariables.GetDeclaredNames(SelectedMethod),
-            "methods" => Project.Methods
-                .Select(method => method.Name)
-                .Where(name => !string.IsNullOrWhiteSpace(name))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
-                .ToArray(),
-            _ => Array.Empty<string>()
-        };
-
-    private void RefreshPropertyEditorSuggestions()
-        => _actionProperties.RefreshSuggestions(
-            SelectedActionProperties,
-            GetEditorSuggestions);
 
     private void CreatePropertyValue(object? parameter)
     {

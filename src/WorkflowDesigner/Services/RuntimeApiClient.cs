@@ -45,6 +45,21 @@ public sealed class RuntimeApiClient : IRuntimeApiClient
             : new Uri(_baseAddress, relativeUri.TrimStart('/'));
     }
 
+    public async Task<SqlScriptPreviewResult> PreviewSqlAsync(
+        string sql,
+        IReadOnlyDictionary<string, JsonElement> parameters,
+        bool validateOnly,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.PostAsJsonAsync(
+            "api/workflow-runtime/sql/preview",
+            new { Sql = sql, Parameters = parameters, ValidateOnly = validateOnly },
+            cancellationToken).ConfigureAwait(false);
+        await EnsureSuccessAsync(response, cancellationToken).ConfigureAwait(false);
+        return await response.Content.ReadFromJsonAsync<SqlScriptPreviewResult>(cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException("Workflow Runtime returned an empty SQL preview response.");
+    }
+
     public async Task ConnectEventsAsync(CancellationToken cancellationToken = default)
     {
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeCts.Token);
@@ -222,6 +237,26 @@ public sealed class RuntimeApiClient : IRuntimeApiClient
         => await _httpClient.GetFromJsonAsync<RuntimeEmailSettingsDto>(
                "api/workflow-runtime/settings/email", cancellationToken).ConfigureAwait(false)
            ?? throw new InvalidOperationException("Runtime returned empty email settings.");
+
+    public async Task<RuntimeDatabaseSettingsDto> GetDatabaseSettingsAsync(CancellationToken cancellationToken = default)
+        => await _httpClient.GetFromJsonAsync<RuntimeDatabaseSettingsDto>(
+               "api/workflow-runtime/settings/database", cancellationToken).ConfigureAwait(false)
+           ?? throw new InvalidOperationException("Runtime returned empty database settings.");
+
+    public async Task<RuntimeDatabaseSettingsDto> SaveDatabaseSettingsAsync(
+        RuntimeDatabaseSettingsUpdateDto settings, CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.PutAsJsonAsync(
+            "api/workflow-runtime/settings/database", settings, cancellationToken).ConfigureAwait(false);
+        return await ReadJsonAsync<RuntimeDatabaseSettingsDto>(response, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<RuntimeDatabaseConnectionTestDto> TestDatabaseConnectionAsync(CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.PostAsync(
+            "api/workflow-runtime/settings/database/test", null, cancellationToken).ConfigureAwait(false);
+        return await ReadJsonAsync<RuntimeDatabaseConnectionTestDto>(response, cancellationToken).ConfigureAwait(false);
+    }
 
     public async Task<RuntimeEmailSettingsDto> SaveEmailSettingsAsync(
         RuntimeEmailSettingsUpdateDto settings, CancellationToken cancellationToken = default)

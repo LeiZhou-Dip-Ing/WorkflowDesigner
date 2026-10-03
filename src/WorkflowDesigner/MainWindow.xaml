@@ -52,6 +52,10 @@
             <views:CSharpScriptEditorView />
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type viewModels:SqlScriptEditorViewModel}">
+            <views:SqlScriptEditorView />
+        </DataTemplate>
+
         <DataTemplate DataType="{x:Type viewModels:RuntimeDisplayEditorViewModel}">
             <views:RuntimeDisplayView />
         </DataTemplate>
@@ -1054,6 +1058,7 @@
                         <RowDefinition Height="54" />
                         <RowDefinition Height="54" />
                         <RowDefinition Height="54" />
+                        <RowDefinition Height="54" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
@@ -1146,6 +1151,19 @@
                     </Button>
 
                     <Button Grid.Row="3"
+                            Command="{Binding SelectCreateItemCommand}"
+                            CommandParameter="SqlScript"
+                            Background="Transparent" BorderThickness="0" Padding="22,0"
+                            HorizontalContentAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <ContentControl Content="{x:Static models:DocumentIconKeys.SqlScript}"
+                                            ContentTemplate="{StaticResource DocumentIconTemplate}"
+                                            Foreground="{DynamicResource AccentBrush}" Width="32" />
+                            <TextBlock Text="SQL Script" FontSize="14" Foreground="{DynamicResource AppTextBrush}" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Grid.Row="4"
                             Command="{Binding SelectCreateItemCommand}"
                             CommandParameter="RuntimeDisplay"
                             Background="Transparent"
@@ -1309,6 +1327,49 @@
                             </ListBox.ItemTemplate>
                     </ListBox>
                 </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <Border x:Name="SqlScriptsSubmenu"
+                Grid.Column="1" Panel.ZIndex="20" Width="220" HorizontalAlignment="Left"
+                Background="{DynamicResource AppSidebarBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}" BorderThickness="0,0,1,0"
+                Visibility="{Binding IsSqlScriptsSubmenuOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="SQL Scripts" Grid.Row="0" FontSize="16" Margin="12,0,4,0"
+                           Foreground="{DynamicResource AppTextBrush}" VerticalAlignment="Center" />
+                <ListBox Grid.Row="1" ItemsSource="{Binding SqlScripts}"
+                         ItemContainerStyle="{StaticResource SubmenuMethodItemStyle}"
+                         Background="{DynamicResource AppSidebarBrush}" BorderThickness="0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Button Command="{Binding DataContext.OpenSqlScriptCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                    CommandParameter="{Binding}"
+                                    Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                    Background="Transparent" BorderThickness="0" Padding="12,0,14,0"
+                                    HorizontalContentAlignment="Stretch">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Delete local SQL script"
+                                                  Command="{Binding PlacementTarget.Tag.DeleteSqlScriptCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                                <StackPanel Orientation="Horizontal">
+                                    <ContentControl Content="{x:Static models:DocumentIconKeys.SqlScript}"
+                                                    ContentTemplate="{StaticResource DocumentIconTemplate}"
+                                                    Foreground="{DynamicResource AccentBrush}" Width="24" Height="24" Margin="0,0,8,0" />
+                                    <TextBlock Text="{Binding DisplayFileName}" FontSize="12" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource AppTextBrush}" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Grid>
         </Border>
 
@@ -1698,9 +1759,18 @@
         <Border Grid.Column="1" Panel.ZIndex="101"
                 Background="{DynamicResource AppPageBrush}"
                 Visibility="{Binding DataContext.IsBasicSettingsOpen, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <views:BasicEmailSettingsView DataContext="{Binding DataContext.EmailSettings, RelativeSource={RelativeSource AncestorType=Window}}" />
-            </ScrollViewer>
+            <TabControl>
+                <TabItem Header="E-Mail">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <views:BasicEmailSettingsView DataContext="{Binding DataContext.EmailSettings, RelativeSource={RelativeSource AncestorType=Window}}" />
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Database">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <views:BasicDatabaseSettingsView DataContext="{Binding DataContext.DatabaseSettings, RelativeSource={RelativeSource AncestorType=Window}}" />
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
         </Border>
         </Grid>
     </Grid>

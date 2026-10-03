@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using System.Text.Json;
 using WorkflowRuntime.Contracts;
 
 namespace WorkflowCore.WpfDemo.Services;
@@ -14,7 +15,24 @@ public interface IRuntimeApiClient : IDisposable, IAsyncDisposable
 
     Uri ResolveRuntimeUri(string relativeUri);
 
+    Task<SqlScriptPreviewResult> PreviewSqlAsync(
+        string sql,
+        IReadOnlyDictionary<string, JsonElement> parameters,
+        bool validateOnly,
+        CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
+
     Task<RuntimeEmailSettingsDto> GetEmailSettingsAsync(CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
+
+    Task<RuntimeDatabaseSettingsDto> GetDatabaseSettingsAsync(CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
+
+    Task<RuntimeDatabaseSettingsDto> SaveDatabaseSettingsAsync(
+        RuntimeDatabaseSettingsUpdateDto settings, CancellationToken cancellationToken = default)
+        => throw new NotSupportedException();
+
+    Task<RuntimeDatabaseConnectionTestDto> TestDatabaseConnectionAsync(CancellationToken cancellationToken = default)
         => throw new NotSupportedException();
 
     Task<RuntimeEmailSettingsDto> SaveEmailSettingsAsync(

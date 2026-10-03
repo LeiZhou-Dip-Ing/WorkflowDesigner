@@ -15,6 +15,24 @@ namespace WorkflowCore.WpfDemo.Tests;
 public sealed class JsonEditorDocumentPersistenceTests
 {
     [Fact]
+    public void SqlScripts_ArePreservedByProjectAndDocumentRoundTrips()
+    {
+        var service = CreateService();
+        var project = EditorTestProjectFactory.Create();
+        var script = new WorkflowSqlScript { Name = "Lookup", Content = "SELECT @id AS Id;" };
+        project.SqlScripts.Add(script);
+
+        var restored = service.Deserialize(service.Serialize(project));
+        var restoredScript = Assert.Single(restored.SqlScripts);
+        Assert.Equal(script.Uid, restoredScript.Uid);
+        Assert.Equal(script.Content, restoredScript.Content);
+
+        var document = WorkflowEditorDocument.FromSqlScript(script);
+        var restoredDocument = service.DeserializeDocument(service.SerializeDocument(document));
+        Assert.Equal(script.Content, restoredDocument.SqlScript?.Content);
+    }
+
+    [Fact]
     public void SerializeAndDeserialize_PreserveMethodDescriptionDocument()
     {
         var service = CreateService();

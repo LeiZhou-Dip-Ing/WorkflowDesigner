@@ -24,6 +24,13 @@ public sealed partial class MainWindowViewModel
             },
             new HamburgerMenuItem
             {
+                Key = "SqlScripts",
+                Title = "SQL Scripts",
+                IconKey = DocumentIconKeys.SqlScript,
+                HasSubmenu = true
+            },
+            new HamburgerMenuItem
+            {
                 Key = "RuntimeDisplays",
                 Title = "Runtime Displays",
                 IconKey = DocumentIconKeys.RuntimeDisplay,

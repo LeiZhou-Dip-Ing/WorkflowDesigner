@@ -15,7 +15,7 @@ namespace WorkflowCore.WpfDemo.Tests;
 public sealed class MainWindowViewModelUndoTests
 {
     [Fact]
-    public void Navigation_ExposesMethodsScriptsAndRuntimeDisplaysAsIndependentPeerItems()
+    public void Navigation_ExposesProjectDocumentKindsAsIndependentPeerItems()
     {
         using var viewModel = CreateViewModel();
 
@@ -30,6 +30,11 @@ public sealed class MainWindowViewModelUndoTests
             {
                 Assert.Equal("CSharpScripts", scripts.Key);
                 Assert.Equal(DocumentIconKeys.CSharpScript, scripts.IconKey);
+            },
+            sqlScripts =>
+            {
+                Assert.Equal("SqlScripts", sqlScripts.Key);
+                Assert.Equal(DocumentIconKeys.SqlScript, sqlScripts.IconKey);
             },
             runtimeDisplays =>
             {
@@ -48,6 +53,10 @@ public sealed class MainWindowViewModelUndoTests
         Assert.True(viewModel.IsScriptsSubmenuOpen);
 
         viewModel.SelectHamburgerMenuCommand.Execute(viewModel.HamburgerMenuItems[2]);
+        Assert.True(viewModel.IsSqlScriptsSubmenuOpen);
+        Assert.False(viewModel.IsRuntimeDisplaysSubmenuOpen);
+
+        viewModel.SelectHamburgerMenuCommand.Execute(viewModel.HamburgerMenuItems[3]);
         Assert.True(viewModel.IsSubmenuOpen);
         Assert.False(viewModel.IsMethodsSubmenuOpen);
         Assert.False(viewModel.IsScriptsSubmenuOpen);
@@ -115,6 +124,29 @@ public sealed class MainWindowViewModelUndoTests
 
         Assert.False(viewModel.IsSubmenuOpen);
         Assert.Single(viewModel.OpenedEditors, item => item.ContentId == $"script:{script.Uid:N}");
+    }
+
+    [Fact]
+    public void CreateSqlScript_UsesProjectCollectionAndSingleDockDocument()
+    {
+        using var viewModel = CreateViewModel();
+
+        viewModel.SelectCreateItemCommand.Execute("SqlScript");
+        viewModel.NewMethodName = "LookupOrders";
+        viewModel.ConfirmCreateMethodCommand.Execute(null);
+
+        var script = Assert.Single(viewModel.Project.SqlScripts, item => item.Name == "LookupOrders");
+        Assert.Contains(script, viewModel.SqlScripts);
+        Assert.Contains("SELECT", script.Content, StringComparison.Ordinal);
+        var pane = Assert.Single(viewModel.OpenedEditors, item => item.ContentId == $"sql-script:{script.Uid:N}");
+        Assert.Equal(DocumentIconKeys.SqlScript, pane.IconKey);
+        Assert.IsType<SqlScriptEditorViewModel>(pane.Content);
+
+        viewModel.SelectHamburgerMenuCommand.Execute(viewModel.HamburgerMenuItems[2]);
+        viewModel.OpenSqlScriptCommand.Execute(script);
+
+        Assert.False(viewModel.IsSubmenuOpen);
+        Assert.Single(viewModel.OpenedEditors, item => item.ContentId == $"sql-script:{script.Uid:N}");
     }
 
     [Fact]

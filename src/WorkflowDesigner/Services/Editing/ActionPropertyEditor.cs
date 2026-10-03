@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using WorkflowCore.WpfDemo.Editor;
 using WorkflowCore.WpfDemo.Models;
 using WorkflowRuntime.Contracts;
+using WorkflowCore.Execution;
 
 namespace WorkflowCore.WpfDemo.Services.Editing;
 
@@ -94,7 +95,8 @@ public sealed class ActionPropertyEditor : IActionPropertyEditor
         Func<string, WorkflowMethod?> methodResolver,
         Func<string?, IReadOnlyList<string>> suggestionProvider,
         Action valueChanged,
-        Action valueChanging)
+        Action valueChanging,
+        Func<string, WorkflowSqlScript?>? sqlScriptResolver = null)
     {
         ArgumentNullException.ThrowIfNull(line);
         ArgumentNullException.ThrowIfNull(method);
@@ -124,6 +126,16 @@ public sealed class ActionPropertyEditor : IActionPropertyEditor
                     suggestionProvider,
                     valueChanged,
                     valueChanging));
+                continue;
+            }
+
+            if (sqlScriptResolver != null && IsSqlParametersField(action, property))
+            {
+                var scriptName = ReadString(action.GetProperty("SqlScriptName"));
+                var script = scriptName == null ? null : sqlScriptResolver(scriptName);
+                if (script != null)
+                    result.AddRange(CreateSqlParameterItems(action, script, property.Order,
+                        suggestionProvider, valueChanged, valueChanging));
                 continue;
             }
 
@@ -390,6 +402,40 @@ public sealed class ActionPropertyEditor : IActionPropertyEditor
         }
     }
 
+    private static IEnumerable<ActionPropertyItem> CreateSqlParameterItems(
+        WorkflowAction action, WorkflowSqlScript script, int order,
+        Func<string?, IReadOnlyList<string>> suggestionProvider,
+        Action valueChanged, Action valueChanging)
+    {
+        foreach (var name in SqlScriptParameters.GetNames(script.Content))
+        {
+            var parameterName = name;
+            var field = new WorkflowActionFieldDto
+            {
+                Name = $"Parameters.{parameterName}",
+                DisplayName = parameterName,
+                Description = $"Value for SQL parameter '{parameterName}' in script '{script.Name}'.",
+                Category = "Action",
+                ValueType = "string",
+                Direction = "input",
+                Required = true,
+                Editor = WorkflowPropertyEditorKeys.Variable,
+                Order = order,
+                EditorOptions = new WorkflowActionEditorOptionsDto
+                {
+                    DataSource = "methodVariableExpressions",
+                    AllowCustomValue = true,
+                    AllowClear = true,
+                    Placeholder = "Select a PV or enter an expression"
+                }
+            };
+            yield return ActionPropertyItem.CreateMappedBinding(field,
+                () => ReadParameter(action, parameterName),
+                value => WriteParameter(action, parameterName, value),
+                valueChanged, suggestionProvider("methodVariableExpressions"), valueChanging);
+        }
+    }
+
     private static IEnumerable<ActionPropertyItem> CreateMethodReturnItems(
         WorkflowAction action,
         WorkflowMethod targetMethod,
@@ -470,6 +516,10 @@ public sealed class ActionPropertyEditor : IActionPropertyEditor
     private static bool IsMethodParametersField(WorkflowAction action, WorkflowActionFieldDto field)
         => string.Equals(field.Name, "Parameters", StringComparison.OrdinalIgnoreCase)
            && IsActionType(action, "runMethod");
+
+    private static bool IsSqlParametersField(WorkflowAction action, WorkflowActionFieldDto field)
+        => string.Equals(field.Name, "Parameters", StringComparison.OrdinalIgnoreCase)
+           && (IsActionType(action, "selectSql") || IsActionType(action, "modifySql"));
 
     private static bool IsMethodReturnsField(WorkflowAction action, WorkflowActionFieldDto field)
         => string.Equals(field.Name, "ReturnVarNames", StringComparison.OrdinalIgnoreCase)

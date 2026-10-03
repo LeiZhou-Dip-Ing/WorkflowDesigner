@@ -6,5 +6,7 @@ public static class DocumentIconKeys
 
     public const string CSharpScript = nameof(CSharpScript);
 
+    public const string SqlScript = nameof(SqlScript);
+
     public const string RuntimeDisplay = nameof(RuntimeDisplay);
 }

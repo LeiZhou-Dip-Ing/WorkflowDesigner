@@ -89,6 +89,7 @@ public partial class App : PrismApplication
         containerRegistry.Register<MainWindowViewModel>();
         containerRegistry.RegisterSingleton<ApplicationShellViewModel>();
         containerRegistry.RegisterSingleton<EmailSettingsViewModel>();
+        containerRegistry.RegisterSingleton<DatabaseSettingsViewModel>();
         containerRegistry.Register<MethodEditorViewModel>();
         containerRegistry.Register<CSharpScriptEditorViewModel>();
         containerRegistry.Register<MethodEditorView>();

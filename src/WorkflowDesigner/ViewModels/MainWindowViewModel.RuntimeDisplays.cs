@@ -19,6 +19,7 @@ public sealed partial class MainWindowViewModel
     {
         Method,
         CSharpScript,
+        SqlScript,
         RuntimeDisplay,
         RuntimeDisplayRename
     }

@@ -22,6 +22,8 @@ public sealed class WorkflowProject
 
     public List<WorkflowScript> Scripts { get; set; } = new();
 
+    public List<WorkflowSqlScript> SqlScripts { get; set; } = new();
+
     public List<RuntimeDisplayDefinition> RuntimeDisplays { get; set; } = new();
 
     public List<SharpScriptLibraryReferenceDto> ScriptLibraries { get; set; } = new();
@@ -45,6 +47,7 @@ public enum WorkflowEditorDocumentKind
 {
     Method,
     CSharpScript,
+    SqlScript,
     RuntimeDisplay
 }
 
@@ -54,11 +57,13 @@ public sealed class WorkflowEditorDocument
         WorkflowEditorDocumentKind kind,
         WorkflowMethod? method,
         WorkflowScript? script,
+        WorkflowSqlScript? sqlScript,
         RuntimeDisplayDefinition? runtimeDisplay)
     {
         Kind = kind;
         Method = method;
         Script = script;
+        SqlScript = sqlScript;
         RuntimeDisplay = runtimeDisplay;
     }
 
@@ -68,19 +73,41 @@ public sealed class WorkflowEditorDocument
 
     public WorkflowScript? Script { get; }
 
+    public WorkflowSqlScript? SqlScript { get; }
+
     public RuntimeDisplayDefinition? RuntimeDisplay { get; }
 
-    public string Name => Method?.Name ?? Script?.Name ?? RuntimeDisplay?.Name ?? string.Empty;
+    public string Name => Method?.Name ?? Script?.Name ?? SqlScript?.Name ?? RuntimeDisplay?.Name ?? string.Empty;
 
     public static WorkflowEditorDocument FromMethod(WorkflowMethod method)
-        => new(WorkflowEditorDocumentKind.Method, method ?? throw new ArgumentNullException(nameof(method)), null, null);
+        => new(WorkflowEditorDocumentKind.Method, method ?? throw new ArgumentNullException(nameof(method)), null, null, null);
 
     public static WorkflowEditorDocument FromScript(WorkflowScript script)
-        => new(WorkflowEditorDocumentKind.CSharpScript, null, script ?? throw new ArgumentNullException(nameof(script)), null);
+        => new(WorkflowEditorDocumentKind.CSharpScript, null, script ?? throw new ArgumentNullException(nameof(script)), null, null);
+
+    public static WorkflowEditorDocument FromSqlScript(WorkflowSqlScript sqlScript)
+        => new(WorkflowEditorDocumentKind.SqlScript, null, null, sqlScript ?? throw new ArgumentNullException(nameof(sqlScript)), null);
 
     public static WorkflowEditorDocument FromRuntimeDisplay(RuntimeDisplayDefinition runtimeDisplay)
-        => new(WorkflowEditorDocumentKind.RuntimeDisplay, null, null,
+        => new(WorkflowEditorDocumentKind.RuntimeDisplay, null, null, null,
             runtimeDisplay ?? throw new ArgumentNullException(nameof(runtimeDisplay)));
+}
+
+public sealed class WorkflowSqlScript : EditorObservableObject
+{
+    private Guid _uid = Guid.NewGuid();
+    private string _name = string.Empty;
+    private string _content = string.Empty;
+
+    public Guid Uid { get => _uid; set => SetProperty(ref _uid, value); }
+
+    public string Name { get => _name; set => SetProperty(ref _name, value); }
+
+    public string Content { get => _content; set => SetProperty(ref _content, value); }
+
+    public string DisplayFileName => Name.EndsWith(".sql", StringComparison.OrdinalIgnoreCase) ? Name : Name + ".sql";
+
+    internal JsonObject ExtensionData { get; set; } = new();
 }
 
 public enum RuntimeDisplayProvider

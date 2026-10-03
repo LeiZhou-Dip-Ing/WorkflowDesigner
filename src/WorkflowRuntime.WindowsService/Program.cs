@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Net;
 using WorkflowCore.Actions;
 using WorkflowCore.Communication;
+using WorkflowCore.Execution;
 using WorkflowCore.Design;
 using WorkflowCore.Serialization;
 using WorkflowRuntime.Application.Catalog;
@@ -57,6 +58,13 @@ public static class Program
             new RuntimeEmailSettingsStore(options.StorageDirectory, options.Email));
         builder.Services.AddSingleton<IWorkflowEmailSender>(provider =>
             provider.GetRequiredService<RuntimeEmailSettingsStore>());
+        var configuredSqlConnectionString = builder.Configuration["WorkflowRuntime:Sql:ConnectionString"];
+        var sqlConnectionString = string.IsNullOrWhiteSpace(configuredSqlConnectionString)
+            ? Environment.GetEnvironmentVariable("WORKFLOW_SQL_CONNECTION_STRING")
+            : configuredSqlConnectionString;
+        builder.Services.AddSingleton(_ => new RuntimeDatabaseSettingsStore(options.StorageDirectory, sqlConnectionString));
+        builder.Services.AddSingleton<IWorkflowSqlExecutor>(provider => provider.GetRequiredService<RuntimeDatabaseSettingsStore>());
+        builder.Services.AddSingleton<SqlScriptPreviewService>();
         builder.Services.Configure<FormOptions>(formOptions =>
             formOptions.MultipartBodyLengthLimit = options.MaximumScriptLibraryBytes);
         var runRetention = new RunRetentionOptions
@@ -136,6 +144,35 @@ public static class Program
         app.UseWorkflowRuntimeApiDocumentation();
         app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
         app.MapWorkflowRuntimeEndpoints();
+
+        app.MapPost("/api/workflow-runtime/sql/preview",
+            async (HttpContext context, SqlScriptPreviewRequest request,
+                SqlScriptPreviewService preview, CancellationToken cancellationToken) =>
+            {
+                if (!IPAddress.IsLoopback(context.Connection.RemoteIpAddress ?? IPAddress.None))
+                    return Results.StatusCode(StatusCodes.Status403Forbidden);
+                return Results.Ok(await preview.RunAsync(request, cancellationToken));
+            });
+
+        app.MapGet("/api/workflow-runtime/settings/database", (HttpContext context, RuntimeDatabaseSettingsStore settings) =>
+            IPAddress.IsLoopback(context.Connection.RemoteIpAddress ?? IPAddress.None)
+                ? Results.Ok(settings.GetSettings()) : Results.StatusCode(StatusCodes.Status403Forbidden));
+
+        app.MapPut("/api/workflow-runtime/settings/database", (HttpContext context,
+            RuntimeDatabaseSettingsUpdate update, RuntimeDatabaseSettingsStore settings) =>
+        {
+            if (!IPAddress.IsLoopback(context.Connection.RemoteIpAddress ?? IPAddress.None))
+                return Results.StatusCode(StatusCodes.Status403Forbidden);
+            try { return Results.Ok(settings.Save(update)); }
+            catch (Exception error) when (error is ArgumentException or FormatException)
+            { return Results.BadRequest(new { error = error.Message }); }
+        });
+
+        app.MapPost("/api/workflow-runtime/settings/database/test", async (HttpContext context,
+            RuntimeDatabaseSettingsStore settings, CancellationToken cancellationToken) =>
+            IPAddress.IsLoopback(context.Connection.RemoteIpAddress ?? IPAddress.None)
+                ? Results.Ok(await settings.TestConnectionAsync(cancellationToken))
+                : Results.StatusCode(StatusCodes.Status403Forbidden));
 
         app.MapGet(
                 "/api/workflow-runtime/runtime-displays",

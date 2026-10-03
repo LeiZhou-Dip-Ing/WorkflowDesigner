@@ -1,0 +1,74 @@
+<UserControl x:Class="WorkflowCore.WpfDemo.Views.BasicDatabaseSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppPanelBrush}" Foreground="{DynamicResource AppTextBrush}">
+    <UserControl.Resources>
+        <Style x:Key="DatabaseLabel" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="16,0" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style x:Key="DatabaseDetail" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="16,0" />
+            <Setter Property="Foreground" Value="{DynamicResource AppMutedTextBrush}" />
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="32,24,32,30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Runtime / Basic Settings" FontSize="12" Foreground="{DynamicResource AppSubtleTextBrush}" />
+                <TextBlock Text="Database" FontSize="24" FontWeight="SemiBold" Margin="0,5,0,0" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Status}" MaxWidth="340" TextWrapping="Wrap" VerticalAlignment="Center"
+                           Margin="0,0,16,0" Foreground="{DynamicResource AppMutedTextBrush}" />
+                <Button Content="Test connection" Command="{Binding TestCommand}" MinWidth="120" Height="36" Margin="0,0,8,0" />
+                <Button Content="Refresh" Command="{Binding RefreshCommand}" MinWidth="88" Height="36" Margin="0,0,8,0" />
+                <Button Content="Save changes" Command="{Binding SaveCommand}" MinWidth="116" Height="36"
+                        Margin="0,0,12,0" Background="{DynamicResource AppPrimaryBrush}"
+                        Foreground="{DynamicResource AppPanelBrush}" BorderBrush="{DynamicResource AppPrimaryBrush}" />
+                <Button Command="{Binding DataContext.CloseBasicSettingsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                        Width="36" Height="36" ToolTip="Close settings">
+                    <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="13" />
+                </Button>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1" Margin="0,24,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.2*" MinWidth="215" />
+                <ColumnDefinition Width="3.5*" MinWidth="260" />
+                <ColumnDefinition Width="1.2*" MinWidth="105" />
+                <ColumnDefinition Width="2.9*" MinWidth="240" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="42" /><RowDefinition Height="38" />
+                <RowDefinition Height="54" /><RowDefinition Height="54" /><RowDefinition Height="54" />
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Grid.ColumnSpan="4" Background="{DynamicResource AppSelectedBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,1,0,1" />
+            <Border Grid.Row="1" Grid.ColumnSpan="4" Background="{DynamicResource AppDataGridHeaderBrush}"
+                    BorderBrush="{DynamicResource AppGridLineBrush}" BorderThickness="0,0,0,1" />
+            <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="SQL Server connection" Style="{StaticResource DatabaseLabel}" />
+            <TextBlock Grid.Row="1" Text="Identifier" Style="{StaticResource DatabaseDetail}" FontWeight="SemiBold" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="Current value" Style="{StaticResource DatabaseDetail}" FontWeight="SemiBold" />
+            <TextBlock Grid.Row="1" Grid.Column="3" Text="Description" Style="{StaticResource DatabaseDetail}" FontWeight="SemiBold" />
+            <TextBlock Grid.Row="2" Text="Server" Style="{StaticResource DatabaseLabel}" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Server}" Style="{StaticResource DatabaseDetail}" />
+            <TextBlock Grid.Row="2" Grid.Column="3" Text="Configured SQL Server" Style="{StaticResource DatabaseDetail}" />
+            <TextBlock Grid.Row="3" Text="Database" Style="{StaticResource DatabaseLabel}" />
+            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Database}" Style="{StaticResource DatabaseDetail}" />
+            <TextBlock Grid.Row="3" Grid.Column="3" Text="Default database" Style="{StaticResource DatabaseDetail}" />
+            <TextBlock Grid.Row="4" Text="Connection string" Style="{StaticResource DatabaseLabel}" />
+            <PasswordBox x:Name="ConnectionStringInput" Grid.Row="4" Grid.Column="1" Height="34" Margin="12,0"
+                         Padding="8,4" VerticalAlignment="Center" PasswordChanged="ConnectionStringChanged" />
+            <CheckBox Grid.Row="4" Grid.Column="3" Content="Clear saved connection" IsChecked="{Binding ClearConnection}"
+                      Margin="16,0" VerticalAlignment="Center" />
+        </Grid>
+    </Grid>
+</UserControl>

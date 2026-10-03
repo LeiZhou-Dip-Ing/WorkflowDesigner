@@ -9,8 +9,9 @@ public sealed class GrafanaServerHostedService : IHostedService, IDisposable
 {
     private readonly GrafanaRuntimeOptions _options;
     private readonly ILogger<GrafanaServerHostedService> _logger;
-    private readonly HttpClient _httpClient = new();
+    private readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(3) };
     private Process? _ownedProcess;
+    private string _lastHealthFailure = "Grafana has not answered the health request.";
 
     public GrafanaServerHostedService(
         WorkflowRuntimeOptions runtimeOptions,
@@ -35,9 +36,9 @@ public sealed class GrafanaServerHostedService : IHostedService, IDisposable
         if (!File.Exists(_options.ServerExecutablePath))
             throw new FileNotFoundException("Configured Grafana server executable was not found.", _options.ServerExecutablePath);
 
-        var workingDirectory = string.IsNullOrWhiteSpace(_options.ServerWorkingDirectory)
+        var workingDirectory = Path.GetFullPath(string.IsNullOrWhiteSpace(_options.ServerWorkingDirectory)
             ? Path.GetDirectoryName(_options.ServerExecutablePath)!
-            : _options.ServerWorkingDirectory;
+            : _options.ServerWorkingDirectory);
         var arguments = _options.ServerArguments.Trim();
         if (!arguments.Contains("--homepath", StringComparison.OrdinalIgnoreCase))
         {
@@ -54,21 +55,31 @@ public sealed class GrafanaServerHostedService : IHostedService, IDisposable
         }) ?? throw new InvalidOperationException("Grafana server process could not be started.");
 
         var deadline = DateTimeOffset.UtcNow.AddSeconds(_options.StartupTimeoutSeconds);
-        while (DateTimeOffset.UtcNow < deadline)
+        try
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            if (_ownedProcess.HasExited)
-                throw new InvalidOperationException($"Grafana server exited with code {_ownedProcess.ExitCode} during startup.");
-            if (await IsHealthyAsync(cancellationToken).ConfigureAwait(false))
+            while (DateTimeOffset.UtcNow < deadline)
             {
-                _logger.LogInformation("Started Grafana at {BaseUrl}.", _options.BaseUrl);
-                return;
+                cancellationToken.ThrowIfCancellationRequested();
+                if (_ownedProcess.HasExited)
+                    throw new InvalidOperationException(
+                        $"Grafana exited with code {_ownedProcess.ExitCode} during startup. Check {GetLogPath(workingDirectory)}.");
+                if (await IsHealthyAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    _logger.LogInformation("Started Grafana at {BaseUrl}.", _options.BaseUrl);
+                    return;
+                }
+                await Task.Delay(500, cancellationToken).ConfigureAwait(false);
             }
-            await Task.Delay(500, cancellationToken).ConfigureAwait(false);
-        }
 
-        StopOwnedProcess();
-        throw new TimeoutException($"Grafana did not become healthy within {_options.StartupTimeoutSeconds} seconds.");
+            throw new TimeoutException(
+                $"Grafana did not become healthy within {_options.StartupTimeoutSeconds} seconds at {_options.BaseUrl}/api/health. "
+                + $"Last check: {_lastHealthFailure} Check {GetLogPath(workingDirectory)}.");
+        }
+        catch
+        {
+            StopOwnedProcess();
+            throw;
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
@@ -83,13 +94,24 @@ public sealed class GrafanaServerHostedService : IHostedService, IDisposable
         {
             using var response = await _httpClient.GetAsync(
                 $"{_options.BaseUrl.TrimEnd('/')}/api/health", cancellationToken).ConfigureAwait(false);
-            return response.IsSuccessStatusCode;
+            if (response.IsSuccessStatusCode) return true;
+            _lastHealthFailure = $"HTTP {(int)response.StatusCode} ({response.ReasonPhrase}).";
+            return false;
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException error)
         {
+            _lastHealthFailure = error.Message;
+            return false;
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            _lastHealthFailure = "Health request timed out.";
             return false;
         }
     }
+
+    private static string GetLogPath(string workingDirectory)
+        => Path.Combine(workingDirectory, "data", "log", "grafana.log");
 
     private void StopOwnedProcess()
     {
